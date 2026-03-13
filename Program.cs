@@ -1,4 +1,6 @@
 
+using Yandex_ASPNET_Ticket_Service.Models;
+
 namespace Yandex_ASPNET_Ticket_Service;
 
 public class Program
@@ -9,29 +11,33 @@ public class Program
 
         // Add services to the container.
 
-        builder.Services.Configure<RouteOptions>(options =>
-        {
-            options.ConstraintMap.Add("event", typeof(Event));
-        });
+        //builder.Services.Configure<RouteOptions>(options =>
+        //{
+        //    options.ConstraintMap.Add("event", typeof(Event));
+        //});
 
         builder.Services.AddAuthorization();
 
+        builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddControllers();
 
         builder.Services.AddSwaggerGen();
 
-        builder.Services.AddScoped<IEventService, EventService>();
+        builder.Services.AddSingleton<IEventService, EventService>();
 
         var app = builder.Build();
 
-        app.MapControllers();
-        
-        app.UseSwagger();
-        app.UseSwaggerUI();
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseSwagger();
+            app.UseSwaggerUI();
+        }
 
         app.UseHttpsRedirection();
 
-        app.UseAuthorization();
+        //app.UseAuthorization();
+
+        app.MapControllers();
 
         app.Run();
     }

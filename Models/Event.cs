@@ -1,6 +1,6 @@
 namespace Yandex_ASPNET_Ticket_Service.Models;
 
-public class Event : IRouteConstraint
+public class Event
 {
     public Guid Id { get; set; }
     public string Title { get; set; }

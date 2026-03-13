@@ -1,3 +1,5 @@
+using Yandex_ASPNET_Ticket_Service.Models;
+
 namespace Yandex_ASPNET_Ticket_Service;
 
 public interface IEventService
