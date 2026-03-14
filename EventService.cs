@@ -25,14 +25,19 @@ public class EventService : IEventService
     {
         var index = events.FindIndex(e => e.Id == id);
 
-        if (index >= 0) 
+        if (index >= 0)
         {
             events[index] = @event;
         }
     }
 
-    public void DeleteEvent(Guid id) 
+    public void DeleteEvent(Guid id)
     {
-        events.Remove(events.First(e => e.Id == id));
+        var index = events.FindIndex(e => e.Id == id);
+
+        if (index >= 0)
+        {
+            events.RemoveAt(index);
+        }
     }
 }

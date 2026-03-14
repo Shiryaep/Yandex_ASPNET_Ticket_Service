@@ -1,4 +1,3 @@
-
 using Yandex_ASPNET_Ticket_Service.Models;
 
 namespace Yandex_ASPNET_Ticket_Service;
@@ -8,15 +7,6 @@ public class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
-
-        // Add services to the container.
-
-        //builder.Services.Configure<RouteOptions>(options =>
-        //{
-        //    options.ConstraintMap.Add("event", typeof(Event));
-        //});
-
-        builder.Services.AddAuthorization();
 
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddControllers();
@@ -35,7 +25,7 @@ public class Program
 
         app.UseHttpsRedirection();
 
-        //app.UseAuthorization();
+        app.UseRouting();
 
         app.MapControllers();
 
