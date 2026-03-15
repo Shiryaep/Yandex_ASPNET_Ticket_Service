@@ -11,7 +11,7 @@ public class EventService : IEventService
         events.Add(@event);
     }
 
-    public Event GetEvent(Guid id)
+    public Event? GetEvent(Guid id)
     {
         return events.FirstOrDefault(e => e.Id == id);
     }

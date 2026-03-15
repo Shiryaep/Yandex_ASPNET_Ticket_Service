@@ -6,7 +6,7 @@ namespace Yandex_ASPNET_Ticket_Service.Controllers;
 [ApiController]
 [Route("[controller]")]
 
-public class EventController(IEventService _eventService) : ControllerBase
+public class EventsController(IEventService _eventService) : ControllerBase
 {
     [HttpGet]
     public ActionResult<List<Event>> GetAllEvents()
@@ -17,7 +17,12 @@ public class EventController(IEventService _eventService) : ControllerBase
     [HttpGet("{id:Guid}")]
     public ActionResult<Event> GetEventById(Guid id)
     {
-        return _eventService.GetEvent(id);
+        var eventItem = _eventService.GetEvent(id);
+        if (eventItem == null)
+        {
+            return NotFound();
+        }
+        return eventItem;
     }
 
     [HttpPost]
