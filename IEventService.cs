@@ -6,7 +6,7 @@ public interface IEventService
 {
     public List<Event> GetEvents();
 
-    public Event GetEvent(Guid id);
+    public Event? GetEvent(Guid id);
 
     public void AddEvent(Event @event);
 
