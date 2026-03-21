@@ -2,8 +2,10 @@ using Yandex_ASPNET_Ticket_Service.Models;
 
 namespace Yandex_ASPNET_Ticket_Service;
 
+/// <summary> Basis of all project </summary>
 public class Program
 {
+    /// <summary> Program entery point </summary>
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
