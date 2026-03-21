@@ -1,3 +1,4 @@
+using Yandex_ASPNET_Ticket_Service.Middleware;
 using Yandex_ASPNET_Ticket_Service.Models;
 
 namespace Yandex_ASPNET_Ticket_Service;
@@ -26,6 +27,9 @@ public class Program
         }
 
         app.UseHttpsRedirection();
+
+        // Custom Middleware for error handling
+        app.UseMiddleware<ExceptionHandlingMiddleware>();
 
         app.UseRouting();
 

@@ -51,4 +51,11 @@ public class EventsController(IEventService _eventService) : ControllerBase
         return new OkResult();
     }
 
+    /// <summary> Trigger an exception </summary>
+    [HttpGet("throw")]
+    public IActionResult Throw()
+    {
+        throw new ArgumentException("Test exception");
+    }
+
 }
