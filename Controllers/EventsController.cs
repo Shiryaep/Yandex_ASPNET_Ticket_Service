@@ -57,5 +57,4 @@ public class EventsController(IEventService _eventService) : ControllerBase
     {
         throw new ArgumentException("Test exception");
     }
-
 }
