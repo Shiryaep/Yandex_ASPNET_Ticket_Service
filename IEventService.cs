@@ -6,7 +6,9 @@ namespace Yandex_ASPNET_Ticket_Service;
 public interface IEventService
 {
     /// <summary> Return all created events as list </summary> 
-    public List<Event> GetEvents(string? title = null, DateTime? from = null, DateTime? to = null);
+    public PaginatedResult<Event> GetEvents(string? title, 
+        DateTime? from, DateTime? to,
+        int page, int pageSize);
 
     /// <summary> Return event by ID </summary> 
     public Event? GetEvent(Guid id);

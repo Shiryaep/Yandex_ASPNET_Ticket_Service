@@ -8,9 +8,11 @@ public class EventService : IEventService
     private List<Event> events = new List<Event>();
 
     /// <summary> Return all created events as list using filters</summary> 
-    public List<Event> GetEvents(string? title = null,
+    public PaginatedResult<Event> GetEvents(string? title = null,
                                 DateTime? from = null,
-                                DateTime? to = null)
+                                DateTime? to = null,
+                                int page = 1,
+                                int pageSize = 10)
     {
         var eventsLocal = new List<Event>(events);
 
@@ -32,7 +34,12 @@ public class EventService : IEventService
             eventsLocal = eventsLocal.Where(e => e.EndAt <= to.Value)
                 .ToList();
         }
-        return eventsLocal;
+
+        int allEventsCount = eventsLocal.Count;
+
+        eventsLocal = eventsLocal.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+        return new PaginatedResult<Event>(eventsLocal, allEventsCount, page, pageSize);
     }
 
     /// <summary> Return event by ID </summary> 
