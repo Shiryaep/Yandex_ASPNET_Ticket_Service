@@ -7,10 +7,32 @@ public class EventService : IEventService
 {
     private List<Event> events = new List<Event>();
 
-    /// <summary> Return all created events as list </summary> 
-    public List<Event> GetEvents()
+    /// <summary> Return all created events as list using filters</summary> 
+    public List<Event> GetEvents(string? title = null,
+                                DateTime? from = null,
+                                DateTime? to = null)
     {
-        return events;
+        var eventsLocal = new List<Event>(events);
+
+        if (!string.IsNullOrEmpty(title))
+        {
+            eventsLocal = eventsLocal.Where(e => e.Title != null &&
+            e.Title.Contains(title, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+
+        if (from.HasValue)
+        {
+            eventsLocal = eventsLocal.Where(e => e.StartAt >= from.Value)
+                .ToList();
+        }
+
+        if (to.HasValue)
+        {
+            eventsLocal = eventsLocal.Where(e => e.EndAt <= to.Value)
+                .ToList();
+        }
+        return eventsLocal;
     }
 
     /// <summary> Return event by ID </summary> 

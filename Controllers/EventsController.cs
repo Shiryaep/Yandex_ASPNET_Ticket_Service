@@ -10,9 +10,10 @@ public class EventsController(IEventService _eventService) : ControllerBase
 {
     /// <summary> Return all created events as list </summary> 
     [HttpGet]
-    public ActionResult<List<Event>> GetAllEvents()
+    public ActionResult<List<Event>> GetAllEvents(string? title = null,
+        DateTime? from = null, DateTime? to = null)
     {
-        return _eventService.GetEvents();
+        return _eventService.GetEvents(title, from, to);
     }
 
     /// <summary> Return event by received ID </summary> 

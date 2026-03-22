@@ -25,14 +25,23 @@ public class Program
             app.UseSwagger();
             app.UseSwaggerUI();
         }
-
+        
+        //1. HTTPS redirection
         app.UseHttpsRedirection();
 
-        // Custom Middleware for error handling
-        app.UseMiddleware<ExceptionHandlingMiddleware>();
+        //2. Static Files Usage
 
+        //2.5 Error handling
+        app.UseMiddleware<ExceptionHandlingMiddleware>();
+        
+        //3. Routing
         app.UseRouting();
 
+        //4. CORS
+        //5. Authentication
+        //6. Authorization
+        
+        //7. Endpoints
         app.MapControllers();
 
         app.Run();
