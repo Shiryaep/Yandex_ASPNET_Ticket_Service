@@ -16,7 +16,7 @@
 
    ```bash
    git clone https://github.com/Shiryaep/Yandex_ASPNET_Ticket_Service.git
-   cd .\Yandex_ASPNET_Ticket_Service\
+   cd .\Yandex_ASPNET_Ticket_Service\Yandex_ASPNET_Ticket_Service\
    ```
 3. Выполните команду для восстановления зависимостей:
 
@@ -33,9 +33,16 @@
 ## Запуск приложения
 ### Способ 1. Через командную строку
 
-Запустите приложение находясь в папке проекта:
+Запустите приложение сразу после сборки:
 
 ```bash
+dotnet run
+```
+
+Запустите приложение из папки проекта:
+
+```bash
+cd .\Yandex_ASPNET_Ticket_Service\
 dotnet run
 ```
 
@@ -96,6 +103,7 @@ https://localhost:7011/swagger
     
     Запуск тестов командой в папке проекта 
     ```
+    cd .\EventService.Tests\
     dotnet test
     ```
 
