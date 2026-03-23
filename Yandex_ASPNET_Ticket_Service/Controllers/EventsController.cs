@@ -37,6 +37,11 @@ public class EventsController(IEventService _eventService) : ControllerBase
     [HttpPost]
     public IActionResult Post([FromBody] Event @event)
     {
+        if(!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         var created = _eventService.AddEvent(@event);
         return CreatedAtAction(nameof(GetEventById), new { id = created.Id }, created);
     }
@@ -45,6 +50,11 @@ public class EventsController(IEventService _eventService) : ControllerBase
     [HttpPut("{id:Guid}")]
     public IActionResult Put(Guid id, [FromBody] Event @event)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         _eventService.UpdateEvent(id, @event);
         return new NoContentResult();
     }

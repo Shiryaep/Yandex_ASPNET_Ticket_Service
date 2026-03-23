@@ -5,6 +5,8 @@ VisualStudioVersion = 18.3.11520.95
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yandex_ASPNET_Ticket_Service", "Yandex_ASPNET_Ticket_Service\Yandex_ASPNET_Ticket_Service.csproj", "{E7461CEA-2B52-6BA9-3393-FDC5108634CD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventService_Tests", "EventService.Tests\EventService_Tests.csproj", "{03455E3F-21AA-461B-AE9B-919FD221157F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{E7461CEA-2B52-6BA9-3393-FDC5108634CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E7461CEA-2B52-6BA9-3393-FDC5108634CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E7461CEA-2B52-6BA9-3393-FDC5108634CD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{03455E3F-21AA-461B-AE9B-919FD221157F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{03455E3F-21AA-461B-AE9B-919FD221157F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{03455E3F-21AA-461B-AE9B-919FD221157F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{03455E3F-21AA-461B-AE9B-919FD221157F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
