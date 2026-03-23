@@ -16,7 +16,7 @@
 
    ```bash
    git clone https://github.com/Shiryaep/Yandex_ASPNET_Ticket_Service.git
-   cd .\Yandex_ASPNET_Ticket_Service\
+   cd .\Yandex_ASPNET_Ticket_Service\Yandex_ASPNET_Ticket_Service\
    ```
 3. Выполните команду для восстановления зависимостей:
 
@@ -33,9 +33,16 @@
 ## Запуск приложения
 ### Способ 1. Через командную строку
 
-Запустите приложение:
+Запустите приложение сразу после сборки:
 
 ```bash
+dotnet run
+```
+
+Запустите приложение из папки проекта:
+
+```bash
+cd .\Yandex_ASPNET_Ticket_Service\
 dotnet run
 ```
 
@@ -79,3 +86,26 @@ https://localhost:7011/swagger
 
     DELETE /events/{id} - удалить событие по ID
 
+## Обновление для API
+
+ - Появились фильтры
+    ```
+    GET /events — получить список событий с фильтрами:
+    
+    [String]    title - по заголовку
+    [DateTime]  from - по дате начала
+    [DateTime]  to - по дате окончания
+    [Int]       page - текущая страница (default: 1)
+    [Int]       pageSize - событий на странице (default: 10)
+    ```
+
+ - Появились тесты
+    
+    Запуск тестов командой в папке проекта 
+    ```
+    cd .\EventService.Tests\
+    dotnet test
+    ```
+
+## Формат ошибок
+API использует формат ошибок [Problem Details (RFC 7807)](https://datatracker.ietf.org/doc/html/rfc7807)
