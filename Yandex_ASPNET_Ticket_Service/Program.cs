@@ -1,3 +1,4 @@
+using Yandex_ASPNET_Ticket_Service.BookingServices;
 using Yandex_ASPNET_Ticket_Service.EventServices;
 using Yandex_ASPNET_Ticket_Service.Middleware;
 
@@ -17,6 +18,7 @@ public class Program
         builder.Services.AddSwaggerGen();
 
         builder.Services.AddSingleton<IEventService, EventService>();
+        builder.Services.AddSingleton<IBookingService, BookingService>();
 
         var app = builder.Build();
 
