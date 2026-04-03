@@ -26,6 +26,13 @@ public class Program
         {
             app.UseSwagger();
             app.UseSwaggerUI();
+            var autoSwagger = bool.Parse(Environment.GetEnvironmentVariable("ASPNETCORE_SWAGGER_AUTO_OPEN")?.ToLower() ?? "false");
+            if (autoSwagger)
+            {
+                var port = Environment.GetEnvironmentVariable("ASPNETCORE_HTTPS_PORT") ?? "5000";
+                var swaggerUrl = $"https://localhost:{port}/swagger/index.html";
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(swaggerUrl) { UseShellExecute = true });
+            }
         }
         
         //1. HTTPS redirection
