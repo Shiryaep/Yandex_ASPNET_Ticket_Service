@@ -1,6 +1,7 @@
-using Yandex_ASPNET_Ticket_Service.BookingServices;
-using Yandex_ASPNET_Ticket_Service.EventServices;
 using Yandex_ASPNET_Ticket_Service.Middleware;
+using Yandex_ASPNET_Ticket_Service.Services.BookingServices;
+using Yandex_ASPNET_Ticket_Service.Services.EventServices;
+using Yandex_ASPNET_Ticket_Service.Storage;
 
 namespace Yandex_ASPNET_Ticket_Service;
 
@@ -17,8 +18,9 @@ public class Program
 
         builder.Services.AddSwaggerGen();
 
-        builder.Services.AddSingleton<IEventService, EventService>();
         builder.Services.AddSingleton<IBookingService, BookingService>();
+        builder.Services.AddSingleton<IEventService, EventService>();
+        builder.Services.AddSingleton<IBookingStorage, InMemoryBookingStorage>();
 
         var app = builder.Build();
 

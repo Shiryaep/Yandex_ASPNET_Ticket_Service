@@ -28,9 +28,9 @@ public class Booking
     ///<summary> Booking constuctor </summary>
     public Booking(Guid eventID) 
     {
-        Id = new Guid();
+        Id = Guid.NewGuid();
         EventId = eventID;
         Status = BookingStatus.Pending;
-        CreatedAt = DateTime.Now;
+        CreatedAt = DateTime.UtcNow;
     }
 }

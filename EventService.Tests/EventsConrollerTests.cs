@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Yandex_ASPNET_Ticket_Service.Controllers;
-using Yandex_ASPNET_Ticket_Service.EventServices;
 using Yandex_ASPNET_Ticket_Service.Models;
+using Yandex_ASPNET_Ticket_Service.Services.BookingServices;
+using Yandex_ASPNET_Ticket_Service.Services.EventServices;
 
 namespace EventService_Tests
 {
@@ -13,7 +14,8 @@ namespace EventService_Tests
         {
             // Arrange
             var mockEventService = new Mock<IEventService>();
-            var controller = new EventsController(mockEventService.Object);
+            var mockBookingService = new Mock<IBookingService>();
+            var controller = new EventsController(mockEventService.Object, mockBookingService.Object);
             controller.ModelState.AddModelError("Error", "Error");
 
             // Act
@@ -29,7 +31,8 @@ namespace EventService_Tests
         {
             // Arrange
             var mockEventService = new Mock<IEventService>();
-            var controller = new EventsController(mockEventService.Object);
+            var mockBookingService = new Mock<IBookingService>();
+            var controller = new EventsController(mockEventService.Object, mockBookingService.Object);
             controller.ModelState.AddModelError("Error", "Error");
 
             // Act

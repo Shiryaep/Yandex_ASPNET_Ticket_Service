@@ -1,13 +1,15 @@
 using Microsoft.AspNetCore.Mvc;
-using Yandex_ASPNET_Ticket_Service.EventServices;
 using Yandex_ASPNET_Ticket_Service.Models;
+using Yandex_ASPNET_Ticket_Service.Models.DTO;
+using Yandex_ASPNET_Ticket_Service.Services.BookingServices;
+using Yandex_ASPNET_Ticket_Service.Services.EventServices;
 
 namespace Yandex_ASPNET_Ticket_Service.Controllers;
 
 /// <summary> Events Controller process /events requests </summary> 
 [ApiController]
-public class EventsController(IEventService _eventService) : ControllerBase
 [Route("api/[controller]")]
+public class EventsController(IEventService _eventService, IBookingService _bookingService) : ControllerBase
 {
     /// <summary> Return all created events as list </summary> 
     [HttpGet]
@@ -46,6 +48,30 @@ public class EventsController(IEventService _eventService) : ControllerBase
         return CreatedAtAction(nameof(GetEventById), new { id = created.Id }, created);
     }
 
+    [HttpPost("{id:Guid}/book")]
+    [ProducesResponseType(typeof(Booking), StatusCodes.Status202Accepted)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public IActionResult Post(Guid id)
+    {
+        Event? @event = _eventService.GetEvent(id);
+        if (@event == null) return NotFound(new { message = $"Event with id [{id}] not found" });
+        else
+        {
+            var booking = _bookingService.CreateBookingAsync(id).Result;
+
+            var response = new BookingResponseDto
+            {
+                Id = booking.Id,
+                EventId = booking.EventId,
+                Status = booking.Status,
+                CreatedAt = booking.CreatedAt,
+                ProcessedAt = booking.ProcessedAt
+            };
+
+            return AcceptedAtAction(actionName: "GetBooking", controllerName: "Bookings", routeValues: new { bookingId = booking.Id }, value: booking);
+        }
+    }
+
     /// <summary> Replace existing event by ID </summary> 
     [HttpPut("{id:Guid}")]
     public IActionResult Put(Guid id, [FromBody] Event @event)
@@ -65,12 +91,5 @@ public class EventsController(IEventService _eventService) : ControllerBase
     {
         _eventService.DeleteEvent(id);
         return new OkResult();
-    }
-
-    /// <summary> Trigger an exception </summary>
-    [HttpGet("throw")]
-    public IActionResult Throw()
-    {
-        throw new ArgumentException("Test exception");
     }
 }

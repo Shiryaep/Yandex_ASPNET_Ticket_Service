@@ -1,5 +1,5 @@
-using Yandex_ASPNET_Ticket_Service.EventServices;
 using Yandex_ASPNET_Ticket_Service.Models;
+using Yandex_ASPNET_Ticket_Service.Services.EventServices;
 
 namespace EventService_Tests;
 
