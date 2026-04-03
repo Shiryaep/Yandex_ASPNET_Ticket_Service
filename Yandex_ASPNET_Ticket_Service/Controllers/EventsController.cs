@@ -48,6 +48,11 @@ public class EventsController(IEventService _eventService, IBookingService _book
         return CreatedAtAction(nameof(GetEventById), new { id = created.Id }, created);
     }
 
+    /// <summary>
+    /// Creates a booking for the specified event
+    /// </summary>
+    /// <param name="id">Event identifier</param>
+    /// <returns>Accepted response with booking details or 404 if event not found</returns>
     [HttpPost("{id:Guid}/book")]
     [ProducesResponseType(typeof(Booking), StatusCodes.Status202Accepted)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

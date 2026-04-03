@@ -2,11 +2,18 @@ using Microsoft.AspNetCore.Mvc;
 using Yandex_ASPNET_Ticket_Service.Models.DTO;
 using Yandex_ASPNET_Ticket_Service.Services.BookingServices;
 
+/// <summary>
+/// Controller for managing bookings
+/// </summary>
 [ApiController]
 [Route("api/[controller]")]
 public class BookingsController(IBookingService _bookingService) : ControllerBase
 {
-
+    /// <summary>
+    /// Retrieves a booking by its identifier
+    /// </summary>
+    /// <param name="bookingId">Unique identifier of the booking</param>
+    /// <returns>Booking details if found; otherwise 404 Not Found</returns>
     [HttpGet("{bookingId}")]
     [ProducesResponseType(typeof(BookingResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
