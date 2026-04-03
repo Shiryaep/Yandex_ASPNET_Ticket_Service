@@ -6,8 +6,8 @@ namespace Yandex_ASPNET_Ticket_Service.Controllers;
 
 /// <summary> Events Controller process /events requests </summary> 
 [ApiController]
-[Route("[controller]")]
 public class EventsController(IEventService _eventService) : ControllerBase
+[Route("api/[controller]")]
 {
     /// <summary> Return all created events as list </summary> 
     [HttpGet]
