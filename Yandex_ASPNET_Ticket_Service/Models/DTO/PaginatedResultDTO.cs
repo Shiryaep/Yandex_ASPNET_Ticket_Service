@@ -1,5 +1,3 @@
-using Yandex_ASPNET_Ticket_Service.Models;
-
 /// <summary> Paginated result wrapper </summary>
 public class PaginatedResult<PaginatedEvent>
 {
