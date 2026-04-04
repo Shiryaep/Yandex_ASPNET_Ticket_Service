@@ -1,3 +1,4 @@
+using Yandex_ASPNET_Ticket_Service.HostedServices;
 using Yandex_ASPNET_Ticket_Service.Middleware;
 using Yandex_ASPNET_Ticket_Service.Services.BookingServices;
 using Yandex_ASPNET_Ticket_Service.Services.EventServices;
@@ -21,6 +22,8 @@ public class Program
         builder.Services.AddSingleton<IBookingService, BookingService>();
         builder.Services.AddSingleton<IEventService, EventService>();
         builder.Services.AddSingleton<IBookingStorage, InMemoryBookingStorage>();
+
+        builder.Services.AddHostedService<BookingResolverService>();
 
         var app = builder.Build();
 
