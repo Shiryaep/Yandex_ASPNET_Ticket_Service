@@ -3,7 +3,7 @@ using Yandex_ASPNET_Ticket_Service.Models.DTO;
 using Yandex_ASPNET_Ticket_Service.Services.BookingServices;
 
 /// <summary>
-/// Controller for managing bookings
+/// Controller for managing booking operations
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
@@ -13,7 +13,7 @@ public class BookingsController(IBookingService _bookingService) : ControllerBas
     /// Retrieves a booking by its identifier
     /// </summary>
     /// <param name="bookingId">Unique identifier of the booking</param>
-    /// <returns>Booking details if found; otherwise 404 Not Found</returns>
+    /// <returns>200 OK with booking details if found; otherwise 404 Not Found</returns>
     [HttpGet("{bookingId}")]
     [ProducesResponseType(typeof(BookingResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

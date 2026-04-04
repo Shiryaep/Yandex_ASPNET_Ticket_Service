@@ -11,7 +11,7 @@ public class BookingService : IBookingService
     private readonly IBookingStorage _storage;
 
     /// <summary>
-    /// Initializes a new instance of BookingService
+    /// Initializes a new instance of the <see cref="BookingService"/> class
     /// </summary>
     /// <param name="storage">Booking storage dependency</param>
     public BookingService(IBookingStorage storage)
@@ -23,7 +23,7 @@ public class BookingService : IBookingService
     /// Creates a new booking for the specified event
     /// </summary>
     /// <param name="eventId">Identifier of the event to book</param>
-    /// <returns>Created booking</returns>
+    /// <returns>The created booking</returns>
     public async Task<Booking> CreateBookingAsync(Guid eventId)
     {
         var booking = new Booking(eventId);
@@ -35,7 +35,7 @@ public class BookingService : IBookingService
     /// Retrieves a booking by its identifier
     /// </summary>
     /// <param name="bookingId">Booking identifier</param>
-    /// <returns>Booking if found; otherwise null</returns>
+    /// <returns>The booking if found; otherwise null</returns>
     public async Task<Booking?> GetBookingByIdAsync(Guid bookingId)
     {
         return await _storage.GetByIdAsync(bookingId);
