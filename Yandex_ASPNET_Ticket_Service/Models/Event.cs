@@ -27,10 +27,17 @@ public class Event
     public DateTime? EndAt { get; set; } = null;
 }
 
-/// <summary> Event datetime validator check whether finish later than start of event </summary> 
+/// <summary>
+/// Validates that the EndAt datetime is later than the StartAt datetime for an event
+/// </summary>
 public class ValidateEndAtLaterThanStartAt : ValidationAttribute
 {
-    /// <summary> Validate date and time of event </summary> 
+    /// <summary>
+    /// Validates that EndAt is later than StartAt
+    /// </summary>
+    /// <param name="value">The value of the EndAt property being validated</param>
+    /// <param name="validationContext">Validation context providing access to the object instance</param>
+    /// <returns>ValidationResult.Success if valid; otherwise an error message</returns>
     protected override ValidationResult IsValid(object? value, ValidationContext validationContext)
     {
         if (value == null)

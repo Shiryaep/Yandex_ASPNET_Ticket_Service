@@ -1,5 +1,8 @@
-using Yandex_ASPNET_Ticket_Service.EventServices;
+using Yandex_ASPNET_Ticket_Service.HostedServices;
 using Yandex_ASPNET_Ticket_Service.Middleware;
+using Yandex_ASPNET_Ticket_Service.Services.BookingServices;
+using Yandex_ASPNET_Ticket_Service.Services.EventServices;
+using Yandex_ASPNET_Ticket_Service.Storage;
 
 namespace Yandex_ASPNET_Ticket_Service;
 
@@ -16,7 +19,11 @@ public class Program
 
         builder.Services.AddSwaggerGen();
 
+        builder.Services.AddSingleton<IBookingService, BookingService>();
         builder.Services.AddSingleton<IEventService, EventService>();
+        builder.Services.AddSingleton<IBookingStorage, InMemoryBookingStorage>();
+
+        builder.Services.AddHostedService<BookingResolverService>();
 
         var app = builder.Build();
 
@@ -24,6 +31,13 @@ public class Program
         {
             app.UseSwagger();
             app.UseSwaggerUI();
+            var autoSwagger = bool.Parse(Environment.GetEnvironmentVariable("ASPNETCORE_SWAGGER_AUTO_OPEN")?.ToLower() ?? "false");
+            if (autoSwagger)
+            {
+                var port = Environment.GetEnvironmentVariable("ASPNETCORE_HTTPS_PORT") ?? "5000";
+                var swaggerUrl = $"https://localhost:{port}/swagger/index.html";
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(swaggerUrl) { UseShellExecute = true });
+            }
         }
         
         //1. HTTPS redirection
