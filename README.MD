@@ -76,29 +76,27 @@ https://localhost:7011/swagger
 
 ### Доступные эндпоинты
 
-Все эндпоинты находятся внутри api/ - как управление событиями, так и бронирование билетов
-
 #### Управление событиями (Events)
 
-    GET /events — получить список событий
+    GET /api/events — получить список событий
 
-    GET /events/{id} — получить событие по ID
+    GET /api/events/{id} — получить событие по ID
 
-    POST /events — создать новое событие
+    POST /api/events — создать новое событие
 
-    PUT /events/{id} - обновить событие по ID
+    PUT /api/events/{id} - обновить событие по ID
 
-    DELETE /events/{id} - удалить событие по ID
+    DELETE /api/events/{id} - удалить событие по ID
 
 #### Бронирование билетов (Bookings)
 
-    POST /events/{id}/book — создать бронирование для указанного события
+    POST /api/events/{id}/book — создать бронирование для указанного события
 
-    GET /bookings/{id} — получить информацию о бронировании по его ID
+    GET /api/bookings/{id} — получить информацию о бронировании по его ID
 
 ## Фильтрация и пагинация событий
 
-Эндпоинт `GET /events` поддерживает следующие параметры запроса:
+Эндпоинт `GET /api/events` поддерживает следующие параметры запроса:
 
 ```
 [String]    title - фильтр по заголовку 
@@ -153,26 +151,27 @@ https://localhost:7011/swagger
 
 1. **Создание события**  
    ```http
-   POST /events
+   POST /api/events
    Content-Type: application/json
 
    {
+     "id": "12345678-1234-1234-1234-123456789abc"
      "title": "Linkin Park",
      "description": "Концерт Linkin Park в Яндекс Музыке",
-     "startDate": "2026-03-22T10:30:00",
-     "endDate": "2026-03-22T12:00:00"
+     "startAt": "2026-03-22T10:30:00",
+     "endAt": "2026-03-22T12:00:00"
    }
    ```
    Ответ содержит созданное событие с присвоенным `Id`.
 
 2. **Получение списка событий с фильтрацией**  
    ```http
-   GET /events?title=Linkin&from=2026-03-21&page=1&pageSize=8
+   GET /api/events?title=Linkin&from=2026-03-21&page=1&pageSize=8
    ```
 
 3. **Создание бронирования**  
    ```http
-   POST /events/{eventId}/book
+   POST /api/events/{eventId}/book
    ```
    Ответ:
    - Код `202 Accepted`
@@ -181,13 +180,13 @@ https://localhost:7011/swagger
 
 4. **Отслеживание статуса бронирования**  
    ```http
-   GET /bookings/{bookingId}
+   GET /api/bookings/{bookingId}
    ```
    Пока бронирование обрабатывается, статус будет `Pending`. Через несколько секунд повторный запрос вернёт статус `Confirmed` и заполненное поле `ProcessedAt`.
 
 5. **Удаление события** 
    ```http
-   DELETE /events/{eventId}
+   DELETE /api/events/{eventId}
    ```
 
 ## Запуск тестов

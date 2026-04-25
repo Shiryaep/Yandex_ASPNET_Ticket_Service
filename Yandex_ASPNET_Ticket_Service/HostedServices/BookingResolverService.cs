@@ -17,7 +17,8 @@ public class BookingResolverService (IBookingStorage bookingStorage) : Backgroun
     {
         while (!cancellationToken.IsCancellationRequested)
         {
-            var allPendingBookings = _bookingStorage.GetByStatusAsync(BookingStatus.Pending).Result;
+            var allPendingBookings = await _bookingStorage.GetByStatusAsync(BookingStatus.Pending);
+
             foreach (var booking in allPendingBookings)
             {
                 await Task.Delay(2000, cancellationToken);

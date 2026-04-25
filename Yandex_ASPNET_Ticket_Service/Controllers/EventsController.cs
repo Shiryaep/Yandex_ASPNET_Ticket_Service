@@ -74,13 +74,13 @@ public class EventsController(IEventService _eventService, IBookingService _book
     [HttpPost("{id:Guid}/book")]
     [ProducesResponseType(typeof(Booking), StatusCodes.Status202Accepted)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public IActionResult Post(Guid id)
+    public async Task<IActionResult> Post(Guid id)
     {
         Event? @event = _eventService.GetEvent(id);
         if (@event == null) return NotFound(new { message = $"Event with id [{id}] not found" });
         else
         {
-            var booking = _bookingService.CreateBookingAsync(id).Result;
+            var booking = await _bookingService.CreateBookingAsync(id);
 
             var response = new BookingResponseDto
             {
