@@ -25,6 +25,43 @@ public class Event
     [Required(ErrorMessage = "There is no End At!")]
     [ValidateEndAtLaterThanStartAt(ErrorMessage = "EndAt must be later than StartAt.")]
     public DateTime? EndAt { get; set; } = null;
+
+    /// <summary> Event total seats for reservation </summary> 
+    [Required(ErrorMessage = "You missed TotalSeats count in Event")]
+    public int TotalSeats { get; set; }
+
+    /// <summary> Event currently available seats for reservation </summary> 
+    public int? AvailableSeats { get; set; }
+
+    /// <summary>
+    /// Check Available seats and try to reserve them
+    /// </summary>
+    /// <param name="count">Seats to reserve</param>
+    /// <returns>True if there are avalible seats and false if no</returns>
+    public bool TryReserveSeats(int count = 1)
+    {
+        if(AvailableSeats - count >= 0)
+        {
+            AvailableSeats -= count;
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Release reserved seats
+    /// </summary>
+    /// <param name="count">Seats to release</param>
+    public void ReleaseSeats(int count = 1)
+    {
+        if(TotalSeats <= AvailableSeats + count)
+        {
+            AvailableSeats += count;
+        }
+    }
 }
 
 /// <summary>
