@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Yandex_ASPNET_Ticket_Service.Models.DTO;
 using Yandex_ASPNET_Ticket_Service.Services.BookingServices;
 
+namespace Yandex_ASPNET_Ticket_Service.Controllers;
 /// <summary>
 /// Controller for managing booking operations
 /// </summary>
@@ -34,7 +35,7 @@ public class BookingsController(IBookingService _bookingService) : ControllerBas
             CreatedAt = booking.CreatedAt,
             ProcessedAt = booking.ProcessedAt
         };
-        
+
         return Ok(response);
     }
 }

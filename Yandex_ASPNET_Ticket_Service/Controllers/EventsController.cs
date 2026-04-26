@@ -91,7 +91,7 @@ public class EventsController(IEventService _eventService, IBookingService _book
                 ProcessedAt = booking.ProcessedAt
             };
 
-            return AcceptedAtAction(actionName: "GetBooking", controllerName: "Bookings", routeValues: new { bookingId = booking.Id }, value: booking);
+            return AcceptedAtAction(actionName: "GetBooking", controllerName: "Bookings", routeValues: new { bookingId = booking.Id }, value: response);
         }
     }
 

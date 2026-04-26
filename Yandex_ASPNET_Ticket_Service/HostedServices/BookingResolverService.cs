@@ -1,3 +1,4 @@
+using Yandex_ASPNET_Ticket_Service.Models;
 using Yandex_ASPNET_Ticket_Service.Storage;
 
 namespace Yandex_ASPNET_Ticket_Service.HostedServices;
@@ -7,7 +8,7 @@ namespace Yandex_ASPNET_Ticket_Service.HostedServices;
 /// </summary>
 public class BookingResolverService (IBookingStorage bookingStorage) : BackgroundService
 {
-    private IBookingStorage _bookingStorage = bookingStorage;
+    private readonly IBookingStorage _bookingStorage = bookingStorage;
 
     /// <summary>
     /// Executes the background processing loop

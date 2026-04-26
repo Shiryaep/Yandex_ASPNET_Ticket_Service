@@ -5,7 +5,7 @@ namespace Yandex_ASPNET_Ticket_Service.Services.EventServices;
 /// <summary> Service for events manipulation </summary>
 public class EventService : IEventService
 {
-    private List<Event> events = new List<Event>();
+    private readonly List<Event> events = [];
 
     /// <summary> Return all created events as list using filters</summary>
     public PaginatedResult<Event> GetEvents(string? title = null,
@@ -18,26 +18,23 @@ public class EventService : IEventService
 
         if (!string.IsNullOrEmpty(title))
         {
-            eventsLocal = eventsLocal.Where(e => e.Title != null &&
-            e.Title.Contains(title, StringComparison.OrdinalIgnoreCase))
-                .ToList();
+            eventsLocal = [.. eventsLocal.Where(e => e.Title != null &&
+            e.Title.Contains(title, StringComparison.OrdinalIgnoreCase))];
         }
 
         if (from.HasValue)
         {
-            eventsLocal = eventsLocal.Where(e => e.StartAt >= from.Value)
-                .ToList();
+            eventsLocal = [.. eventsLocal.Where(e => e.StartAt >= from.Value)];
         }
 
         if (to.HasValue)
         {
-            eventsLocal = eventsLocal.Where(e => e.EndAt <= to.Value)
-                .ToList();
+            eventsLocal = [.. eventsLocal.Where(e => e.EndAt <= to.Value)];
         }
 
         int allEventsCount = eventsLocal.Count;
 
-        eventsLocal = eventsLocal.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+        eventsLocal = [.. eventsLocal.Skip((page - 1) * pageSize).Take(pageSize)];
 
         return new PaginatedResult<Event>(eventsLocal, allEventsCount, page, pageSize);
     }
