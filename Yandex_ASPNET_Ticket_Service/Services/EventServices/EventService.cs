@@ -1,4 +1,5 @@
 using Yandex_ASPNET_Ticket_Service.Models;
+using Yandex_ASPNET_Ticket_Service.Models.DTO;
 
 namespace Yandex_ASPNET_Ticket_Service.Services.EventServices;
 

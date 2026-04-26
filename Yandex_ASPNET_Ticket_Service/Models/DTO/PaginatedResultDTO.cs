@@ -1,3 +1,5 @@
+namespace Yandex_ASPNET_Ticket_Service.Models.DTO;
+
 /// <summary> Paginated result wrapper </summary>
 public class PaginatedResult<PaginatedEvent>
 {
