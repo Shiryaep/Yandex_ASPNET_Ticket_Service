@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Yandex_ASPNET_Ticket_Service.Models;
 using Yandex_ASPNET_Ticket_Service.Models.DTO;
 
@@ -47,10 +48,34 @@ public class EventService : IEventService
     }
 
     /// <summary> Add new event to events List</summary>
-    public Event AddEvent(Event @event)
+    public EventInfoDto AddEvent(CreateEventDto @event)
     {
-        events.Add(@event);
-        return @event;
+        if (@event.TotalSeats <= 0) throw new ValidationException();
+        Event newEvent = new()
+        {
+            Id = @event.Id,
+            Title = @event.Title,
+            Description = @event.Description,
+            StartAt = @event.StartAt,
+            EndAt = @event.EndAt,
+            TotalSeats = @event.TotalSeats,
+            AvailableSeats = @event.TotalSeats
+        };
+        
+        events.Add(newEvent);
+
+        EventInfoDto eventInfoDto = new()
+        {
+            Id = newEvent.Id,
+            Title = newEvent.Title,
+            Description = newEvent.Description,
+            StartAt = newEvent.StartAt,
+            EndAt = newEvent.EndAt,
+            TotalSeats = newEvent.TotalSeats,
+            AvailableSeats = newEvent.TotalSeats
+        };
+
+        return eventInfoDto;
     }
 
     /// <summary> Replace existing event by ID </summary>

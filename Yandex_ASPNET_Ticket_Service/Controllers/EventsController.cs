@@ -55,7 +55,7 @@ public class EventsController(IEventService _eventService, IBookingService _book
     /// <param name="event">Event data</param>
     /// <returns>201 Created with the created event</returns>
     [HttpPost]
-    public IActionResult Post([FromBody] Event @event)
+    public IActionResult Post([FromBody] CreateEventDto @event)
     {
         if(!ModelState.IsValid)
         {

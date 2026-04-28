@@ -30,8 +30,13 @@ public class Event
     [Required(ErrorMessage = "You missed TotalSeats count in Event")]
     public int TotalSeats { get; set; }
 
+    private int? _availableSeats;
     /// <summary> Event currently available seats for reservation </summary> 
-    public int? AvailableSeats { get; set; }
+    public int AvailableSeats
+    {
+        get => _availableSeats ?? TotalSeats;
+        set => _availableSeats = value;
+    }
 
     /// <summary>
     /// Check Available seats and try to reserve them
@@ -57,7 +62,7 @@ public class Event
     /// <param name="count">Seats to release</param>
     public void ReleaseSeats(int count = 1)
     {
-        if(TotalSeats <= AvailableSeats + count)
+        if(TotalSeats >= AvailableSeats + count)
         {
             AvailableSeats += count;
         }
