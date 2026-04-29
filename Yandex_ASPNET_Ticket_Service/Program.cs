@@ -39,7 +39,7 @@ public class Program
                 System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(swaggerUrl) { UseShellExecute = true });
             }
         }
-        
+
         //1. HTTPS redirection
         app.UseHttpsRedirection();
 
@@ -47,14 +47,14 @@ public class Program
 
         //2.5 Error handling
         app.UseMiddleware<ExceptionHandlingMiddleware>();
-        
+
         //3. Routing
         app.UseRouting();
 
         //4. CORS
         //5. Authentication
         //6. Authorization
-        
+
         //7. Endpoints
         app.MapControllers();
 

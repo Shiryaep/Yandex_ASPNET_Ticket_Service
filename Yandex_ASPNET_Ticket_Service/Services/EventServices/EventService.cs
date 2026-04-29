@@ -7,7 +7,7 @@ namespace Yandex_ASPNET_Ticket_Service.Services.EventServices;
 /// <summary> Service for events manipulation </summary>
 public class EventService : IEventService
 {
-    private readonly List<Event> events = [];
+    private readonly List<Event> _events = [];
 
     /// <summary> Return all created events as list using filters</summary>
     public PaginatedResult<Event> GetEvents(string? title = null,
@@ -16,7 +16,7 @@ public class EventService : IEventService
                                 int page = 1,
                                 int pageSize = 10)
     {
-        var eventsLocal = new List<Event>(events);
+        var eventsLocal = new List<Event>(_events);
 
         if (!string.IsNullOrEmpty(title))
         {
@@ -44,7 +44,7 @@ public class EventService : IEventService
     /// <summary> Return event by ID </summary>
     public Event? GetEvent(Guid id)
     {
-        return events.FirstOrDefault(e => e.Id == id);
+        return _events.FirstOrDefault(e => e.Id == id);
     }
 
     /// <summary> Add new event to events List</summary>
@@ -61,8 +61,8 @@ public class EventService : IEventService
             TotalSeats = @event.TotalSeats,
             AvailableSeats = @event.TotalSeats
         };
-        
-        events.Add(newEvent);
+
+        _events.Add(newEvent);
 
         EventInfoDto eventInfoDto = new()
         {
@@ -81,22 +81,22 @@ public class EventService : IEventService
     /// <summary> Replace existing event by ID </summary>
     public void UpdateEvent(Guid id, Event @event)
     {
-        var index = events.FindIndex(e => e.Id == id);
+        var index = _events.FindIndex(e => e.Id == id);
 
         if (index >= 0)
         {
-            events[index] = @event;
+            _events[index] = @event;
         }
     }
 
     /// <summary> Remove event from events by ID </summary>
     public void DeleteEvent(Guid id)
     {
-        var index = events.FindIndex(e => e.Id == id);
+        var index = _events.FindIndex(e => e.Id == id);
 
         if (index >= 0)
         {
-            events.RemoveAt(index);
+            _events.RemoveAt(index);
         }
     }
 }

@@ -6,7 +6,7 @@ namespace Yandex_ASPNET_Ticket_Service.HostedServices;
 /// <summary>
 /// Background service that periodically resolves pending bookings by confirming them
 /// </summary>
-public class BookingResolverService (IBookingStorage bookingStorage) : BackgroundService
+public class BookingResolverService(IBookingStorage bookingStorage) : BackgroundService
 {
     private readonly IBookingStorage _bookingStorage = bookingStorage;
 

@@ -11,7 +11,7 @@ namespace Yandex_ASPNET_Ticket_Service.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
-public class EventsController(IEventService _eventService, IBookingService _bookingService) : ControllerBase
+public class EventsController(IEventService eventService, IBookingService bookingService) : ControllerBase
 {
     /// <summary>
     /// Retrieves all events with optional filtering and pagination
@@ -30,7 +30,7 @@ public class EventsController(IEventService _eventService, IBookingService _book
         int page = 1,
         int pageSize = 10)
     {
-        return _eventService.GetEvents(title, from, to, page, pageSize);
+        return eventService.GetEvents(title, from, to, page, pageSize);
     }
 
     /// <summary>
@@ -41,7 +41,7 @@ public class EventsController(IEventService _eventService, IBookingService _book
     [HttpGet("{id:Guid}")]
     public ActionResult<Event> GetEventById(Guid id)
     {
-        var eventItem = _eventService.GetEvent(id);
+        var eventItem = eventService.GetEvent(id);
         if (eventItem == null)
         {
             return NotFound();
@@ -57,12 +57,12 @@ public class EventsController(IEventService _eventService, IBookingService _book
     [HttpPost]
     public IActionResult Post([FromBody] CreateEventDto @event)
     {
-        if(!ModelState.IsValid)
+        if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
 
-        var created = _eventService.AddEvent(@event);
+        var created = eventService.AddEvent(@event);
         return CreatedAtAction(nameof(GetEventById), new { id = created.Id }, created);
     }
 
@@ -77,11 +77,11 @@ public class EventsController(IEventService _eventService, IBookingService _book
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Post(Guid id)
     {
-        Event? @event = _eventService.GetEvent(id);
+        Event? @event = eventService.GetEvent(id);
         if (@event == null) return NotFound(new { message = $"Event with id [{id}] not found" });
         else
         {
-            var booking = await _bookingService.CreateBookingAsync(id);
+            var booking = await bookingService.CreateBookingAsync(id);
 
             var response = new BookingResponseDto
             {
@@ -110,7 +110,7 @@ public class EventsController(IEventService _eventService, IBookingService _book
             return BadRequest(ModelState);
         }
 
-        _eventService.UpdateEvent(id, @event);
+        eventService.UpdateEvent(id, @event);
         return new NoContentResult();
     }
 
@@ -122,7 +122,7 @@ public class EventsController(IEventService _eventService, IBookingService _book
     [HttpDelete("{id:Guid}")]
     public IActionResult Delete(Guid id)
     {
-        _eventService.DeleteEvent(id);
+        eventService.DeleteEvent(id);
         return new OkResult();
     }
 }

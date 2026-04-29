@@ -45,7 +45,7 @@ public class Event
     /// <returns>True if there are avalible seats and false if no</returns>
     public bool TryReserveSeats(int count = 1)
     {
-        if(AvailableSeats - count >= 0)
+        if (AvailableSeats - count >= 0)
         {
             AvailableSeats -= count;
             return true;
@@ -62,7 +62,7 @@ public class Event
     /// <param name="count">Seats to release</param>
     public void ReleaseSeats(int count = 1)
     {
-        if(TotalSeats >= AvailableSeats + count)
+        if (TotalSeats >= AvailableSeats + count)
         {
             AvailableSeats += count;
         }

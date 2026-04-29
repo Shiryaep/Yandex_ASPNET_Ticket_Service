@@ -7,22 +7,16 @@ namespace Yandex_ASPNET_Ticket_Service.Services.BookingServices;
 /// <summary>
 /// Service for managing bookings
 /// </summary>
-public class BookingService : IBookingService
+/// <remarks>
+/// Initializes a new instance of the <see cref="BookingService"/> class
+/// </remarks>
+/// <param name="storage">Booking storage dependency</param>
+/// <param name="eventService">Event service dependency</param>
+public class BookingService(IBookingStorage storage, IEventService eventService) : IBookingService
 {
-    private readonly IBookingStorage _storage;
-    private readonly IEventService _eventService;
+    private readonly IBookingStorage _storage = storage;
+    private readonly IEventService _eventService = eventService;
     private readonly SemaphoreSlim _bookingLock = new(1, 1);
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="BookingService"/> class
-    /// </summary>
-    /// <param name="storage">Booking storage dependency</param>
-    /// <param name="eventService">Event service dependency</param>
-    public BookingService(IBookingStorage storage, IEventService eventService)
-    {
-        _storage = storage;
-        _eventService = eventService;
-    }
 
     /// <summary>
     /// Creates a new booking for the specified event

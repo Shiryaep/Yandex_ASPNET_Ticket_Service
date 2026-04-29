@@ -1,13 +1,13 @@
 namespace Yandex_ASPNET_Ticket_Service.Models.DTO;
 
 /// <summary> Paginated result wrapper </summary>
-public class PaginatedResult<PaginatedEvent>
+public class PaginatedResult<TPaginatedEvent>
 {
     /// <summary> Total number of events </summary>
     public int TotalEventsCount { get; set; }
 
     /// <summary> Events for current page </summary>
-    public List<PaginatedEvent> CurrentEvents { get; set; } = [];
+    public List<TPaginatedEvent> CurrentEvents { get; set; } = [];
 
     /// <summary> Current page number </summary>
     public int Page { get; set; }
@@ -21,7 +21,7 @@ public class PaginatedResult<PaginatedEvent>
     }
 
     /// <summary> Paginated result wrapper constructor with arguments</summary>
-    public PaginatedResult(List<PaginatedEvent> eventsList, int totalEventsCount, int page, int pageSize)
+    public PaginatedResult(List<TPaginatedEvent> eventsList, int totalEventsCount, int page, int pageSize)
     {
         CurrentEvents = eventsList;
         TotalEventsCount = totalEventsCount;

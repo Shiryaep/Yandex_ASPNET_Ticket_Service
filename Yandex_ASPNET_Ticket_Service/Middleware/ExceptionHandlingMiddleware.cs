@@ -1,6 +1,6 @@
+using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Text.Json;
-using Microsoft.AspNetCore.Mvc;
 using Yandex_ASPNET_Ticket_Service.Models;
 
 namespace Yandex_ASPNET_Ticket_Service.Middleware;
@@ -9,21 +9,15 @@ namespace Yandex_ASPNET_Ticket_Service.Middleware;
 /// Middleware for global exception handling
 /// Intercepts unhandled exceptions and returns a structured response in the "Problem Details (RFC 7807)" format
 /// </summary>
-public class ExceptionHandlingMiddleware
+/// <remarks>
+/// Constructor for ExceptionHandlingMiddleware
+/// </remarks>
+public class ExceptionHandlingMiddleware(
+    RequestDelegate next,
+    ILogger<ExceptionHandlingMiddleware> logger)
 {
-    private readonly RequestDelegate _next;
-    private readonly ILogger<ExceptionHandlingMiddleware> _logger;
-
-    /// <summary>
-    /// Constructor for ExceptionHandlingMiddleware
-    /// </summary>
-    public ExceptionHandlingMiddleware(
-        RequestDelegate next,
-        ILogger<ExceptionHandlingMiddleware> logger)
-    {
-        _next = next;
-        _logger = logger;
-    }
+    private readonly RequestDelegate _next = next;
+    private readonly ILogger<ExceptionHandlingMiddleware> _logger = logger;
 
     /// <summary>
     /// Attempt to pass the request further along the pipeline
@@ -41,7 +35,7 @@ public class ExceptionHandlingMiddleware
         }
     }
 
-    private async Task HandleExceptionAsync(HttpContext context, Exception exception)
+    private static async Task HandleExceptionAsync(HttpContext context, Exception exception)
     {
         var (statusCode, title, detail) = MapExceptionToProblemDetails(exception);
 
