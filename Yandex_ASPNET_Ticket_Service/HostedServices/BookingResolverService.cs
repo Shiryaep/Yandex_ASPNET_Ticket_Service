@@ -18,6 +18,8 @@ public class BookingResolverService(
     private readonly IEventService _eventService = eventService;
     private readonly ILogger<BookingResolverService> _logger = logger;
     private readonly SemaphoreSlim _processingSemaphore = new(1, 1);
+    private readonly int _pollingInterval = 3000;
+    private readonly int _processingDelay = 2000;
 
     /// <summary>
     /// Executes the background processing loop
@@ -30,7 +32,7 @@ public class BookingResolverService(
             var pendingBookings = await _bookingStorage.GetByStatusAsync(BookingStatus.Pending);
             var tasks = pendingBookings.Select(booking => ProcessBookingAsync(booking, cancellationToken));
             await Task.WhenAll(tasks);
-            await Task.Delay(3000, cancellationToken);
+            await Task.Delay(_pollingInterval, cancellationToken);
         }
     }
 
@@ -44,7 +46,7 @@ public class BookingResolverService(
         try
         {
             // Simulate external API call before acquiring semaphore (parallel delay)
-            await Task.Delay(2000, cancellationToken);
+            await Task.Delay(_processingDelay, cancellationToken);
 
             // Acquire semaphore to protect storage updates
             await _processingSemaphore.WaitAsync(cancellationToken);
