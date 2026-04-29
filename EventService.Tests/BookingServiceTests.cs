@@ -141,6 +141,42 @@ public class BookingServiceTests
     }
 
     [Fact]
+    public async Task CreateBooking_DecreasesAvailableSeatsByOne()
+    {
+        // Arrange
+        var eventId = Guid.NewGuid();
+        var testEvent = CreateTestEvent(eventId, totalSeats: 10, availableSeats: 10);
+        _eventServiceMock.Setup(es => es.GetEvent(eventId)).Returns(testEvent);
+        Event? capturedEvent = null;
+        _eventServiceMock.Setup(es => es.UpdateEvent(eventId, It.IsAny<Event>()))
+            .Callback<Guid, Event>((id, ev) => capturedEvent = ev)
+            .Verifiable();
+
+        // Act
+        var booking = await _bookingService.CreateBookingAsync(eventId);
+
+        // Assert
+        Assert.NotNull(booking);
+        _eventServiceMock.Verify(es => es.UpdateEvent(eventId, It.IsAny<Event>()), Times.Once);
+        Assert.NotNull(capturedEvent);
+        Assert.Equal(9, capturedEvent.AvailableSeats); // decreased by 1
+        Assert.Equal(10, capturedEvent.TotalSeats); // unchanged
+    }
+
+    [Fact]
+    public async Task CreateBooking_ForNonExistingEvent_ThrowsArgumentException()
+    {
+        // Arrange
+        var eventId = Guid.NewGuid();
+        _eventServiceMock.Setup(es => es.GetEvent(eventId)).Returns((Event?)null);
+
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<ArgumentException>(() => _bookingService.CreateBookingAsync(eventId));
+        Assert.Contains(eventId.ToString(), exception.Message);
+        _eventServiceMock.Verify(es => es.UpdateEvent(It.IsAny<Guid>(), It.IsAny<Event>()), Times.Never);
+    }
+
+    [Fact]
     public async Task CreateBooking_NoAvailableSeats_ThrowsNoAvailableSeatsException()
     {
         // Arrange
@@ -151,5 +187,37 @@ public class BookingServiceTests
         // Act & Assert
         await Assert.ThrowsAsync<NoAvailableSeatsException>(() => _bookingService.CreateBookingAsync(eventId));
         _eventServiceMock.Verify(es => es.UpdateEvent(eventId, It.IsAny<Event>()), Times.Never);
+    }
+
+    [Fact]
+    public void Booking_Confirm_SetsStatusConfirmedAndProcessedAt()
+    {
+        // Arrange
+        var booking = new Booking(Guid.NewGuid());
+        var before = DateTime.UtcNow;
+
+        // Act
+        booking.Confirm();
+
+        // Assert
+        Assert.Equal(BookingStatus.Confirmed, booking.Status);
+        Assert.NotNull(booking.ProcessedAt);
+        Assert.True(booking.ProcessedAt >= before && booking.ProcessedAt <= DateTime.UtcNow);
+    }
+
+    [Fact]
+    public void Booking_Reject_SetsStatusRejectedAndProcessedAt()
+    {
+        // Arrange
+        var booking = new Booking(Guid.NewGuid());
+        var before = DateTime.UtcNow;
+
+        // Act
+        booking.Reject();
+
+        // Assert
+        Assert.Equal(BookingStatus.Rejected, booking.Status);
+        Assert.NotNull(booking.ProcessedAt);
+        Assert.True(booking.ProcessedAt >= before && booking.ProcessedAt <= DateTime.UtcNow);
     }
 }
