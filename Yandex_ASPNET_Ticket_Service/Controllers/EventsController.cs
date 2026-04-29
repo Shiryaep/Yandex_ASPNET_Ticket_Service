@@ -74,6 +74,7 @@ public class EventsController(IEventService _eventService, IBookingService _book
     [HttpPost("{id:Guid}/book")]
     [ProducesResponseType(typeof(Booking), StatusCodes.Status202Accepted)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Post(Guid id)
     {
         Event? @event = _eventService.GetEvent(id);

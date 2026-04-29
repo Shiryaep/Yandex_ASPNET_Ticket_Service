@@ -1,6 +1,7 @@
 using System.Net;
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
+using Yandex_ASPNET_Ticket_Service.Models;
 
 namespace Yandex_ASPNET_Ticket_Service.Middleware;
 
@@ -63,16 +64,18 @@ public class ExceptionHandlingMiddleware
     {
         return exception switch
         {
-            ArgumentException or InvalidOperationException => 
+            ArgumentException or InvalidOperationException =>
                 ((int)HttpStatusCode.BadRequest, "Bad Request", exception.Message),
-            KeyNotFoundException or FileNotFoundException => 
+            KeyNotFoundException or FileNotFoundException =>
                 ((int)HttpStatusCode.NotFound, "Not Found", exception.Message),
-            UnauthorizedAccessException => 
+            UnauthorizedAccessException =>
                 ((int)HttpStatusCode.Unauthorized, "Unauthorized", exception.Message),
-            NotImplementedException => 
+            NotImplementedException =>
                 ((int)HttpStatusCode.NotImplemented, "Not Implemented", exception.Message),
-            _ => 
-                ((int)HttpStatusCode.InternalServerError, "Internal Server Error", 
+            NoAvailableSeatsException =>
+                ((int)HttpStatusCode.Conflict, "Conflict", exception.Message),
+            _ =>
+                ((int)HttpStatusCode.InternalServerError, "Internal Server Error",
                  "An unexpected error occurred. Please try again later.")
         };
     }
@@ -84,6 +87,7 @@ public class ExceptionHandlingMiddleware
             400 => "https://tools.ietf.org/html/rfc7231#section-6.5.1",
             401 => "https://tools.ietf.org/html/rfc7235#section-3.1",
             404 => "https://tools.ietf.org/html/rfc7231#section-6.5.4",
+            409 => "https://tools.ietf.org/html/rfc7231#section-6.5.8",
             500 => "https://tools.ietf.org/html/rfc7231#section-6.6.1",
             _ => "https://tools.ietf.org/html/rfc7231#section-6.5"
         };
