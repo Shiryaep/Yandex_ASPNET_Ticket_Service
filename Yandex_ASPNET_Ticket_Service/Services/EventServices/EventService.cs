@@ -50,7 +50,10 @@ public class EventService : IEventService
     /// <summary> Add new event to events List</summary>
     public EventInfoDto AddEvent(CreateEventDto @event)
     {
-        if (@event.TotalSeats <= 0) throw new ValidationException();
+        if (@event.TotalSeats <= 0)
+        {
+            throw new ValidationException("Total Seats count must be more than zero");
+        }
         Event newEvent = new()
         {
             Id = @event.Id,

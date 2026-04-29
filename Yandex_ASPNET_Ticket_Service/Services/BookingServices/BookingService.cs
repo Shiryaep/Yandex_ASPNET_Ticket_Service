@@ -37,6 +37,9 @@ public class BookingService(IBookingStorage storage, IEventService eventService)
                 throw new NoAvailableSeatsException();
             }
 
+            // Update event with reduced available seats
+            _eventService.UpdateEvent(eventId, eventEntity);
+
             // Create and save booking
             var booking = new Booking(eventId);
             await _storage.AddAsync(booking);

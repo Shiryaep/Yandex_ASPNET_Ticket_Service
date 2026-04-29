@@ -25,4 +25,22 @@ public class Booking(Guid eventID)
 
     ///<summary> Date and Time of Booking solution </summary>
     public DateTime? ProcessedAt { get; set; }
+
+    /// <summary>
+    /// Confirms the booking, setting status to Confirmed and recording processed time.
+    /// </summary>
+    public void Confirm()
+    {
+        Status = BookingStatus.Confirmed;
+        ProcessedAt = DateTime.UtcNow;
+    }
+
+    /// <summary>
+    /// Rejects the booking, setting status to Rejected and recording processed time.
+    /// </summary>
+    public void Reject()
+    {
+        Status = BookingStatus.Rejected;
+        ProcessedAt = DateTime.UtcNow;
+    }
 }
