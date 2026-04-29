@@ -1,5 +1,7 @@
+using Moq;
 using Yandex_ASPNET_Ticket_Service.Models;
 using Yandex_ASPNET_Ticket_Service.Services.BookingServices;
+using Yandex_ASPNET_Ticket_Service.Services.EventServices;
 using Yandex_ASPNET_Ticket_Service.Storage;
 
 namespace EventService_Tests;
@@ -8,11 +10,27 @@ public class BookingServiceTests
 {
     private readonly BookingService _bookingService;
     private readonly InMemoryBookingStorage _bookingStorage;
+    private readonly Mock<IEventService> _eventServiceMock;
 
     public BookingServiceTests()
     {
         _bookingStorage = new InMemoryBookingStorage();
-        _bookingService = new BookingService(_bookingStorage);
+        _eventServiceMock = new Mock<IEventService>();
+        _bookingService = new BookingService(_bookingStorage, _eventServiceMock.Object);
+    }
+
+    private static Event CreateTestEvent(Guid eventId, int totalSeats = 10, int? availableSeats = null)
+    {
+        return new Event
+        {
+            Id = eventId,
+            Title = "Test Event",
+            Description = "Test Description",
+            StartAt = DateTime.UtcNow.AddDays(1),
+            EndAt = DateTime.UtcNow.AddDays(2),
+            TotalSeats = totalSeats,
+            AvailableSeats = availableSeats ?? totalSeats
+        };
     }
 
     [Fact]
@@ -20,6 +38,9 @@ public class BookingServiceTests
     {
         // Arrange
         var eventId = Guid.NewGuid();
+        var testEvent = CreateTestEvent(eventId);
+        _eventServiceMock.Setup(es => es.GetEvent(eventId)).Returns(testEvent);
+        _eventServiceMock.Setup(es => es.UpdateEvent(eventId, It.IsAny<Event>())).Verifiable();
 
         // Act
         var booking = await _bookingService.CreateBookingAsync(eventId);
@@ -30,6 +51,7 @@ public class BookingServiceTests
         Assert.Equal(BookingStatus.Pending, booking.Status);
         Assert.NotEqual(Guid.Empty, booking.Id);
         Assert.True(booking.CreatedAt <= DateTime.UtcNow);
+        _eventServiceMock.Verify(es => es.UpdateEvent(eventId, It.IsAny<Event>()), Times.Once);
     }
 
     [Fact]
@@ -37,6 +59,10 @@ public class BookingServiceTests
     {
         // Arrange
         var eventId = Guid.NewGuid();
+        var testEvent = CreateTestEvent(eventId);
+        _eventServiceMock.Setup(es => es.GetEvent(eventId)).Returns(testEvent);
+        _eventServiceMock.Setup(es => es.UpdateEvent(eventId, It.IsAny<Event>())).Verifiable();
+
         var bookingIds = new HashSet<Guid>();
         var eventsIds = new HashSet<Guid>();
 
@@ -52,6 +78,7 @@ public class BookingServiceTests
         Assert.Equal(5, bookingIds.Count);
         Assert.Single(eventsIds);
         Assert.Equal(eventsIds.FirstOrDefault(), eventId);
+        _eventServiceMock.Verify(es => es.UpdateEvent(eventId, It.IsAny<Event>()), Times.Exactly(5));
     }
 
     [Fact]
@@ -59,6 +86,10 @@ public class BookingServiceTests
     {
         // Arrange
         var eventId = Guid.NewGuid();
+        var testEvent = CreateTestEvent(eventId);
+        _eventServiceMock.Setup(es => es.GetEvent(eventId)).Returns(testEvent);
+        _eventServiceMock.Setup(es => es.UpdateEvent(eventId, It.IsAny<Event>())).Verifiable();
+
         var createdBooking = await _bookingService.CreateBookingAsync(eventId);
 
         // Act
@@ -77,6 +108,10 @@ public class BookingServiceTests
     {
         // Arrange
         var eventId = Guid.NewGuid();
+        var testEvent = CreateTestEvent(eventId);
+        _eventServiceMock.Setup(es => es.GetEvent(eventId)).Returns(testEvent);
+        _eventServiceMock.Setup(es => es.UpdateEvent(eventId, It.IsAny<Event>())).Verifiable();
+
         var booking = await _bookingService.CreateBookingAsync(eventId);
 
         booking.Status = BookingStatus.Confirmed;
@@ -103,5 +138,18 @@ public class BookingServiceTests
 
         // Assert
         Assert.Null(booking);
+    }
+
+    [Fact]
+    public async Task CreateBooking_NoAvailableSeats_ThrowsNoAvailableSeatsException()
+    {
+        // Arrange
+        var eventId = Guid.NewGuid();
+        var testEvent = CreateTestEvent(eventId, totalSeats: 10, availableSeats: 0);
+        _eventServiceMock.Setup(es => es.GetEvent(eventId)).Returns(testEvent);
+
+        // Act & Assert
+        await Assert.ThrowsAsync<NoAvailableSeatsException>(() => _bookingService.CreateBookingAsync(eventId));
+        _eventServiceMock.Verify(es => es.UpdateEvent(eventId, It.IsAny<Event>()), Times.Never);
     }
 }
