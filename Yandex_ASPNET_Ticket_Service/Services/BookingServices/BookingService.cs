@@ -37,9 +37,6 @@ public class BookingService(IBookingStorage storage, IEventService eventService)
                 throw new NoAvailableSeatsException();
             }
 
-            // Update the event in storage (since TryReserveSeats modified the object)
-            _eventService.UpdateEvent(eventId, eventEntity);
-
             // Create and save booking
             var booking = new Booking(eventId);
             await _storage.AddAsync(booking);
