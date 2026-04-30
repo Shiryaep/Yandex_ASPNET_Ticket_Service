@@ -196,7 +196,8 @@ https://localhost:7011/swagger
      "title": "Linkin Park",
      "description": "Концерт Linkin Park в Яндекс Музыке",
      "startAt": "2026-03-22T10:30:00",
-     "endAt": "2026-03-22T12:00:00"
+     "endAt": "2026-03-22T12:00:00",
+     "totalSeats": 10
    }
    ```
    Ответ содержит созданное событие с присвоенным `Id`.

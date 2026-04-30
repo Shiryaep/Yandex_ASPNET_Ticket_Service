@@ -1,8 +1,6 @@
-using Microsoft.Extensions.Logging;
 using Yandex_ASPNET_Ticket_Service.Models;
 using Yandex_ASPNET_Ticket_Service.Services.EventServices;
 using Yandex_ASPNET_Ticket_Service.Storage;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Yandex_ASPNET_Ticket_Service.HostedServices;
 

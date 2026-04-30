@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using Moq;
 using Yandex_ASPNET_Ticket_Service.Models;
 using Yandex_ASPNET_Ticket_Service.Services.BookingServices;
@@ -219,5 +220,88 @@ public class BookingServiceTests
         Assert.Equal(BookingStatus.Rejected, booking.Status);
         Assert.NotNull(booking.ProcessedAt);
         Assert.True(booking.ProcessedAt >= before && booking.ProcessedAt <= DateTime.UtcNow);
+    }
+
+    [Fact]
+    public async Task CreateBooking_ConcurrentOverbooking_OnlyFiveSuccesses()
+    {
+        // Arrange
+        var eventId = Guid.NewGuid();
+        var testEvent = CreateTestEvent(eventId, totalSeats: 5, availableSeats: 5);
+        _eventServiceMock.Setup(es => es.GetEvent(eventId)).Returns(testEvent);
+        _eventServiceMock.Setup(es => es.UpdateEvent(eventId, It.IsAny<Event>()))
+            .Callback<Guid, Event>((id, ev) => testEvent = ev);
+
+        var tasks = new List<Task<Booking?>>();
+        // Concurrent because of Tasks
+        // Standard collections will get less than 15 exceptions
+        var exceptions = new ConcurrentBag<NoAvailableSeatsException>();
+        var successfulBookings = new ConcurrentBag<Booking>();
+
+        // Act
+        // Prepare 20 parallel requests
+        for (int i = 0; i < 20; i++)
+        {
+            tasks.Add(Task.Run(async () =>
+            {
+                try
+                {
+                    var booking = await _bookingService.CreateBookingAsync(eventId);
+                    successfulBookings.Add(booking);
+                    return booking;
+                }
+                catch (NoAvailableSeatsException ex)
+                {
+                    exceptions.Add(ex);
+                    return null;
+                }
+            }));
+        }
+
+        var results = await Task.WhenAll(tasks);
+
+        // Assert
+        Assert.Equal(5, successfulBookings.Count); // There must be exactly 5 successful bookings
+        _eventServiceMock.Verify(es => es.UpdateEvent(eventId, It.IsAny<Event>()), Times.Exactly(5));
+
+        Assert.Equal(15, exceptions.Count); // The other 15 should get an exception
+        Assert.Equal(0, testEvent.AvailableSeats); // All seats must be reserved
+        Assert.Equal(20, successfulBookings.Count + exceptions.Count); // Total number of requests = 20
+    }
+
+    [Fact]
+    public async Task CreateBooking_ConcurrentRequests_AllIdsAreUnique()
+    {
+        // Arrange
+        var eventId = Guid.NewGuid();
+        var testEvent = CreateTestEvent(eventId, totalSeats: 100, availableSeats: 100);
+        _eventServiceMock.Setup(es => es.GetEvent(eventId)).Returns(testEvent);
+        _eventServiceMock.Setup(es => es.UpdateEvent(eventId, It.IsAny<Event>()))
+            .Callback<Guid, Event>((id, ev) => testEvent = ev);
+
+        const int concurrentRequests = 50;
+        var tasks = new List<Task<Booking>>();
+        var idSet = new HashSet<Guid>();
+
+        // Act
+        // Prepare 50 parallel requests
+        for (int i = 0; i < concurrentRequests; i++)
+        {
+            tasks.Add(Task.Run(() => _bookingService.CreateBookingAsync(eventId)));
+        }
+
+        var bookings = await Task.WhenAll(tasks);
+
+        // Prepare List of all Ids
+        foreach (var booking in bookings)
+        {
+            idSet.Add(booking.Id);
+        }
+
+        // Assert
+        Assert.Equal(concurrentRequests, idSet.Count); // All Ids should be unique
+        Assert.Equal(concurrentRequests, bookings.Length); // No exceptiosn
+        Assert.Equal(100 - concurrentRequests, testEvent.AvailableSeats); // Reserved correct amount of seats
+        _eventServiceMock.Verify(es => es.UpdateEvent(eventId, It.IsAny<Event>()), Times.Exactly(concurrentRequests));
     }
 }
