@@ -8,7 +8,7 @@ namespace Yandex_ASPNET_Ticket_Service.Storage;
 /// </summary>
 public class InMemoryBookingStorage : IBookingStorage
 {
-    private ConcurrentDictionary<Guid, Booking> _bookingDictionary = new ();
+    private readonly ConcurrentDictionary<Guid, Booking> _bookingDictionary = new();
 
     /// <summary>
     /// Adds a new booking to the storage

@@ -2,12 +2,13 @@ using Microsoft.AspNetCore.Mvc;
 using Yandex_ASPNET_Ticket_Service.Models.DTO;
 using Yandex_ASPNET_Ticket_Service.Services.BookingServices;
 
+namespace Yandex_ASPNET_Ticket_Service.Controllers;
 /// <summary>
 /// Controller for managing booking operations
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
-public class BookingsController(IBookingService _bookingService) : ControllerBase
+public class BookingsController(IBookingService bookingService) : ControllerBase
 {
     /// <summary>
     /// Retrieves a booking by its identifier
@@ -19,7 +20,7 @@ public class BookingsController(IBookingService _bookingService) : ControllerBas
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetBooking(Guid bookingId)
     {
-        var booking = await _bookingService.GetBookingByIdAsync(bookingId);
+        var booking = await bookingService.GetBookingByIdAsync(bookingId);
 
         if (booking == null)
         {
@@ -34,7 +35,7 @@ public class BookingsController(IBookingService _bookingService) : ControllerBas
             CreatedAt = booking.CreatedAt,
             ProcessedAt = booking.ProcessedAt
         };
-        
+
         return Ok(response);
     }
 }

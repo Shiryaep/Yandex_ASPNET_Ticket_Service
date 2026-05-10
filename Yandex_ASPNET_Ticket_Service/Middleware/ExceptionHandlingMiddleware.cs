@@ -1,6 +1,7 @@
+using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Text.Json;
-using Microsoft.AspNetCore.Mvc;
+using Yandex_ASPNET_Ticket_Service.Models;
 
 namespace Yandex_ASPNET_Ticket_Service.Middleware;
 
@@ -8,21 +9,15 @@ namespace Yandex_ASPNET_Ticket_Service.Middleware;
 /// Middleware for global exception handling
 /// Intercepts unhandled exceptions and returns a structured response in the "Problem Details (RFC 7807)" format
 /// </summary>
-public class ExceptionHandlingMiddleware
+/// <remarks>
+/// Constructor for ExceptionHandlingMiddleware
+/// </remarks>
+public class ExceptionHandlingMiddleware(
+    RequestDelegate next,
+    ILogger<ExceptionHandlingMiddleware> logger)
 {
-    private readonly RequestDelegate _next;
-    private readonly ILogger<ExceptionHandlingMiddleware> _logger;
-
-    /// <summary>
-    /// Constructor for ExceptionHandlingMiddleware
-    /// </summary>
-    public ExceptionHandlingMiddleware(
-        RequestDelegate next,
-        ILogger<ExceptionHandlingMiddleware> logger)
-    {
-        _next = next;
-        _logger = logger;
-    }
+    private readonly RequestDelegate _next = next;
+    private readonly ILogger<ExceptionHandlingMiddleware> _logger = logger;
 
     /// <summary>
     /// Attempt to pass the request further along the pipeline
@@ -40,7 +35,7 @@ public class ExceptionHandlingMiddleware
         }
     }
 
-    private async Task HandleExceptionAsync(HttpContext context, Exception exception)
+    private static async Task HandleExceptionAsync(HttpContext context, Exception exception)
     {
         var (statusCode, title, detail) = MapExceptionToProblemDetails(exception);
 
@@ -63,16 +58,18 @@ public class ExceptionHandlingMiddleware
     {
         return exception switch
         {
-            ArgumentException or InvalidOperationException => 
+            ArgumentException or InvalidOperationException =>
                 ((int)HttpStatusCode.BadRequest, "Bad Request", exception.Message),
-            KeyNotFoundException or FileNotFoundException => 
+            KeyNotFoundException or FileNotFoundException =>
                 ((int)HttpStatusCode.NotFound, "Not Found", exception.Message),
-            UnauthorizedAccessException => 
+            UnauthorizedAccessException =>
                 ((int)HttpStatusCode.Unauthorized, "Unauthorized", exception.Message),
-            NotImplementedException => 
+            NotImplementedException =>
                 ((int)HttpStatusCode.NotImplemented, "Not Implemented", exception.Message),
-            _ => 
-                ((int)HttpStatusCode.InternalServerError, "Internal Server Error", 
+            NoAvailableSeatsException =>
+                ((int)HttpStatusCode.Conflict, "Conflict", exception.Message),
+            _ =>
+                ((int)HttpStatusCode.InternalServerError, "Internal Server Error",
                  "An unexpected error occurred. Please try again later.")
         };
     }
@@ -84,6 +81,7 @@ public class ExceptionHandlingMiddleware
             400 => "https://tools.ietf.org/html/rfc7231#section-6.5.1",
             401 => "https://tools.ietf.org/html/rfc7235#section-3.1",
             404 => "https://tools.ietf.org/html/rfc7231#section-6.5.4",
+            409 => "https://tools.ietf.org/html/rfc7231#section-6.5.8",
             500 => "https://tools.ietf.org/html/rfc7231#section-6.6.1",
             _ => "https://tools.ietf.org/html/rfc7231#section-6.5"
         };

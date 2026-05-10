@@ -1,4 +1,5 @@
 using Yandex_ASPNET_Ticket_Service.Models;
+using Yandex_ASPNET_Ticket_Service.Models.DTO;
 
 namespace Yandex_ASPNET_Ticket_Service.Services.EventServices;
 
@@ -6,7 +7,7 @@ namespace Yandex_ASPNET_Ticket_Service.Services.EventServices;
 public interface IEventService
 {
     /// <summary> Return all created events as list </summary>
-    public PaginatedResult<Event> GetEvents(string? title, 
+    public PaginatedResult<Event> GetEvents(string? title,
         DateTime? from, DateTime? to,
         int page, int pageSize);
 
@@ -14,7 +15,7 @@ public interface IEventService
     public Event? GetEvent(Guid id);
 
     /// <summary> Add new event to events List</summary>
-    public Event AddEvent(Event @event);
+    public EventInfoDto AddEvent(CreateEventDto @event);
 
     /// <summary> Replace existing event by ID </summary>
     public void UpdateEvent(Guid id, Event @event);

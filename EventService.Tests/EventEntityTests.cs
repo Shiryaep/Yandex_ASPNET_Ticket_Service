@@ -138,5 +138,98 @@ namespace EventService_Tests
             Assert.Contains(validationResults, v =>
                 v.ErrorMessage == "There is no End At!");
         }
+
+        [Fact]
+        public void Event_TryReserveSeats_WhenAvailable_DecreasesAvailableSeats()
+        {
+            // Arrange
+            var @event = new Event
+            {
+                Id = Guid.NewGuid(),
+                Title = "Test",
+                Description = "Test",
+                StartAt = DateTime.Now,
+                EndAt = DateTime.Now.AddHours(2),
+                TotalSeats = 10,
+                AvailableSeats = 5
+            };
+
+            // Act
+            var result = @event.TryReserveSeats(3);
+
+            // Assert
+            Assert.True(result);
+            Assert.Equal(2, @event.AvailableSeats);
+        }
+
+        [Fact]
+        public void Event_TryReserveSeats_WhenNotAvailable_ReturnsFalse()
+        {
+            // Arrange
+            var @event = new Event
+            {
+                Id = Guid.NewGuid(),
+                Title = "Test",
+                Description = "Test",
+                StartAt = DateTime.Now,
+                EndAt = DateTime.Now.AddHours(2),
+                TotalSeats = 10,
+                AvailableSeats = 2
+            };
+
+            // Act
+            var result = @event.TryReserveSeats(3);
+
+            // Assert
+            Assert.False(result);
+            Assert.Equal(2, @event.AvailableSeats); // unchanged
+        }
+
+        [Fact]
+        public void Event_ReleaseSeats_IncreasesAvailableSeats()
+        {
+            // Arrange
+            var @event = new Event
+            {
+                Id = Guid.NewGuid(),
+                Title = "Test",
+                Description = "Test",
+                StartAt = DateTime.Now,
+                EndAt = DateTime.Now.AddHours(2),
+                TotalSeats = 10,
+                AvailableSeats = 5
+            };
+
+            // Act
+            @event.ReleaseSeats(2);
+
+            // Assert
+            Assert.Equal(7, @event.AvailableSeats);
+        }
+
+        [Fact]
+        public void Event_ReleaseSeats_DoesNotExceedTotalSeats()
+        {
+            // Arrange
+            var @event = new Event
+            {
+                Id = Guid.NewGuid(),
+                Title = "Test",
+                Description = "Test",
+                StartAt = DateTime.Now,
+                EndAt = DateTime.Now.AddHours(2),
+                TotalSeats = 10,
+                AvailableSeats = 9
+            };
+
+            // Act
+            @event.ReleaseSeats(5);
+
+            // Assert
+            // ReleaseSeats does not increase AvailableSeats beyond TotalSeats
+            // Since AvailableSeats + count > TotalSeats, the condition fails and AvailableSeats remains unchanged
+            Assert.Equal(9, @event.AvailableSeats);
+            Assert.True(@event.AvailableSeats <= @event.TotalSeats);
+        }
     }
 }

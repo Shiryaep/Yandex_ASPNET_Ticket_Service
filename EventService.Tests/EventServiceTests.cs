@@ -1,4 +1,6 @@
+using System.Linq;
 using Yandex_ASPNET_Ticket_Service.Models;
+using Yandex_ASPNET_Ticket_Service.Models.DTO;
 using Yandex_ASPNET_Ticket_Service.Services.EventServices;
 
 namespace EventService_Tests;
@@ -21,21 +23,21 @@ public class EventServiceTests
         var eventId = Guid.NewGuid();
         var startDate = DateTime.Parse("2026-03-22T10:30:00");
         var stopDate = DateTime.Parse("2026-03-22T12:30:00");
-        var @event = new Event
+        var @event = new CreateEventDto
         {
             Id = eventId,
             Title = "Yandex Asp.Net Study",
             Description = "With great power comes great responsibility.",
             StartAt = startDate,
-            EndAt = stopDate
+            EndAt = stopDate,
+            TotalSeats = 10
         };
 
         // Act
         var result = _eventService.AddEvent(@event);
 
         // Assert
-        Assert.Equal(@event, result);
-        Assert.Contains(@event, _eventService.GetEvents().CurrentEvents);
+        Assert.True(EventDtoCompare(@event, result));
     }
 
     [Fact]
@@ -45,13 +47,14 @@ public class EventServiceTests
         var eventId = Guid.NewGuid();
         var startDate = DateTime.Parse("2026-03-22T10:30:00");
         var stopDate = DateTime.Parse("2026-03-22T12:30:00");
-        var @event = new Event
+        var @event = new CreateEventDto
         {
             Id = eventId,
             Title = "Yandex Asp.Net Study",
             Description = "With great power comes great responsibility.",
             StartAt = startDate,
-            EndAt = stopDate
+            EndAt = stopDate,
+            TotalSeats = 10
         };
         _eventService.AddEvent(@event);
 
@@ -70,30 +73,36 @@ public class EventServiceTests
         // Arrange
         var startDate = DateTime.Parse("2026-03-22T10:30:00");
         var stopDate = DateTime.Parse("2026-03-22T12:30:00");
-        var event1 = new Event
+        var id1 = Guid.NewGuid();
+        var id2 = Guid.NewGuid();
+        var event1 = new CreateEventDto
         {
-            Id = Guid.NewGuid(),
+            Id = id1,
             Title = "Yandex Asp.Net Study 1",
             StartAt = startDate,
-            EndAt = stopDate
+            EndAt = stopDate,
+            TotalSeats = 10
         };
-        var event2 = new Event
+        var event2 = new CreateEventDto
         {
-            Id = Guid.NewGuid(),
+            Id = id2,
             Title = "Yandex Asp.Net Study 2",
             StartAt = startDate,
-            EndAt = stopDate
+            EndAt = stopDate,
+            TotalSeats = 10
         };
         _eventService.AddEvent(event1);
         _eventService.AddEvent(event2);
 
         // Act
         var result = _eventService.GetEvents();
+        var resultEvent1 = _eventService.GetEvent(id1);
+        var resultEvent2 = _eventService.GetEvent(id2);
 
         // Assert
         Assert.Equal(2, result.TotalEventsCount);
-        Assert.Contains(event1, result.CurrentEvents);
-        Assert.Contains(event2, result.CurrentEvents);
+        Assert.NotNull(resultEvent1);
+        Assert.NotNull(resultEvent2);
     }
 
     [Fact]
@@ -102,19 +111,21 @@ public class EventServiceTests
         // Arrange
         var startDate = DateTime.Parse("2026-03-22T10:30:00");
         var stopDate = DateTime.Parse("2026-03-22T12:30:00");
-        var event1 = new Event
+        var event1 = new CreateEventDto
         {
             Id = Guid.NewGuid(),
             Title = "Yandex Asp.Net Study",
             StartAt = startDate,
-            EndAt = stopDate
+            EndAt = stopDate,
+            TotalSeats = 10
         };
-        var event2 = new Event
+        var event2 = new CreateEventDto
         {
             Id = Guid.NewGuid(),
             Title = "Yandex Fullstack Study",
             StartAt = startDate,
-            EndAt = stopDate
+            EndAt = stopDate,
+            TotalSeats = 10
         };
         _eventService.AddEvent(event1);
         _eventService.AddEvent(event2);
@@ -131,19 +142,21 @@ public class EventServiceTests
     public void GetEvents_FilterByStartDate_ReturnsEventsAfterStart()
     {
         // Arrange
-        var event1 = new Event
+        var event1 = new CreateEventDto
         {
             Id = Guid.NewGuid(),
             Title = "Yandex Asp.Net Study 1",
             StartAt = DateTime.Parse("2026-03-22T10:30:00"),
-            EndAt = DateTime.Parse("2026-03-22T12:30:00")
+            EndAt = DateTime.Parse("2026-03-22T12:30:00"),
+            TotalSeats = 10
         };
-        var event2 = new Event
+        var event2 = new CreateEventDto
         {
             Id = Guid.NewGuid(),
             Title = "Yandex Asp.Net Study 2",
             StartAt = DateTime.Parse("2026-03-30T10:30:00"),
-            EndAt = DateTime.Parse("2026-03-30T12:30:00")
+            EndAt = DateTime.Parse("2026-03-30T12:30:00"),
+            TotalSeats = 10
         };
         _eventService.AddEvent(event1);
         _eventService.AddEvent(event2);
@@ -160,19 +173,21 @@ public class EventServiceTests
     public void GetEvents_FilterByEndDate_ReturnsEventsBeforeEnd()
     {
         // Arrange
-        var event1 = new Event
+        var event1 = new CreateEventDto
         {
             Id = Guid.NewGuid(),
             Title = "Yandex Asp.Net Study 1",
             StartAt = DateTime.Parse("2026-03-22T10:30:00"),
-            EndAt = DateTime.Parse("2026-03-22T12:30:00")
+            EndAt = DateTime.Parse("2026-03-22T12:30:00"),
+            TotalSeats = 10
         };
-        var event2 = new Event
+        var event2 = new CreateEventDto
         {
             Id = Guid.NewGuid(),
             Title = "Yandex Asp.Net Study 2",
             StartAt = DateTime.Parse("2026-03-30T10:30:00"),
-            EndAt = DateTime.Parse("2026-03-30T12:30:00")
+            EndAt = DateTime.Parse("2026-03-30T12:30:00"),
+            TotalSeats = 10
         };
         _eventService.AddEvent(event1);
         _eventService.AddEvent(event2);
@@ -193,12 +208,13 @@ public class EventServiceTests
         var stopDate = DateTime.Parse("2026-03-22T12:30:00");
         for (int i = 1; i <= 25; i++)
         {
-            _eventService.AddEvent(new Event
+            _eventService.AddEvent(new CreateEventDto
             {
                 Id = Guid.NewGuid(),
                 Title = $"Yandex Event number {i}",
                 StartAt = startDate,
-                EndAt = stopDate
+                EndAt = stopDate,
+                TotalSeats = 10
             });
         }
 
@@ -218,37 +234,42 @@ public class EventServiceTests
     public void GetEvents_CombinedFilters_ReturnsFilteredEvents()
     {
         // Arrange
-        var event1 = new Event
+        var event1 = new CreateEventDto
         {
             Id = Guid.NewGuid(),
             Title = "Yandex Asp.Net Study 1",
             StartAt = DateTime.Parse("2026-03-22T10:30:00"),
-            EndAt = DateTime.Parse("2026-03-22T12:30:00")
+            EndAt = DateTime.Parse("2026-03-22T12:30:00"),
+            TotalSeats = 10
         };
-        var event2 = new Event
+        var event2 = new CreateEventDto
         {
             Id = Guid.NewGuid(),
             Title = "Yandex Asp.Net Study 2",
             StartAt = DateTime.Parse("2026-03-30T10:30:00"),
-            EndAt = DateTime.Parse("2026-03-30T12:30:00")
+            EndAt = DateTime.Parse("2026-03-30T12:30:00"),
+            TotalSeats = 10
         };
-        var event3 = new Event
+        var event3 = new CreateEventDto
         {
             Id = Guid.NewGuid(),
             Title = "Yandex Asp.Net Study 3",
             StartAt = DateTime.Parse("2026-03-22T10:30:00"),
-            EndAt = DateTime.Parse("2026-03-22T12:30:00")
+            EndAt = DateTime.Parse("2026-03-22T12:30:00"),
+            TotalSeats = 10
         };
-        var event4 = new Event
+        var event4 = new CreateEventDto
         {
             Id = Guid.NewGuid(),
             Title = "Yandex Asp.Net With Correct Date",
             StartAt = DateTime.Parse("2026-03-30T10:30:00"),
-            EndAt = DateTime.Parse("2026-03-30T12:30:00")
+            EndAt = DateTime.Parse("2026-03-30T12:30:00"),
+            TotalSeats = 10
         };
         _eventService.AddEvent(event1);
         _eventService.AddEvent(event2);
         _eventService.AddEvent(event3);
+        _eventService.AddEvent(event4);
 
         // Act
         var result = _eventService.GetEvents(title: "Yandex Asp.Net Study", from: DateTime.Parse("2026-03-25T12:30:00"));
@@ -263,13 +284,14 @@ public class EventServiceTests
     {
         // Arrange
         var eventId = Guid.NewGuid();
-        var originalEvent = new Event
+        var originalEvent = new CreateEventDto
         {
             Id = eventId,
             Title = "Yandex Asp.Net Study",
             Description = "With great power comes great responsibility.",
             StartAt = DateTime.Parse("2026-03-22T10:30:00"),
-            EndAt = DateTime.Parse("2026-03-22T12:30:00")
+            EndAt = DateTime.Parse("2026-03-22T12:30:00"),
+            TotalSeats = 10
         };
         _eventService.AddEvent(originalEvent);
 
@@ -279,7 +301,8 @@ public class EventServiceTests
             Title = "Yandex Asp.Net Study UPDATE",
             Description = "With great power comes great responsibility. SPIDER-MAN",
             StartAt = DateTime.Parse("2026-03-23T10:30:00"),
-            EndAt = DateTime.Parse("2026-03-23T12:30:00")
+            EndAt = DateTime.Parse("2026-03-23T12:30:00"),
+            TotalSeats = 10
         };
 
         // Act
@@ -298,13 +321,14 @@ public class EventServiceTests
     {
         // Arrange
         var eventId = Guid.NewGuid();
-        var @event = new Event
+        var @event = new CreateEventDto
         {
             Id = eventId,
             Title = "Yandex Asp.Net Study DELETE",
             Description = "With great power comes great responsibility.",
             StartAt = DateTime.Parse("2026-03-22T10:30:00"),
-            EndAt = DateTime.Parse("2026-03-22T12:30:00")
+            EndAt = DateTime.Parse("2026-03-22T12:30:00"),
+            TotalSeats = 10
         };
         _eventService.AddEvent(@event);
 
@@ -314,7 +338,6 @@ public class EventServiceTests
 
         // Assert
         Assert.Null(result);
-        Assert.DoesNotContain(@event, _eventService.GetEvents().CurrentEvents);
     }
 
     [Fact]
@@ -341,7 +364,8 @@ public class EventServiceTests
             Title = "Yandex Asp.Net Study UPDATE",
             Description = "With great power comes great responsibility.",
             StartAt = DateTime.Parse("2026-03-22T10:30:00"),
-            EndAt = DateTime.Parse("2026-03-22T12:30:00")
+            EndAt = DateTime.Parse("2026-03-22T12:30:00"),
+            TotalSeats = 10
         };
 
         // Act
@@ -367,4 +391,15 @@ public class EventServiceTests
         Assert.Equal(initialCount, afterCount);
     }
     #endregion
+
+    private static bool EventDtoCompare(CreateEventDto createEventDto, EventInfoDto eventInfoDto)
+    {
+        bool result = createEventDto.Id == eventInfoDto.Id &&
+            createEventDto.Title == eventInfoDto.Title &&
+            createEventDto.Description == eventInfoDto.Description &&
+            createEventDto.StartAt == eventInfoDto.StartAt &&
+            createEventDto.EndAt == eventInfoDto.EndAt &&
+            createEventDto.TotalSeats == eventInfoDto.TotalSeats;
+        return result;
+    }
 }

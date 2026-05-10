@@ -1,4 +1,5 @@
 using Yandex_ASPNET_Ticket_Service.Models;
+using Yandex_ASPNET_Ticket_Service.Services.EventServices;
 using Yandex_ASPNET_Ticket_Service.Storage;
 
 namespace Yandex_ASPNET_Ticket_Service.Services.BookingServices;
@@ -6,18 +7,16 @@ namespace Yandex_ASPNET_Ticket_Service.Services.BookingServices;
 /// <summary>
 /// Service for managing bookings
 /// </summary>
-public class BookingService : IBookingService
+/// <remarks>
+/// Initializes a new instance of the <see cref="BookingService"/> class
+/// </remarks>
+/// <param name="storage">Booking storage dependency</param>
+/// <param name="eventService">Event service dependency</param>
+public class BookingService(IBookingStorage storage, IEventService eventService) : IBookingService
 {
-    private readonly IBookingStorage _storage;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="BookingService"/> class
-    /// </summary>
-    /// <param name="storage">Booking storage dependency</param>
-    public BookingService(IBookingStorage storage)
-    {
-        _storage = storage;
-    }
+    private readonly IBookingStorage _storage = storage;
+    private readonly IEventService _eventService = eventService;
+    private readonly SemaphoreSlim _bookingLock = new(1, 1);
 
     /// <summary>
     /// Creates a new booking for the specified event
@@ -26,9 +25,30 @@ public class BookingService : IBookingService
     /// <returns>The created booking</returns>
     public async Task<Booking> CreateBookingAsync(Guid eventId)
     {
-        var booking = new Booking(eventId);
-        await _storage.AddAsync(booking);
-        return booking;
+        await _bookingLock.WaitAsync();
+        try
+        {
+            // Get the event
+            var eventEntity = _eventService.GetEvent(eventId) ?? throw new ArgumentException($"Event with id {eventId} not found");
+
+            // Try to reserve one seat
+            if (!eventEntity.TryReserveSeats(1))
+            {
+                throw new NoAvailableSeatsException();
+            }
+
+            // Update event with reduced available seats
+            _eventService.UpdateEvent(eventId, eventEntity);
+
+            // Create and save booking
+            var booking = new Booking(eventId);
+            await _storage.AddAsync(booking);
+            return booking;
+        }
+        finally
+        {
+            _bookingLock.Release();
+        }
     }
 
     /// <summary>

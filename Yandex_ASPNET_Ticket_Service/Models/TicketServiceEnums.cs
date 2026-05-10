@@ -1,3 +1,5 @@
+namespace Yandex_ASPNET_Ticket_Service.Models;
+
 ///<summary> Enum of Booking Statuses </summary>
 public enum BookingStatus
 {

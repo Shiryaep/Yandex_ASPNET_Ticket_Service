@@ -2,6 +2,7 @@
 using Moq;
 using Yandex_ASPNET_Ticket_Service.Controllers;
 using Yandex_ASPNET_Ticket_Service.Models;
+using Yandex_ASPNET_Ticket_Service.Models.DTO;
 using Yandex_ASPNET_Ticket_Service.Services.BookingServices;
 using Yandex_ASPNET_Ticket_Service.Services.EventServices;
 
@@ -23,7 +24,7 @@ namespace EventService_Tests
 
             // Assert
             Assert.IsType<BadRequestObjectResult>(result);
-            mockEventService.Verify(service => service.AddEvent(It.IsAny<Event>()), Times.Never);
+            mockEventService.Verify(service => service.AddEvent(It.IsAny<CreateEventDto>()), Times.Never);
         }
 
         [Fact]
