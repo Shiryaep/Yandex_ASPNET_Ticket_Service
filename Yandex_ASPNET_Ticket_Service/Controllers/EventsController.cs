@@ -23,14 +23,14 @@ public class EventsController(IEventService eventService, IBookingService bookin
     /// <param name="pageSize">Number of items per page (default: 10)</param>
     /// <returns>Paginated list of events matching the filters</returns>
     [HttpGet]
-    public ActionResult<PaginatedResult<Event>> GetAllEvents(
+    public async Task<ActionResult<PaginatedResult<EventInfoDto>>> GetAllEventsAsync(
         string? title = null,
         DateTime? from = null,
         DateTime? to = null,
         int page = 1,
         int pageSize = 10)
     {
-        return eventService.GetEvents(title, from, to, page, pageSize);
+        return await eventService.GetAllEventsAsync(title, from, to, page, pageSize);
     }
 
     /// <summary>
@@ -39,9 +39,9 @@ public class EventsController(IEventService eventService, IBookingService bookin
     /// <param name="id">Event identifier</param>
     /// <returns>The event if found; otherwise 404 Not Found</returns>
     [HttpGet("{id:Guid}")]
-    public ActionResult<Event> GetEventById(Guid id)
+    public async Task<ActionResult<EventInfoDto>> GetEventById(Guid id)
     {
-        var eventItem = eventService.GetEvent(id);
+        var eventItem = await eventService.GetEventByIdAsync(id);
         if (eventItem == null)
         {
             return NotFound();
@@ -55,14 +55,14 @@ public class EventsController(IEventService eventService, IBookingService bookin
     /// <param name="event">Event data</param>
     /// <returns>201 Created with the created event</returns>
     [HttpPost]
-    public IActionResult Post([FromBody] CreateEventDto @event)
+    public async Task<IActionResult> Post([FromBody] CreateEventDto @event)
     {
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
 
-        var created = eventService.AddEvent(@event);
+        var created = await eventService.CreateEventAsync(@event);
         return CreatedAtAction(nameof(GetEventById), new { id = created.Id }, created);
     }
 
@@ -77,13 +77,13 @@ public class EventsController(IEventService eventService, IBookingService bookin
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Post(Guid id)
     {
-        Event? @event = eventService.GetEvent(id);
+        EventInfoDto? @event = await eventService.GetEventByIdAsync(id);
         if (@event == null) return NotFound(new { message = $"Event with id [{id}] not found" });
         else
         {
             var booking = await bookingService.CreateBookingAsync(id);
 
-            var response = new BookingResponseDto
+            var response = new BookingInfoDto
             {
                 Id = booking.Id,
                 EventId = booking.EventId,
@@ -103,14 +103,14 @@ public class EventsController(IEventService eventService, IBookingService bookin
     /// <param name="event">Updated event data</param>
     /// <returns>204 No Content if successful; 400 Bad Request if validation fails</returns>
     [HttpPut("{id:Guid}")]
-    public IActionResult Put(Guid id, [FromBody] Event @event)
+    public async Task<IActionResult> Put(Guid id, [FromBody] UpdateEventDto @event)
     {
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
 
-        eventService.UpdateEvent(id, @event);
+        await eventService.UpdateEventAsync(id, @event);
         return new NoContentResult();
     }
 
@@ -120,9 +120,9 @@ public class EventsController(IEventService eventService, IBookingService bookin
     /// <param name="id">Event identifier</param>
     /// <returns>200 OK if successful</returns>
     [HttpDelete("{id:Guid}")]
-    public IActionResult Delete(Guid id)
+    public async Task<IActionResult> Delete(Guid id)
     {
-        eventService.DeleteEvent(id);
+        await eventService.DeleteEventAsync(id);
         return new OkResult();
     }
 }

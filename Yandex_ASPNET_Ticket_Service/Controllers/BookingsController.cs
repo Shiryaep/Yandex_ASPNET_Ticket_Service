@@ -16,7 +16,7 @@ public class BookingsController(IBookingService bookingService) : ControllerBase
     /// <param name="bookingId">Unique identifier of the booking</param>
     /// <returns>200 OK with booking details if found; otherwise 404 Not Found</returns>
     [HttpGet("{bookingId}")]
-    [ProducesResponseType(typeof(BookingResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(BookingInfoDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetBooking(Guid bookingId)
     {
@@ -27,7 +27,7 @@ public class BookingsController(IBookingService bookingService) : ControllerBase
             return NotFound(new { message = $"Booking with id [{bookingId}] not found" });
         }
 
-        var response = new BookingResponseDto
+        var response = new BookingInfoDto
         {
             Id = booking.Id,
             EventId = booking.EventId,

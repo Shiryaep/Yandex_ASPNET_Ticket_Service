@@ -4,43 +4,53 @@ using System.ComponentModel.DataAnnotations;
 namespace Yandex_ASPNET_Ticket_Service.Models;
 
 /// <summary> Booking entity </summary> 
-///<remarks> Booking constuctor </remarks>
-public class Booking(Guid eventID)
+public class Booking
 {
-    /// <summary> Booking unique ID </summary>
-    [Required]
-    public Guid Id { get; set; } = Guid.NewGuid();
-
-    /// <summary> ID of the Event that Booking refer to </summary>
-    [Required]
-    public Guid EventId { get; set; } = eventID;
-
-    ///<summary> Current Booking Status </summary>
-    [Required]
-    public BookingStatus Status { get; set; } = BookingStatus.Pending;
-
-    ///<summary> Date and Time of Booking creation </summary>
-    [Required]
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
-    ///<summary> Date and Time of Booking solution </summary>
+    public Guid Id { get; set; }
+    public Guid EventId { get; set; }
+    public BookingStatus Status { get; set; }
+    public DateTime CreatedAt { get; set; }
     public DateTime? ProcessedAt { get; set; }
+    public Event? Event { get; set; }
 
-    /// <summary>
-    /// Confirms the booking, setting status to Confirmed and recording processed time.
-    /// </summary>
     public void Confirm()
     {
         Status = BookingStatus.Confirmed;
         ProcessedAt = DateTime.UtcNow;
     }
 
-    /// <summary>
-    /// Rejects the booking, setting status to Rejected and recording processed time.
-    /// </summary>
     public void Reject()
     {
         Status = BookingStatus.Rejected;
         ProcessedAt = DateTime.UtcNow;
+    }
+
+    public Booking(Guid eventID)
+    {
+        Id = Guid.NewGuid();
+        EventId = eventID;
+        Status = BookingStatus.Pending;
+        CreatedAt = DateTime.UtcNow;
+        Event = null;
+    }
+
+    private Booking(Guid id, Guid eventId, BookingStatus status, DateTime createdAt)
+    {
+        Id = id;
+        EventId = eventId;
+        Status = status;
+        CreatedAt = createdAt;
+    }
+
+    public static Booking CreatePending(Guid eventId)
+    {
+        if (eventId == Guid.Empty)
+            throw new ValidationException("EventId cannot be empty");
+
+        return new Booking(Guid.NewGuid(), eventId, BookingStatus.Pending, DateTime.UtcNow);
+    }
+
+    private Booking()
+    {
     }
 }

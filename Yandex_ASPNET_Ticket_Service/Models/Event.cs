@@ -6,37 +6,14 @@ namespace Yandex_ASPNET_Ticket_Service.Models;
 /// <summary> Event entity </summary> 
 public class Event
 {
-    /// <summary> Event unique ID </summary> 
-    [Required]
     public Guid Id { get; set; }
-
-    /// <summary> Event title </summary> 
-    [Required(ErrorMessage = "There is no Title!")]
-    public string? Title { get; set; }
-
-    /// <summary> Event description </summary> 
+    public string Title { get; set; }
     public string? Description { get; set; }
-
-    /// <summary> Event start date and time </summary> 
-    [Required(ErrorMessage = "There is no Start At!")]
-    public DateTime? StartAt { get; set; } = null;
-
-    /// <summary> Event finish date and time </summary> 
-    [Required(ErrorMessage = "There is no End At!")]
-    [ValidateEndAtLaterThanStartAt(ErrorMessage = "EndAt must be later than StartAt.")]
-    public DateTime? EndAt { get; set; } = null;
-
-    /// <summary> Event total seats for reservation </summary> 
-    [Required(ErrorMessage = "You missed TotalSeats count in Event")]
+    public DateTime? StartAt { get; set; }
+    public DateTime? EndAt { get; set; }
     public int TotalSeats { get; set; }
-
-    private int? _availableSeats;
-    /// <summary> Event currently available seats for reservation </summary> 
-    public int AvailableSeats
-    {
-        get => _availableSeats ?? TotalSeats;
-        set => _availableSeats = value;
-    }
+    public int AvailableSeats { get; set; }
+    public List<Booking> Bookings { get; set; } = [];
 
     /// <summary>
     /// Check Available seats and try to reserve them
@@ -66,40 +43,81 @@ public class Event
         {
             AvailableSeats += count;
         }
+        else
+        {
+            AvailableSeats = TotalSeats;
+        }
     }
-}
 
-/// <summary>
-/// Validates that the EndAt datetime is later than the StartAt datetime for an event
-/// </summary>
-public class ValidateEndAtLaterThanStartAt : ValidationAttribute
-{
-    /// <summary>
-    /// Validates that EndAt is later than StartAt
-    /// </summary>
-    /// <param name="value">The value of the EndAt property being validated</param>
-    /// <param name="validationContext">Validation context providing access to the object instance</param>
-    /// <returns>ValidationResult.Success if valid; otherwise an error message</returns>
-    protected override ValidationResult IsValid(object? value, ValidationContext validationContext)
+    private Event()
     {
-        if (value == null)
-            return new ValidationResult("EndAt is required.");
+        Title = null!;
+    }
 
-        var endAt = (DateTime)value;
-        var startAtProperty = validationContext.ObjectInstance.GetType()
-            .GetProperty("StartAt");
-        if (startAtProperty == null)
-            return new ValidationResult("StartAt property not found.");
+    private Event(
+        Guid id,
+        string title,
+        string? description,
+        DateTime startAt,
+        DateTime endAt,
+        int totalSeats)
+    {
+        Id = id;
+        Title = title;
+        Description = description;
+        StartAt = startAt;
+        EndAt = endAt;
+        TotalSeats = totalSeats;
+        AvailableSeats = totalSeats;
+    }
 
-        var startAtValue = startAtProperty.GetValue(validationContext.ObjectInstance);
-        if (startAtValue == null)
-            return new ValidationResult("StartAt is required.");
+    public static Event Create(
+        string? title,
+        string? description,
+        DateTime? startAt,
+        DateTime? endAt,
+        int? totalSeats)
+    {
+        ValidateModelFields(title, startAt, endAt, totalSeats);
 
-        var startAt = (DateTime)startAtValue;
+        return new Event(Guid.NewGuid(), title!.Trim(), description, startAt!.Value, endAt!.Value, totalSeats!.Value);
+    }
+
+    public void Update(
+       string? title,
+       string? description,
+       DateTime? startAt,
+       DateTime? endAt)
+    {
+        ValidateModelFields(title, startAt, endAt, TotalSeats);
+
+        Title = title!;
+        Description = description;
+        StartAt = startAt!.Value;
+        EndAt = endAt!.Value;
+    }
+
+    private static void ValidateModelFields(string? title,
+        DateTime? startAt,
+        DateTime? endAt,
+        int? totalSeats)
+    {
+        if (string.IsNullOrWhiteSpace(title))
+            throw new ValidationException("There is no Title!");
+
+        if (!startAt.HasValue)
+            throw new ValidationException("There is no Start At!");
+
+        if (!endAt.HasValue)
+            throw new ValidationException("There is no End At!");
+
+        if (startAt < DateTime.UtcNow)
+            throw new ValidationException("Event cannot start in the past");
 
         if (endAt <= startAt)
-            return new ValidationResult(ErrorMessage);
+            throw new ValidationException("EndAt must be later than StartAt.");
 
-        return ValidationResult.Success!;
+        if (!totalSeats.HasValue || totalSeats.Value <= 0)
+            throw new ValidationException("Total Seats count must be more than zero");
     }
 }
