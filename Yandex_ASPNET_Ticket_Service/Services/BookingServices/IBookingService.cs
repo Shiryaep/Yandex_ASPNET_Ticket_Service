@@ -19,6 +19,6 @@ public interface IBookingService
     /// Retrieves a booking by its identifier
     /// </summary>
     /// <param name="bookingId">Booking identifier</param>
-    /// <returns>The booking if found; otherwise null</returns>
+    /// <returns>The booking if found; otherwise throw an NotFoundException</returns>
     public Task<BookingInfoDto> GetBookingByIdAsync(Guid bookingId, CancellationToken cancellationToken = default);
 }

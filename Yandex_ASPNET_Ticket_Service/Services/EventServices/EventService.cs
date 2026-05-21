@@ -4,6 +4,7 @@ using System.Reflection;
 using Yandex_ASPNET_Ticket_Service.DataAccess;
 using Yandex_ASPNET_Ticket_Service.Models;
 using Yandex_ASPNET_Ticket_Service.Models.DTO;
+using Yandex_ASPNET_Ticket_Service.Models.Exceptions;
 
 namespace Yandex_ASPNET_Ticket_Service.Services.EventServices;
 
@@ -14,11 +15,10 @@ public class EventService(AppDbContext context) : IEventService
 
     /// <summary> Return all created events as list using filters</summary>
     public async Task<PaginatedResult<EventInfoDto>> GetAllEventsAsync(string? title = null,
-                                DateTime? from = null,
-                                DateTime? to = null,
-                                int page = 1,
-                                int pageSize = 10,
-                                CancellationToken cancellationToken = default)
+        DateTime? from = null, DateTime? to = null,
+        int page = AppConstants.DefaultPage,
+        int pageSize = AppConstants.DefaultPageSize,
+        CancellationToken cancellationToken = default)
     {
         var query = _context.Events.AsQueryable();
 
@@ -51,7 +51,7 @@ public class EventService(AppDbContext context) : IEventService
     public async Task<EventInfoDto> GetEventByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var @event = await _context.Events.FirstOrDefaultAsync(e => e.Id == id, cancellationToken)
-            ?? throw new Exception("Event with given Id not found");
+            ?? throw new NotFoundException("Event not found");
 
         return ToInfo(@event);
     }
@@ -69,7 +69,7 @@ public class EventService(AppDbContext context) : IEventService
     public async Task<EventInfoDto> UpdateEventAsync(Guid id, UpdateEventDto updateEvent, CancellationToken cancellationToken = default)
     {
         var @event = await _context.Events.FirstOrDefaultAsync(e => e.Id == id, cancellationToken)
-            ?? throw new Exception("Event with given Id not found");
+            ?? throw new NotFoundException("Event not found");
         @event.Update(updateEvent.Title, updateEvent.Description, updateEvent.StartAt, updateEvent.EndAt);
         await _context.SaveChangesAsync(cancellationToken);
 

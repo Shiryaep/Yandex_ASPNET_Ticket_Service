@@ -8,9 +8,9 @@ namespace Yandex_ASPNET_Ticket_Service.Services.EventServices;
 public interface IEventService
 {
     /// <summary> Return all created events as list </summary>
-    public Task<PaginatedResult<EventInfoDto>> GetAllEventsAsync(string? title,
-        DateTime? from, DateTime? to,
-        int page, int pageSize, CancellationToken cancellationToken = default);
+    public Task<PaginatedResult<EventInfoDto>> GetAllEventsAsync(string? title = null,
+        DateTime? from = null, DateTime? to = null,
+        int page = AppConstants.DefaultPage, int pageSize = AppConstants.DefaultPageSize, CancellationToken cancellationToken = default);
 
     /// <summary> Return event by ID </summary>
     public Task<EventInfoDto> GetEventByIdAsync(Guid id, CancellationToken cancellationToken = default);

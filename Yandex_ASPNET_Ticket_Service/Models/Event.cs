@@ -106,10 +106,10 @@ public class Event
             throw new ValidationException("There is no Title!");
 
         if (!startAt.HasValue)
-            throw new ValidationException("There is no Start At!");
+            throw new ValidationException("There is no StartAt!");
 
         if (!endAt.HasValue)
-            throw new ValidationException("There is no End At!");
+            throw new ValidationException("There is no EndAt!");
 
         if (startAt < DateTime.UtcNow)
             throw new ValidationException("Event cannot start in the past");

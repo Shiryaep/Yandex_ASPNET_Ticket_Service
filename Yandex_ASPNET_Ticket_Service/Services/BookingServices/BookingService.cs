@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Yandex_ASPNET_Ticket_Service.DataAccess;
 using Yandex_ASPNET_Ticket_Service.Models;
 using Yandex_ASPNET_Ticket_Service.Models.DTO;
+using Yandex_ASPNET_Ticket_Service.Models.Exceptions;
 
 namespace Yandex_ASPNET_Ticket_Service.Services.BookingServices;
 
@@ -28,7 +29,7 @@ public class BookingService(AppDbContext context) : IBookingService
         {
             // Get the event
             var eventEntity = await _context.Events.FirstOrDefaultAsync(e => e.Id == eventId, cancellationToken)
-                ?? throw new Exception($"Event with id {eventId} not found");
+                ?? throw new NotFoundException($"Event not found");
 
             // Try to reserve seat
             if (!eventEntity.TryReserveSeats())
@@ -53,11 +54,11 @@ public class BookingService(AppDbContext context) : IBookingService
     /// Retrieves a booking by its identifier
     /// </summary>
     /// <param name="bookingId">Booking identifier</param>
-    /// <returns>The booking if found; otherwise null</returns>
+    /// <returns>The booking if found; otherwise throw an NotFoundException</returns>
     public async Task<BookingInfoDto> GetBookingByIdAsync(Guid bookingId, CancellationToken cancellationToken = default)
     {
         var booking = await _context.Bookings.FirstOrDefaultAsync(b => b.Id == bookingId, cancellationToken)
-            ?? throw new Exception("Booking not found");
+            ?? throw new NotFoundException("Booking not found");
 
         return ToInfo(booking);
     }
