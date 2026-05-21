@@ -1,6 +1,6 @@
 using System;
 
-namespace Yandex_ASPNET_Ticket_Service.Models;
+namespace Yandex_ASPNET_Ticket_Service.Models.Exceptions;
 
 /// <summary>
 /// Exception thrown when there are no available seats for booking

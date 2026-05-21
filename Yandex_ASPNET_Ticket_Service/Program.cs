@@ -1,8 +1,9 @@
-using Yandex_ASPNET_Ticket_Service.HostedServices;
+using Microsoft.EntityFrameworkCore;
+using Yandex_ASPNET_Ticket_Service.DataAccess;
 using Yandex_ASPNET_Ticket_Service.Middleware;
 using Yandex_ASPNET_Ticket_Service.Services.BookingServices;
 using Yandex_ASPNET_Ticket_Service.Services.EventServices;
-using Yandex_ASPNET_Ticket_Service.Storage;
+using Yandex_ASPNET_Ticket_Service.Services.HostedServices;
 
 namespace Yandex_ASPNET_Ticket_Service;
 
@@ -19,13 +20,21 @@ public class Program
 
         builder.Services.AddSwaggerGen();
 
-        builder.Services.AddSingleton<IBookingService, BookingService>();
-        builder.Services.AddSingleton<IEventService, EventService>();
-        builder.Services.AddSingleton<IBookingStorage, InMemoryBookingStorage>();
+        builder.Services.AddDbContext<AppDbContext>(options =>
+            options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-        builder.Services.AddHostedService<BookingResolverService>();
+        builder.Services.AddScoped<IEventService, EventService>();
+        builder.Services.AddScoped<IBookingService, BookingService>();
+
+        builder.Services.AddHostedService<BookingBackgroundService>();
 
         var app = builder.Build();
+
+        using (var scope = app.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            db.Database.EnsureCreated();
+        }
 
         if (app.Environment.IsDevelopment())
         {

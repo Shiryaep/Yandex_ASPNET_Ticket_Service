@@ -8,6 +8,25 @@
 
 - [.NET SDK 10.0 или выше](https://dotnet.microsoft.com/download)
 - [Visual Studio 2026](https://visualstudio.microsoft.com/) или [Visual Studio Code](https://code.visualstudio.com/)
+- [PostgreSQL 15 или выше](https://www.postgresql.org/download/)
+
+## Настройка базы данных
+
+Приложение использует PostgreSQL в качестве основной базы данных. Строка подключения настраивается в файле `appsettings.json` (или `appsettings.Development.json` для среды разработки).
+
+Пример строки подключения:
+
+```json
+"ConnectionStrings": {
+  "DefaultConnection": "Host=localhost;Port=5432;Database=TicketServiceDb;Username=postgres;Password=your_password"
+}
+```
+
+Замените `your_password` на пароль пользователя PostgreSQL. Убедитесь, что база данных `TicketServiceDb` существует, либо оставьте пустой — приложение автоматически создаст её при первом запуске (см. ниже).
+
+### Автоматическое создание схемы
+
+При запуске приложения в методе `Program.Main` вызывается `EnsureCreated()`, который автоматически создаёт все необходимые таблицы в указанной базе данных, если они отсутствуют. Это удобно для разработки, но в production окружении будут использоваться миграции.
 
 ## Клонирование репозитория
 
@@ -16,9 +35,9 @@
 
    ```bash
    git clone https://github.com/Shiryaep/Yandex_ASPNET_Ticket_Service.git
-   cd .\Yandex_ASPNET_Ticket_Service\Yandex_ASPNET_Ticket_Service\
+   cd Yandex_ASPNET_Ticket_Service
    ```
-3. Выполните команду для восстановления зависимостей:
+3. Выполните команду для восстановления зависимостей (из корневой папки, где находится файл решения `.sln`):
 
     ```bash
     dotnet restore
@@ -33,13 +52,7 @@
 ## Запуск приложения
 ### Способ 1. Через командную строку
 
-Запустите приложение сразу после сборки:
-
-```bash
-dotnet run
-```
-
-Запустите приложение из папки проекта:
+Запустите приложение из папки проекта сразу после сборки (из папки проекта, где находится файл `Yandex_ASPNET_Ticket_Service.csproj`):
 
 ```bash
 cd .\Yandex_ASPNET_Ticket_Service\
@@ -240,16 +253,20 @@ https://localhost:7011/swagger
 
 ## Запуск тестов
 
-В проекте присутствует набор Unit тестов, расположенных в папке `EventService.Tests`.
+В проекте присутствует набор Unit тестов, расположенных в папке `Yandex_ASPNET_Ticket_Service.UnitTests`.
 
 Для запуска тестов выполните команду:
 
 ```bash
-cd .\EventService.Tests\
+cd .\Yandex_ASPNET_Ticket_Service.UnitTests\
 dotnet test
 ```
 
 Тесты покрывают основные сценарии работы контроллеров, сервисов и хранилищ.
+
+### Использование InMemory-провайдера
+
+В целях изоляции и скорости выполнения тесты используют **InMemory-провайдент Entity Framework Core**. Это позволяет запускать тесты без зависимости от реальной базы данных PostgreSQL. Каждый тестовый класс создаёт свою изолированную in-memory базу данных, которая автоматически очищается после завершения теста.
 
 ## Формат ошибок
 

@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Text.Json;
-using Yandex_ASPNET_Ticket_Service.Models;
+using Yandex_ASPNET_Ticket_Service.Models.Exceptions;
 
 namespace Yandex_ASPNET_Ticket_Service.Middleware;
 

@@ -1,30 +1,12 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace Yandex_ASPNET_Ticket_Service.Models.DTO;
 
-/// <summary>
-/// Data Transfer Object with event information
-/// </summary>
 public class EventInfoDto
 {
-    /// <summary> Event unique ID </summary> 
-    [Required] public Guid Id { get; set; }
-
-    /// <summary> Event title </summary> 
-    [Required] public string? Title { get; set; }
-
-    /// <summary> Event description </summary> 
+    public required Guid Id { get; set; }
+    public required string? Title { get; set; }
     public string? Description { get; set; }
-
-    /// <summary> Event start date and time </summary> 
-    [Required] public DateTime? StartAt { get; set; } = null;
-
-    /// <summary> Event finish date and time </summary> 
-    [Required] public DateTime? EndAt { get; set; } = null;
-
-    /// <summary> Event total seats for reservation </summary> 
-    [Required] public int TotalSeats { get; set; }
-
-    /// <summary> Event currently available seats for reservation </summary> 
+    public required DateTime? StartAt { get; set; } = null;
+    public required DateTime? EndAt { get; set; } = null;
+    public required int TotalSeats { get; set; }
     public int AvailableSeats { get; set; }
 }

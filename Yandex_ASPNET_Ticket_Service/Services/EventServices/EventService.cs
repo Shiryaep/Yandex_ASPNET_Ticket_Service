@@ -1,105 +1,100 @@
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
+using System.Reflection;
+using Yandex_ASPNET_Ticket_Service.DataAccess;
 using Yandex_ASPNET_Ticket_Service.Models;
 using Yandex_ASPNET_Ticket_Service.Models.DTO;
+using Yandex_ASPNET_Ticket_Service.Models.Exceptions;
 
 namespace Yandex_ASPNET_Ticket_Service.Services.EventServices;
 
 /// <summary> Service for events manipulation </summary>
-public class EventService : IEventService
+public class EventService(AppDbContext context) : IEventService
 {
-    private readonly List<Event> _events = [];
+    private readonly AppDbContext _context = context;
 
     /// <summary> Return all created events as list using filters</summary>
-    public PaginatedResult<Event> GetEvents(string? title = null,
-                                DateTime? from = null,
-                                DateTime? to = null,
-                                int page = 1,
-                                int pageSize = 10)
+    public async Task<PaginatedResult<EventInfoDto>> GetAllEventsAsync(string? title = null,
+        DateTime? from = null, DateTime? to = null,
+        int page = AppConstants.DefaultPage,
+        int pageSize = AppConstants.DefaultPageSize,
+        CancellationToken cancellationToken = default)
     {
-        var eventsLocal = new List<Event>(_events);
-
-        if (!string.IsNullOrEmpty(title))
-        {
-            eventsLocal = [.. eventsLocal.Where(e => e.Title != null &&
-            e.Title.Contains(title, StringComparison.OrdinalIgnoreCase))];
-        }
+        var query = _context.Events.AsQueryable();
 
         if (from.HasValue)
-        {
-            eventsLocal = [.. eventsLocal.Where(e => e.StartAt >= from.Value)];
-        }
+            query = query.Where(e => e.StartAt >= from.Value);
 
         if (to.HasValue)
+            query = query.Where(e => e.StartAt <= to.Value);
+
+        if (!string.IsNullOrWhiteSpace(title))
+            query = query.Where(e => e.Title.ToLower().Contains(title.ToLower()));
+
+        var totalCount = await query.CountAsync(cancellationToken);
+
+        var items = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+
+        return new PaginatedResult<EventInfoDto>
         {
-            eventsLocal = [.. eventsLocal.Where(e => e.EndAt <= to.Value)];
-        }
-
-        int allEventsCount = eventsLocal.Count;
-
-        eventsLocal = [.. eventsLocal.Skip((page - 1) * pageSize).Take(pageSize)];
-
-        return new PaginatedResult<Event>(eventsLocal, allEventsCount, page, pageSize);
+            Items = items.Select(ToInfo).ToArray(),
+            TotalCount = totalCount,
+            Page = page,
+            PageSize = pageSize
+        };
     }
 
     /// <summary> Return event by ID </summary>
-    public Event? GetEvent(Guid id)
+    public async Task<EventInfoDto> GetEventByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        return _events.FirstOrDefault(e => e.Id == id);
+        var @event = await _context.Events.FirstOrDefaultAsync(e => e.Id == id, cancellationToken)
+            ?? throw new NotFoundException("Event not found");
+
+        return ToInfo(@event);
     }
 
     /// <summary> Add new event to events List</summary>
-    public EventInfoDto AddEvent(CreateEventDto @event)
+    public async Task<EventInfoDto> CreateEventAsync(CreateEventDto createEvent, CancellationToken cancellationToken = default)
     {
-        if (@event.TotalSeats <= 0)
-        {
-            throw new ValidationException("Total Seats count must be more than zero");
-        }
-        Event newEvent = new()
-        {
-            Id = @event.Id,
-            Title = @event.Title,
-            Description = @event.Description,
-            StartAt = @event.StartAt,
-            EndAt = @event.EndAt,
-            TotalSeats = @event.TotalSeats,
-            AvailableSeats = @event.TotalSeats
-        };
-
-        _events.Add(newEvent);
-
-        EventInfoDto eventInfoDto = new()
-        {
-            Id = newEvent.Id,
-            Title = newEvent.Title,
-            Description = newEvent.Description,
-            StartAt = newEvent.StartAt,
-            EndAt = newEvent.EndAt,
-            TotalSeats = newEvent.TotalSeats,
-            AvailableSeats = newEvent.TotalSeats
-        };
-
-        return eventInfoDto;
+        Event @event = Event.Create(createEvent.Title, createEvent.Description, createEvent.StartAt, createEvent.EndAt, createEvent.TotalSeats);
+        await _context.Events.AddAsync(@event, cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
+        return ToInfo(@event);
     }
 
-    /// <summary> Replace existing event by ID </summary>
-    public void UpdateEvent(Guid id, Event @event)
+    /// <summary> Update existing event by ID </summary>
+    public async Task<EventInfoDto> UpdateEventAsync(Guid id, UpdateEventDto updateEvent, CancellationToken cancellationToken = default)
     {
-        var index = _events.FindIndex(e => e.Id == id);
+        var @event = await _context.Events.FirstOrDefaultAsync(e => e.Id == id, cancellationToken)
+            ?? throw new NotFoundException("Event not found");
+        @event.Update(updateEvent.Title, updateEvent.Description, updateEvent.StartAt, updateEvent.EndAt);
+        await _context.SaveChangesAsync(cancellationToken);
 
-        if (index >= 0)
-        {
-            _events[index] = @event;
-        }
+        return ToInfo(@event);
     }
 
-    /// <summary> Remove event from events by ID </summary>
-    public void DeleteEvent(Guid id)
+    public async Task<bool> DeleteEventAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var index = _events.FindIndex(e => e.Id == id);
+        var @event = await _context.Events.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+        if (@event == null)
+            return false;
 
-        if (index >= 0)
-        {
-            _events.RemoveAt(index);
-        }
+        _context.Events.Remove(@event);
+        await _context.SaveChangesAsync(cancellationToken);
+        return true;
     }
+
+    public static EventInfoDto ToInfo(Event @event) => new()
+    {
+        Id = @event.Id,
+        Title = @event.Title,
+        Description = @event.Description,
+        StartAt = @event.StartAt,
+        EndAt = @event.EndAt,
+        TotalSeats = @event.TotalSeats,
+        AvailableSeats = @event.AvailableSeats
+    };
 }

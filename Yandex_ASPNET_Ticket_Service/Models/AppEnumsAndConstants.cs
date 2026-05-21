@@ -10,3 +10,9 @@ public enum BookingStatus
     ///<summary> Booking Failed </summary>
     Rejected
 }
+
+public static class AppConstants
+{
+    public const int DefaultPage = 1;
+    public const int DefaultPageSize = 10;
+}

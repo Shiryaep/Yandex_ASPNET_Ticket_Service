@@ -1,3 +1,4 @@
+using System.Reflection;
 using Yandex_ASPNET_Ticket_Service.Models;
 using Yandex_ASPNET_Ticket_Service.Models.DTO;
 
@@ -7,19 +8,19 @@ namespace Yandex_ASPNET_Ticket_Service.Services.EventServices;
 public interface IEventService
 {
     /// <summary> Return all created events as list </summary>
-    public PaginatedResult<Event> GetEvents(string? title,
-        DateTime? from, DateTime? to,
-        int page, int pageSize);
+    public Task<PaginatedResult<EventInfoDto>> GetAllEventsAsync(string? title = null,
+        DateTime? from = null, DateTime? to = null,
+        int page = AppConstants.DefaultPage, int pageSize = AppConstants.DefaultPageSize, CancellationToken cancellationToken = default);
 
     /// <summary> Return event by ID </summary>
-    public Event? GetEvent(Guid id);
+    public Task<EventInfoDto> GetEventByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
     /// <summary> Add new event to events List</summary>
-    public EventInfoDto AddEvent(CreateEventDto @event);
+    public Task<EventInfoDto> CreateEventAsync(CreateEventDto createEvent, CancellationToken cancellationToken = default);
 
     /// <summary> Replace existing event by ID </summary>
-    public void UpdateEvent(Guid id, Event @event);
+    public Task<EventInfoDto> UpdateEventAsync(Guid id, UpdateEventDto updateEvent, CancellationToken cancellationToken = default);
 
     /// <summary> Remove event from events by ID </summary>
-    public void DeleteEvent(Guid id);
+    public Task<bool> DeleteEventAsync(Guid id, CancellationToken cancellationToken = default);
 }
