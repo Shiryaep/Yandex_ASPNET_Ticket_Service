@@ -3,6 +3,7 @@ using Yandex_ASPNET_Ticket_Service.DataAccess;
 using Yandex_ASPNET_Ticket_Service.Models;
 using Yandex_ASPNET_Ticket_Service.Models.DTO;
 using Yandex_ASPNET_Ticket_Service.Models.Exceptions;
+using Yandex_ASPNET_Ticket_Service.Repositories;
 
 namespace Yandex_ASPNET_Ticket_Service.Services.BookingServices;
 
@@ -12,10 +13,11 @@ namespace Yandex_ASPNET_Ticket_Service.Services.BookingServices;
 /// <remarks>
 /// Initializes a new instance of the <see cref="BookingService"/> class
 /// </remarks>
-public class BookingService(AppDbContext context) : IBookingService
+public class BookingService(IBookingRepository bookingRepository, IEventRepository eventRepository) : IBookingService
 {
     private static readonly SemaphoreSlim _bookingLock = new(1, 1);
-    private readonly AppDbContext _context = context;
+    private readonly IBookingRepository _bookingRepository = bookingRepository;
+    private readonly IEventRepository _eventRepository = eventRepository;
 
     /// <summary>
     /// Creates a new booking for the specified event
@@ -28,7 +30,7 @@ public class BookingService(AppDbContext context) : IBookingService
         try
         {
             // Get the event
-            var eventEntity = await _context.Events.FirstOrDefaultAsync(e => e.Id == eventId, cancellationToken)
+            var eventEntity = await _eventRepository.GetEventByIdAsync(eventId, cancellationToken)
                 ?? throw new NotFoundException($"Event not found");
 
             // Try to reserve seat
@@ -39,8 +41,8 @@ public class BookingService(AppDbContext context) : IBookingService
 
             // Create and save booking
             var booking = Booking.CreatePending(eventId);
-            await _context.Bookings.AddAsync(booking, cancellationToken);
-            await _context.SaveChangesAsync(cancellationToken);
+            await _bookingRepository.AddBookingAsync(booking, cancellationToken);
+            await _bookingRepository.SaveChangesAsync(cancellationToken);
 
             return ToInfo(booking);
         }
@@ -57,7 +59,7 @@ public class BookingService(AppDbContext context) : IBookingService
     /// <returns>The booking if found; otherwise throw an NotFoundException</returns>
     public async Task<BookingInfoDto> GetBookingByIdAsync(Guid bookingId, CancellationToken cancellationToken = default)
     {
-        var booking = await _context.Bookings.FirstOrDefaultAsync(b => b.Id == bookingId, cancellationToken)
+        var booking = await _bookingRepository.GetBookingByIdAsync(bookingId, cancellationToken)
             ?? throw new NotFoundException("Booking not found");
 
         return ToInfo(booking);

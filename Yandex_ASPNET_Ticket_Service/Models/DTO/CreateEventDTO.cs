@@ -4,7 +4,6 @@ namespace Yandex_ASPNET_Ticket_Service.Models.DTO;
 
 public class CreateEventDto
 {
-    [Required] public Guid Id { get; set; }
     [Required] public string? Title { get; set; }
     public string? Description { get; set; }
     [Required] public DateTime? StartAt { get; set; } = null;
