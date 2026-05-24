@@ -103,8 +103,8 @@ public class EventServiceTests : IAsyncLifetime
 
         // Assert
         Assert.Equal(2, result.TotalCount);
-        Assert.Contains(result.Items, e => e.Title.Contains("Rock"));
-        Assert.DoesNotContain(result.Items, e => e.Title.Contains("Jazz"));
+        Assert.Contains(result.Items, e => e.Title!.Contains("Rock"));
+        Assert.DoesNotContain(result.Items, e => e.Title!.Contains("Jazz"));
     }
 
     [Fact]
