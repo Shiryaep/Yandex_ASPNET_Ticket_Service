@@ -1,6 +1,3 @@
-using Microsoft.EntityFrameworkCore;
-using Npgsql;
-using Testcontainers.PostgreSql;
 using Yandex_ASPNET_Ticket_Service.DataAccess;
 using Yandex_ASPNET_Ticket_Service.Models;
 using Yandex_ASPNET_Ticket_Service.Repositories;
@@ -8,37 +5,23 @@ using Yandex_ASPNET_Ticket_Service.Services.EventServices;
 
 namespace Yandex_ASPNET_Ticket_Service.IntegrationTests;
 
-public class EventServiceTests : IAsyncLifetime
+public class EventServiceTests : IClassFixture<DatabaseFixture>
 {
-    private readonly PostgreSqlContainer _postgreSqlContainer = new PostgreSqlBuilder()
-        .WithImage("postgres:16-alpine")
-        .Build();
+    private readonly DatabaseFixture _fixture;
 
-    public async Task InitializeAsync()
+    public EventServiceTests(DatabaseFixture fixture)
     {
-        await _postgreSqlContainer.StartAsync();
-    }
-
-    public async Task DisposeAsync()
-    {
-        await _postgreSqlContainer.DisposeAsync();
+        _fixture = fixture;
     }
 
     private async Task ResetDatabaseAsync()
     {
-        await using var context = CreateContext();
-        await context.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"Events\", \"Bookings\" RESTART IDENTITY CASCADE;");
+        await _fixture.ResetDatabaseAsync();
     }
 
     private AppDbContext CreateContext()
     {
-        var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseNpgsql(_postgreSqlContainer.GetConnectionString())
-            .Options;
-
-        var context = new AppDbContext(options);
-        context.Database.EnsureCreated();
-        return context;
+        return _fixture.CreateContext();
     }
 
     private async Task<List<Event>> CreateTestEventsAsync()
