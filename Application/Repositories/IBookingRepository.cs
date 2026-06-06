@@ -1,6 +1,6 @@
-using Yandex_ASPNET_Ticket_Service.Models;
+using Domain;
 
-namespace Yandex_ASPNET_Ticket_Service.Repositories;
+namespace Application.Repositories;
 
 public interface IBookingRepository
 {

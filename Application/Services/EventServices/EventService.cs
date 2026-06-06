@@ -1,10 +1,10 @@
+using Application.DTO;
+using Application.Repositories;
+using Domain;
+using Domain.Exceptions;
 using Microsoft.EntityFrameworkCore;
-using Yandex_ASPNET_Ticket_Service.Models;
-using Yandex_ASPNET_Ticket_Service.Models.DTO;
-using Yandex_ASPNET_Ticket_Service.Models.Exceptions;
-using Yandex_ASPNET_Ticket_Service.Repositories;
 
-namespace Yandex_ASPNET_Ticket_Service.Services.EventServices;
+namespace Application.Services.EventServices;
 
 /// <summary> Service for events manipulation </summary>
 public class EventService(IEventRepository eventRepository) : IEventService

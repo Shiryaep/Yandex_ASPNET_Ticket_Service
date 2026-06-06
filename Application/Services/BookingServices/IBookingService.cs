@@ -1,7 +1,6 @@
-using Yandex_ASPNET_Ticket_Service.Models;
-using Yandex_ASPNET_Ticket_Service.Models.DTO;
+using Application.DTO;
 
-namespace Yandex_ASPNET_Ticket_Service.Services.BookingServices;
+namespace Application.Services.BookingServices;
 
 /// <summary>
 /// Service interface for booking management operations

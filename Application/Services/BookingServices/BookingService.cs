@@ -1,11 +1,10 @@
+using Application.DTO;
+using Application.Repositories;
+using Domain;
+using Domain.Exceptions;
 using Microsoft.EntityFrameworkCore;
-using Yandex_ASPNET_Ticket_Service.DataAccess;
-using Yandex_ASPNET_Ticket_Service.Models;
-using Yandex_ASPNET_Ticket_Service.Models.DTO;
-using Yandex_ASPNET_Ticket_Service.Models.Exceptions;
-using Yandex_ASPNET_Ticket_Service.Repositories;
 
-namespace Yandex_ASPNET_Ticket_Service.Services.BookingServices;
+namespace Application.Services.BookingServices;
 
 /// <summary>
 /// Service for managing bookings

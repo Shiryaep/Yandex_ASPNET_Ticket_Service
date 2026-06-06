@@ -1,7 +1,10 @@
-using Yandex_ASPNET_Ticket_Service.Models;
-using Yandex_ASPNET_Ticket_Service.Repositories;
+using Application.Repositories;
+using Domain;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
-namespace Yandex_ASPNET_Ticket_Service.Services.HostedServices;
+namespace Application.Services.HostedServices;
 
 /// <summary>
 /// Background service that periodically resolves pending bookings by confirming or rejecting them

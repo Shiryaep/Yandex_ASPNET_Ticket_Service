@@ -1,4 +1,4 @@
-namespace Yandex_ASPNET_Ticket_Service.Models.DTO;
+namespace Application.DTO;
 
 public sealed record UpdateEventDto
 {

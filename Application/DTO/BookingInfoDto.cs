@@ -1,4 +1,6 @@
-namespace Yandex_ASPNET_Ticket_Service.Models.DTO;
+using Domain;
+
+namespace Application.DTO;
 
 public class BookingInfoDto
 {
