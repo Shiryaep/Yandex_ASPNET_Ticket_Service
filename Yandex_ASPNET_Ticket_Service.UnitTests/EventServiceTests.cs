@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using Yandex_ASPNET_Ticket_Service.DataAccess;
 using Yandex_ASPNET_Ticket_Service.Models.DTO;
 using Yandex_ASPNET_Ticket_Service.Models.Exceptions;
+using Yandex_ASPNET_Ticket_Service.Repositories;
 using Yandex_ASPNET_Ticket_Service.Services.EventServices;
 
 namespace Yandex_ASPNET_Ticket_Service.UnitTests;
@@ -20,6 +21,7 @@ public sealed class EventServiceTests : IDisposable
         var services = new ServiceCollection();
         services.AddDbContext<AppDbContext>(options =>
             options.UseInMemoryDatabase(dbName));
+        services.AddScoped<IEventRepository, EventRepository>();
         services.AddScoped<IEventService, EventService>();
 
         _serviceProvider = services.BuildServiceProvider();

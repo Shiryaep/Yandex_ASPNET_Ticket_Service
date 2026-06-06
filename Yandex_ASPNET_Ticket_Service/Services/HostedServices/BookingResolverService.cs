@@ -1,7 +1,5 @@
-using Microsoft.EntityFrameworkCore;
-using Yandex_ASPNET_Ticket_Service.DataAccess;
 using Yandex_ASPNET_Ticket_Service.Models;
-using Yandex_ASPNET_Ticket_Service.Services.EventServices;
+using Yandex_ASPNET_Ticket_Service.Repositories;
 
 namespace Yandex_ASPNET_Ticket_Service.Services.HostedServices;
 
@@ -31,11 +29,8 @@ public class BookingBackgroundService(
 
                 using (var scope = _scopeFactory.CreateScope())
                 {
-                    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                    pendingBookingIds = await context.Bookings
-                        .Where(b => b.Status == BookingStatus.Pending)
-                        .Select(b => b.Id)
-                        .ToListAsync(cancellationToken);
+                    var bookingRepository = scope.ServiceProvider.GetRequiredService<IBookingRepository>();
+                    pendingBookingIds = await bookingRepository.GetListOfPendingBookings(cancellationToken);
                 }
 
                 var tasks = pendingBookingIds.Select(id =>
@@ -67,60 +62,68 @@ public class BookingBackgroundService(
             await Task.Delay(_processingDelay, cancellationToken);
 
             using var scope = _scopeFactory.CreateScope();
-            var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            var bookingRepository = scope.ServiceProvider.GetRequiredService<IBookingRepository>();
+            var eventRepository = scope.ServiceProvider.GetRequiredService<IEventRepository>();
 
-            var booking = await context.Bookings.FirstOrDefaultAsync(b => b.Id == bookingId, cancellationToken);
+            var booking = await bookingRepository.GetBookingByIdAsync(bookingId, cancellationToken);
             if (booking == null || booking.Status != BookingStatus.Pending)
                 return;
 
-            var @event = await context.Events.FirstOrDefaultAsync(e => e.Id == booking.EventId, cancellationToken);
+            var @event = await eventRepository.GetEventByIdAsync(booking.EventId, cancellationToken);
             if (@event == null)
             {
                 booking.Reject();
-                await context.SaveChangesAsync(cancellationToken);
-
+                await bookingRepository.SaveChangesAsync(cancellationToken);
                 _logger.LogWarning("Event {EventId} not found, booking {BookingId} rejected", booking.EventId, booking.Id);
-
                 return;
             }
 
             booking.Confirm();
-            await context.SaveChangesAsync(cancellationToken);
-
+            await bookingRepository.SaveChangesAsync(cancellationToken);
             _logger.LogInformation("Booking {BookingId} confirmed", booking.Id);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
+            // Graceful shutdown
         }
         catch (Exception ex)
         {
-            try
-            {
-                using var scope = _scopeFactory.CreateScope();
-                var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            await RejectBookingOnErrorAsync(bookingId, ex, cancellationToken);
+        }
+    }
 
-                var booking = await context.Bookings.FirstOrDefaultAsync(b => b.Id == bookingId, cancellationToken);
-                if (booking != null)
-                {
-                    booking.Reject();
+    /// <summary>
+    /// Rejects a booking when an error occurs during processing
+    /// </summary>
+    private async Task RejectBookingOnErrorAsync(Guid bookingId, Exception ex, CancellationToken cancellationToken)
+    {
+        try
+        {
+            using var scope = _scopeFactory.CreateScope();
+            var bookingRepository = scope.ServiceProvider.GetRequiredService<IBookingRepository>();
+            var eventRepository = scope.ServiceProvider.GetRequiredService<IEventRepository>();
 
-                    var @event = await context.Events.FirstOrDefaultAsync(e => e.Id == booking.EventId, cancellationToken);
-                    if (@event != null)
-                        @event.ReleaseSeats();
+            var booking = await bookingRepository.GetBookingByIdAsync(bookingId, cancellationToken);
+            if (booking == null)
+                return;
 
-                    await context.SaveChangesAsync(cancellationToken);
-                }
+            booking.Reject();
 
-                _logger.LogError(ex,
-                    "Booking {BookingId} rejected due to processing error",
-                    bookingId);
-            }
-            catch (Exception releaseEx)
-            {
-                _logger.LogError(releaseEx,
-                    "Failed to reject booking {BookingId} after error",
-                    bookingId);
-            }
+            var @event = await eventRepository.GetEventByIdAsync(booking.EventId, cancellationToken);
+            if (@event != null)
+                @event.ReleaseSeats();
+
+            await bookingRepository.SaveChangesAsync(cancellationToken);
+
+            _logger.LogError(ex,
+                "Booking {BookingId} rejected due to processing error",
+                bookingId);
+        }
+        catch (Exception releaseEx)
+        {
+            _logger.LogError(releaseEx,
+                "Failed to reject booking {BookingId} after error",
+                bookingId);
         }
     }
 }

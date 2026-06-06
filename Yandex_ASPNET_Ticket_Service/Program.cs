@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Yandex_ASPNET_Ticket_Service.DataAccess;
 using Yandex_ASPNET_Ticket_Service.Middleware;
+using Yandex_ASPNET_Ticket_Service.Repositories;
 using Yandex_ASPNET_Ticket_Service.Services.BookingServices;
 using Yandex_ASPNET_Ticket_Service.Services.EventServices;
 using Yandex_ASPNET_Ticket_Service.Services.HostedServices;
@@ -23,6 +24,9 @@ public class Program
         builder.Services.AddDbContext<AppDbContext>(options =>
             options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+        builder.Services.AddScoped<IEventRepository, EventRepository>();
+        builder.Services.AddScoped<IBookingRepository, BookingRepository>();
+
         builder.Services.AddScoped<IEventService, EventService>();
         builder.Services.AddScoped<IBookingService, BookingService>();
 
@@ -33,7 +37,7 @@ public class Program
         using (var scope = app.Services.CreateScope())
         {
             var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-            db.Database.EnsureCreated();
+            db.Database.Migrate();
         }
 
         if (app.Environment.IsDevelopment())

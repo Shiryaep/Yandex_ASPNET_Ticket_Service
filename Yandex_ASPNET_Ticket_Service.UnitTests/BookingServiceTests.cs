@@ -4,6 +4,7 @@ using Yandex_ASPNET_Ticket_Service.DataAccess;
 using Yandex_ASPNET_Ticket_Service.Models;
 using Yandex_ASPNET_Ticket_Service.Models.DTO;
 using Yandex_ASPNET_Ticket_Service.Models.Exceptions;
+using Yandex_ASPNET_Ticket_Service.Repositories;
 using Yandex_ASPNET_Ticket_Service.Services.BookingServices;
 using Yandex_ASPNET_Ticket_Service.Services.EventServices;
 
@@ -22,6 +23,8 @@ public sealed class BookingServiceTests : IDisposable
         var services = new ServiceCollection();
         services.AddDbContext<AppDbContext>(options =>
             options.UseInMemoryDatabase(dbName));
+        services.AddScoped<IEventRepository, EventRepository>();
+        services.AddScoped<IBookingRepository, BookingRepository>();
         services.AddScoped<IEventService, EventService>();
         services.AddScoped<IBookingService, BookingService>();
 

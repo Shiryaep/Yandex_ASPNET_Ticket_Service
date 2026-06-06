@@ -1,17 +1,15 @@
 using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
-using System.Reflection;
-using Yandex_ASPNET_Ticket_Service.DataAccess;
 using Yandex_ASPNET_Ticket_Service.Models;
 using Yandex_ASPNET_Ticket_Service.Models.DTO;
 using Yandex_ASPNET_Ticket_Service.Models.Exceptions;
+using Yandex_ASPNET_Ticket_Service.Repositories;
 
 namespace Yandex_ASPNET_Ticket_Service.Services.EventServices;
 
 /// <summary> Service for events manipulation </summary>
-public class EventService(AppDbContext context) : IEventService
+public class EventService(IEventRepository eventRepository) : IEventService
 {
-    private readonly AppDbContext _context = context;
+    private readonly IEventRepository _eventRepository = eventRepository;
 
     /// <summary> Return all created events as list using filters</summary>
     public async Task<PaginatedResult<EventInfoDto>> GetAllEventsAsync(string? title = null,
@@ -20,7 +18,7 @@ public class EventService(AppDbContext context) : IEventService
         int pageSize = AppConstants.DefaultPageSize,
         CancellationToken cancellationToken = default)
     {
-        var query = _context.Events.AsQueryable();
+        var query = _eventRepository.GetEventsAsQuery();
 
         if (from.HasValue)
             query = query.Where(e => e.StartAt >= from.Value);
@@ -50,7 +48,7 @@ public class EventService(AppDbContext context) : IEventService
     /// <summary> Return event by ID </summary>
     public async Task<EventInfoDto> GetEventByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var @event = await _context.Events.FirstOrDefaultAsync(e => e.Id == id, cancellationToken)
+        var @event = await _eventRepository.GetEventByIdAsync(id, cancellationToken)
             ?? throw new NotFoundException("Event not found");
 
         return ToInfo(@event);
@@ -60,30 +58,30 @@ public class EventService(AppDbContext context) : IEventService
     public async Task<EventInfoDto> CreateEventAsync(CreateEventDto createEvent, CancellationToken cancellationToken = default)
     {
         Event @event = Event.Create(createEvent.Title, createEvent.Description, createEvent.StartAt, createEvent.EndAt, createEvent.TotalSeats);
-        await _context.Events.AddAsync(@event, cancellationToken);
-        await _context.SaveChangesAsync(cancellationToken);
+        await _eventRepository.AddEventAsync(@event, cancellationToken);
+        await _eventRepository.SaveChangesAsync(cancellationToken);
         return ToInfo(@event);
     }
 
     /// <summary> Update existing event by ID </summary>
     public async Task<EventInfoDto> UpdateEventAsync(Guid id, UpdateEventDto updateEvent, CancellationToken cancellationToken = default)
     {
-        var @event = await _context.Events.FirstOrDefaultAsync(e => e.Id == id, cancellationToken)
+        var @event = await _eventRepository.GetEventByIdAsync(id, cancellationToken)
             ?? throw new NotFoundException("Event not found");
         @event.Update(updateEvent.Title, updateEvent.Description, updateEvent.StartAt, updateEvent.EndAt);
-        await _context.SaveChangesAsync(cancellationToken);
+        await _eventRepository.SaveChangesAsync(cancellationToken);
 
         return ToInfo(@event);
     }
 
     public async Task<bool> DeleteEventAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var @event = await _context.Events.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+        var @event = await _eventRepository.GetEventByIdAsync(id, cancellationToken);
         if (@event == null)
             return false;
 
-        _context.Events.Remove(@event);
-        await _context.SaveChangesAsync(cancellationToken);
+        _eventRepository.DeleteEventAsync(@event);
+        await _eventRepository.SaveChangesAsync(cancellationToken);
         return true;
     }
 
