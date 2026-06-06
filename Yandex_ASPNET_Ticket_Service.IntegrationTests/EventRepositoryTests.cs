@@ -7,7 +7,8 @@ using Yandex_ASPNET_Ticket_Service.Repositories;
 
 namespace Yandex_ASPNET_Ticket_Service.IntegrationTests;
 
-public class EventRepositoryTests : IClassFixture<DatabaseFixture>
+[Collection("DatabaseCollection")]
+public class EventRepositoryTests
 {
     private readonly DatabaseFixture _fixture;
 

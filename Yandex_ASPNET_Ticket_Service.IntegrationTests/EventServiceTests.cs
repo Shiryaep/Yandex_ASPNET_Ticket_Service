@@ -5,7 +5,8 @@ using Yandex_ASPNET_Ticket_Service.Services.EventServices;
 
 namespace Yandex_ASPNET_Ticket_Service.IntegrationTests;
 
-public class EventServiceTests : IClassFixture<DatabaseFixture>
+[Collection("DatabaseCollection")]
+public class EventServiceTests
 {
     private readonly DatabaseFixture _fixture;
 

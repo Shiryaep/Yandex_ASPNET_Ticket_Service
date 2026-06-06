@@ -7,7 +7,9 @@ namespace Yandex_ASPNET_Ticket_Service.IntegrationTests;
 /// Тесты, проверяющие корректность применения миграций:
 /// наличие таблиц, внешних ключей и ограничений.
 /// </summary>
-public class MigrationTests : IClassFixture<DatabaseFixture>
+
+[Collection("DatabaseCollection")]
+public class MigrationTests
 {
     private readonly DatabaseFixture _fixture;
 
