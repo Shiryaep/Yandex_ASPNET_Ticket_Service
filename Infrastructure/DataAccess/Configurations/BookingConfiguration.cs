@@ -1,8 +1,8 @@
+using Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Yandex_ASPNET_Ticket_Service.Models;
 
-namespace Yandex_ASPNET_Ticket_Service.DataAccess.Configurations;
+namespace Infrastructure.DataAccess.Configurations;
 
 public class BookingConfiguration : IEntityTypeConfiguration<Booking>
 {

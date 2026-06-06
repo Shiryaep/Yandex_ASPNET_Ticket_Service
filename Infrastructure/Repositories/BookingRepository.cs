@@ -1,8 +1,9 @@
+using Application.Repositories;
+using Domain;
+using Infrastructure.DataAccess;
 using Microsoft.EntityFrameworkCore;
-using Yandex_ASPNET_Ticket_Service.DataAccess;
-using Yandex_ASPNET_Ticket_Service.Models;
 
-namespace Yandex_ASPNET_Ticket_Service.Repositories;
+namespace Infrastructure.Repositories;
 
 public class BookingRepository(AppDbContext db) : IBookingRepository
 {

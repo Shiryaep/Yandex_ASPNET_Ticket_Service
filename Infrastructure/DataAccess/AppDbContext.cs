@@ -1,7 +1,7 @@
+using Domain;
 using Microsoft.EntityFrameworkCore;
-using Yandex_ASPNET_Ticket_Service.Models;
 
-namespace Yandex_ASPNET_Ticket_Service.DataAccess;
+namespace Infrastructure.DataAccess;
 
 public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
