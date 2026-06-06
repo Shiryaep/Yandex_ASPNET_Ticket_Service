@@ -1,4 +1,4 @@
-namespace Yandex_ASPNET_Ticket_Service.Models;
+namespace Domain;
 
 ///<summary> Enum of Booking Statuses </summary>
 public enum BookingStatus

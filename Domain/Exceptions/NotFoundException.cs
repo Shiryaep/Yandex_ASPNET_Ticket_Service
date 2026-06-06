@@ -1,6 +1,6 @@
 using System;
 
-namespace Yandex_ASPNET_Ticket_Service.Models.Exceptions;
+namespace Domain.Exceptions;
 
 /// <summary>
 /// Exception thrown when there are no available seats for booking
@@ -10,7 +10,7 @@ public class NotFoundException : Exception
     /// <summary>
     /// Initializes a new instance of the <see cref="NotFoundException"/> class with a default message
     /// </summary>
-    public NotFoundException() : base()
+    public NotFoundException() : base("The entity was not found")
     {
     }
 

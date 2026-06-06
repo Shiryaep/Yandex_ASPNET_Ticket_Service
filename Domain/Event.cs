@@ -1,7 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace Yandex_ASPNET_Ticket_Service.Models;
+namespace Domain;
 
 /// <summary> Event entity </summary> 
 public class Event
