@@ -1,5 +1,6 @@
+using Domain;
+using Infrastructure.DataAccess;
 using Microsoft.EntityFrameworkCore;
-using Yandex_ASPNET_Ticket_Service.DataAccess;
 
 namespace Yandex_ASPNET_Ticket_Service.IntegrationTests;
 
@@ -64,7 +65,7 @@ public class MigrationTests
         await context.Database.EnsureDeletedAsync();
         await context.Database.MigrateAsync();
 
-        var eventEntity = Models.Event.Create(
+        var eventEntity = Event.Create(
             "Test Event",
             "Description",
             DateTime.UtcNow.AddDays(1),
@@ -75,7 +76,7 @@ public class MigrationTests
         await context.SaveChangesAsync();
 
         // Act
-        var booking = Models.Booking.CreatePending(eventEntity.Id);
+        var booking = Booking.CreatePending(eventEntity.Id);
         context.Bookings.Add(booking);
         await context.SaveChangesAsync();
 
@@ -102,7 +103,7 @@ public class MigrationTests
         await context.Database.MigrateAsync();
 
         var invalidEventId = Guid.NewGuid();
-        var booking = Models.Booking.CreatePending(invalidEventId);
+        var booking = Booking.CreatePending(invalidEventId);
         context.Bookings.Add(booking);
 
         // Act & Assert

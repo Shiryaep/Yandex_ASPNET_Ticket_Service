@@ -1,6 +1,6 @@
+using Infrastructure.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Testcontainers.PostgreSql;
-using Yandex_ASPNET_Ticket_Service.DataAccess;
 
 namespace Yandex_ASPNET_Ticket_Service.IntegrationTests;
 

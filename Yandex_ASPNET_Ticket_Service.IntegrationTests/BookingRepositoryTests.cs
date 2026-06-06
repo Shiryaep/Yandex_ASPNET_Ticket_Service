@@ -1,9 +1,9 @@
+using Domain;
+using Infrastructure.DataAccess;
+using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using Testcontainers.PostgreSql;
-using Yandex_ASPNET_Ticket_Service.DataAccess;
-using Yandex_ASPNET_Ticket_Service.Models;
-using Yandex_ASPNET_Ticket_Service.Repositories;
 
 namespace Yandex_ASPNET_Ticket_Service.IntegrationTests;
 
