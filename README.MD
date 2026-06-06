@@ -9,6 +9,7 @@
 - [.NET SDK 10.0 или выше](https://dotnet.microsoft.com/download)
 - [Visual Studio 2026](https://visualstudio.microsoft.com/) или [Visual Studio Code](https://code.visualstudio.com/)
 - [PostgreSQL 15 или выше](https://www.postgresql.org/download/)
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 
 ## Настройка базы данных
 
@@ -33,19 +34,18 @@
 После изменения моделей или конфигураций Entity Framework выполните команду для создания миграции:
 
 ```bash
-cd .\Yandex_ASPNET_Ticket_Service\
-dotnet ef migrations add <MigrationName> --output-dir Migrations
+dotnet ef migrations add <MigrationName> --project Infrastructure --startup-project Yandex_ASPNET_Ticket_Service --output-dir Migrations
 ```
 
-Замените `<MigrationName>` на описательное имя миграции (например, `AddNewColumnToEvents`). Миграция будет создана в папке `Migrations` проекта.
+- Замените `<MigrationName>` на описательное имя миграции (например, `AddNewColumnToEvents`). Миграция будет создана в директории `Migrations` проекта `Infrastructure`.
+- Не меняйте аргументы `--project` и `--startup-project`
 
 #### Применение миграций к базе данных
 
-Чтобы применить все pending миграции к базе данных, выполните:
+Чтобы применить все `pending` миграции к базе данных, выполните:
 
 ```bash
-cd .\Yandex_ASPNET_Ticket_Service\
-dotnet ef database update
+dotnet ef database update --project Infrastructure --startup-project Yandex_ASPNET_Ticket_Service
 ```
 
 Эта команда обновит схему базы данных до последней миграции. При первом запуске она создаст все таблицы, определённые в миграциях.
@@ -55,13 +55,13 @@ dotnet ef database update
 Если необходимо откатить последнюю применённую миграцию, используйте:
 
 ```bash
-dotnet ef database update <PreviousMigrationName>
+dotnet ef database update <PreviousMigrationName> --project Infrastructure --startup-project Yandex_ASPNET_Ticket_Service
 ```
 
-Или для полного удаления всех таблиц (осторожно!):
+Для удаления миграции после ее отката, используйте:
 
 ```bash
-dotnet ef database drop --force
+dotnet ef migrations remove --project Infrastructure --startup-project Yandex_ASPNET_Ticket_Service
 ```
 
 > **Примечание:** Убедитесь, что у вас установлен глобальный инструмент EF Core: `dotnet tool install --global dotnet-ef`. Если инструмент не установлен, выполните установку перед использованием команд.
@@ -69,13 +69,13 @@ dotnet ef database drop --force
 ## Клонирование репозитория
 
 1. Откройте терминал или командную строку.
-2. Выполните команду для клонирования репозитория:
+2. Выполните команду для клонирования репозитория и перехода в директорию решения:
 
    ```bash
    git clone https://github.com/Shiryaep/Yandex_ASPNET_Ticket_Service.git
    cd Yandex_ASPNET_Ticket_Service
    ```
-3. Выполните команду для восстановления зависимостей (из корневой папки, где находится файл решения `.sln`):
+3. Выполните команду для восстановления зависимостей (из корневой директории, где находится файл решения `.sln`):
 
     ```bash
     dotnet restore
@@ -90,11 +90,10 @@ dotnet ef database drop --force
 ## Запуск приложения
 ### Способ 1. Через командную строку
 
-Запустите приложение из папки проекта сразу после сборки (из папки проекта, где находится файл `Yandex_ASPNET_Ticket_Service.csproj`):
+Запустите приложение из директории решения сразу после сборки:
 
 ```bash
-cd .\Yandex_ASPNET_Ticket_Service\
-dotnet run
+dotnet run --project Yandex_ASPNET_Ticket_Service
 ```
 
 Приложение будет доступно по адресу: https://localhost:5062 или http://localhost:7011.
@@ -109,10 +108,9 @@ dotnet run
 
  - Установите расширение C# от Microsoft.
 
- - Откройте папку проекта в VS Code.
+ - Откройте директорию проекта в VS Code.
 
  - Используйте встроенный терминал для выполнения команды dotnet run.
-
 
 
 ## Проверка работоспособности
@@ -291,34 +289,27 @@ https://localhost:7011/swagger
 
 ## Запуск тестов
 
-В проекте присутствует набор Unit тестов, расположенных в папке `Yandex_ASPNET_Ticket_Service.UnitTests`.
+В проекте присутствует набор **Unit** и **Integration** тестов, которые покрывают основные сценарии работы контроллеров, сервисов и хранилищ.
 
-Для запуска тестов выполните команду:
+Для запуска всех тестов одновременно выполните команду из директории решения:
 
 ```bash
-cd .\Yandex_ASPNET_Ticket_Service.UnitTests\
 dotnet test
 ```
 
-Тесты покрывают основные сценарии работы контроллеров, сервисов и хранилищ.
+### Unit тесты
+В проекте присутствует набор **Unit** тестов, расположенных в директории `Yandex_ASPNET_Ticket_Service.UnitTests`.
 
 ### Использование InMemory-провайдера
 
-В целях изоляции и скорости выполнения тесты используют **InMemory-провайдер Entity Framework Core**. Это позволяет запускать тесты без зависимости от реальной базы данных PostgreSQL. Каждый тестовый класс создаёт свою изолированную in-memory базу данных, которая автоматически очищается после завершения теста.
+В целях изоляции и скорости выполнения тесты используют **InMemory-провайдер Entity Framework Core**. Это позволяет запускать тесты без зависимости от реальной базы данных PostgreSQL. Тестовые классы отмечены аттрибутом `[Collection("DatabaseCollection")]`, который позволяет создать свою изолированную in-memory базу данных, которая автоматически очищается после завершения теста.
 
 ### Интеграционные тесты
 
-Помимо Unit тестов, проект содержит интеграционные тесты, расположенные в папке `Yandex_ASPNET_Ticket_Service.IntegrationTests`. Эти тесты проверяют взаимодействие с реальной базой данных PostgreSQL, запускаемой в Docker-контейнере с помощью библиотеки Testcontainers.
+Помимо Unit тестов, проект содержит интеграционные тесты, расположенные в директории `Yandex_ASPNET_Ticket_Service.IntegrationTests`. Эти тесты проверяют взаимодействие с реальной базой данных PostgreSQL, запускаемой в Docker-контейнере с помощью библиотеки Testcontainers.
 
 **Требования для запуска интеграционных тестов:**
 - Установленный и запущенный Docker Desktop (или Docker Engine) на вашей машине.
-- Доступность демона Docker для создания контейнеров.
-
-**Запуск интеграционных тестов:**
-```bash
-cd .\Yandex_ASPNET_Ticket_Service.IntegrationTests\
-dotnet test
-```
 
 Интеграционные тесты автоматически разворачивают временный контейнер PostgreSQL, применяют миграции (через `Migrate()`) и выполняют тесты, после чего контейнер удаляется. Это позволяет проверить корректность работы репозиториев и сервисов в условиях, максимально приближенных к production.
 
@@ -338,3 +329,17 @@ API использует стандартный формат ошибок [Probl
   "detail": "Event with id [12345678-1234-1234-1234-123456789abc] not found",
   "instance": "/events/12345678-1234-1234-1234-123456789abc"
 }
+```
+
+## Архитектурные нововведения
+
+1. Проект теперь разделен на четыре слоя в соответствии с Clean Architecture
+
+- Domain — доменные сущности, value objects, доменные исключения. Не зависит ни от чего внешнего.
+- Application — use cases, сервисы, интерфейсы портов (репозитории, шлюзы), DTO. Зависит только от Domain.
+- Infrastructure — реализации портов: репозитории, DbContext, внешние клиенты. Зависит от Application и Domain.
+- Presentation — контроллеры/Minimal API эндпоинты, HTTP-маппинг, регистрация зависимостей. Зависит от Application и Infrastructure.
+
+2. Регистрация зависимостей происходит через вызов extension методов. Позволяет сделать Program.cs компактнее.
+
+3. Тесты теперь ссылаются не на один монолитный проект, а только на те слои, которые в данный момент подвергаются проверке.
