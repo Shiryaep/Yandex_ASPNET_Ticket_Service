@@ -2,7 +2,6 @@ using Application.DTO;
 using Application.Repositories;
 using Domain;
 using Domain.Exceptions;
-using Microsoft.EntityFrameworkCore;
 
 namespace Application.Services.BookingServices;
 

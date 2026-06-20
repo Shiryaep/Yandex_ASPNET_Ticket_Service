@@ -1,14 +1,14 @@
 namespace Domain.Exceptions;
 
 /// <summary>
-/// Exception thrown when no entity been found
+/// Exception thrown when validation failed
 /// </summary>
-public class NotFoundException : Exception
+public class ValidationException : Exception
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="NotFoundException"/> class with a default message
     /// </summary>
-    public NotFoundException() : base("The entity was not found")
+    public ValidationException() : base("Validation failed")
     {
     }
 
@@ -16,7 +16,7 @@ public class NotFoundException : Exception
     /// Initializes a new instance of the <see cref="NotFoundException"/> class with a custom message
     /// </summary>
     /// <param name="message">The error message</param>
-    public NotFoundException(string message) : base(message)
+    public ValidationException(string message) : base(message)
     {
     }
 
@@ -25,7 +25,7 @@ public class NotFoundException : Exception
     /// </summary>
     /// <param name="message">The error message</param>
     /// <param name="innerException">The inner exception</param>
-    public NotFoundException(string message, Exception innerException) : base(message, innerException)
+    public ValidationException(string message, Exception innerException) : base(message, innerException)
     {
     }
 }

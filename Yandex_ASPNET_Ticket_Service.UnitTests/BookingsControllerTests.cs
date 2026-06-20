@@ -21,14 +21,9 @@ namespace Yandex_ASPNET_Ticket_Service.UnitTests
             mockBookingService.Setup(s => s.GetBookingByIdAsync(nonExistentBookingId))
                 .ThrowsAsync(new NotFoundException("Booking not found"));
 
-            // Act
-            var result = await controller.GetBooking(nonExistentBookingId);
-
-            // Assert
-            var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
-            Assert.Equal(404, notFoundResult.StatusCode);
-            var response = notFoundResult.Value as dynamic;
-            Assert.NotNull(response);
+            // Act and Assert
+            var exception = await Assert.ThrowsAsync<NotFoundException>(() => controller.GetBooking(nonExistentBookingId));
+            Assert.Contains("Booking not found", exception.Message);
         }
 
         [Fact]

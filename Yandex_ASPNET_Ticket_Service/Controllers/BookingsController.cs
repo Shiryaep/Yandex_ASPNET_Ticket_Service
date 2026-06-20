@@ -1,6 +1,5 @@
 using Application.DTO;
 using Application.Services.BookingServices;
-using Domain.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Presentation.Controllers;
@@ -21,29 +20,7 @@ public class BookingsController(IBookingService bookingService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetBooking(Guid bookingId)
     {
-        try
-        {
-            var booking = await bookingService.GetBookingByIdAsync(bookingId);
-
-            if (booking == null)
-            {
-                return NotFound(new { message = $"Booking with id [{bookingId}] not found" });
-            }
-
-            var response = new BookingInfoDto
-            {
-                Id = booking.Id,
-                EventId = booking.EventId,
-                Status = booking.Status,
-                CreatedAt = booking.CreatedAt,
-                ProcessedAt = booking.ProcessedAt
-            };
-
-            return Ok(response);
-        }
-        catch (NotFoundException)
-        {
-            return NotFound(new { message = $"Booking with id [{bookingId}] not found" });
-        }
+        var booking = await bookingService.GetBookingByIdAsync(bookingId);
+        return Ok(booking);
     }
 }

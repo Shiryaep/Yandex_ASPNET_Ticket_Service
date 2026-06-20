@@ -2,7 +2,6 @@ using Application.DTO;
 using Application.Repositories;
 using Domain;
 using Domain.Exceptions;
-using Microsoft.EntityFrameworkCore;
 
 namespace Application.Services.EventServices;
 
@@ -18,23 +17,11 @@ public class EventService(IEventRepository eventRepository) : IEventService
         int pageSize = AppConstants.DefaultPageSize,
         CancellationToken cancellationToken = default)
     {
-        var query = _eventRepository.GetEventsAsQuery();
+        var query = _eventRepository.GetFilteredQuery(title, from, to);
 
-        if (from.HasValue)
-            query = query.Where(e => e.StartAt >= from.Value);
+        var totalCount = await _eventRepository.GetCountOfQuery(query);
 
-        if (to.HasValue)
-            query = query.Where(e => e.StartAt <= to.Value);
-
-        if (!string.IsNullOrWhiteSpace(title))
-            query = query.Where(e => e.Title.ToLower().Contains(title.ToLower()));
-
-        var totalCount = await query.CountAsync(cancellationToken);
-
-        var items = await query
-            .Skip((page - 1) * pageSize)
-            .Take(pageSize)
-            .ToListAsync(cancellationToken);
+        var items = await _eventRepository.GetPaginatedItemsOfQuery(query, page, pageSize);
 
         return new PaginatedResult<EventInfoDto>
         {

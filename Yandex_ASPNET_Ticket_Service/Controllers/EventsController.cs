@@ -41,10 +41,6 @@ public class EventsController(IEventService eventService, IBookingService bookin
     public async Task<ActionResult<EventInfoDto>> GetEventById(Guid id)
     {
         var eventItem = await eventService.GetEventByIdAsync(id);
-        if (eventItem == null)
-        {
-            return NotFound();
-        }
         return eventItem;
     }
 
@@ -76,23 +72,18 @@ public class EventsController(IEventService eventService, IBookingService bookin
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Post(Guid id)
     {
-        EventInfoDto? @event = await eventService.GetEventByIdAsync(id);
-        if (@event == null) return NotFound(new { message = $"Event with id [{id}] not found" });
-        else
+        var booking = await bookingService.CreateBookingAsync(id);
+
+        var response = new BookingInfoDto
         {
-            var booking = await bookingService.CreateBookingAsync(id);
+            Id = booking.Id,
+            EventId = booking.EventId,
+            Status = booking.Status,
+            CreatedAt = booking.CreatedAt,
+            ProcessedAt = booking.ProcessedAt
+        };
 
-            var response = new BookingInfoDto
-            {
-                Id = booking.Id,
-                EventId = booking.EventId,
-                Status = booking.Status,
-                CreatedAt = booking.CreatedAt,
-                ProcessedAt = booking.ProcessedAt
-            };
-
-            return AcceptedAtAction(actionName: "GetBooking", controllerName: "Bookings", routeValues: new { bookingId = booking.Id }, value: response);
-        }
+        return AcceptedAtAction(actionName: "GetBooking", controllerName: "Bookings", routeValues: new { bookingId = booking.Id }, value: response);
     }
 
     /// <summary>
