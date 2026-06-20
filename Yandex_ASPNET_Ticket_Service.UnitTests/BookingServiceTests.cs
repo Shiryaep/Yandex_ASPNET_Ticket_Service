@@ -1,12 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Application.DTO;
+using Application.Repositories;
+using Application.Services.BookingServices;
+using Application.Services.EventServices;
+using Domain;
+using Domain.Exceptions;
+using Infrastructure.DataAccess;
+using Infrastructure.Repositories;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Yandex_ASPNET_Ticket_Service.DataAccess;
-using Yandex_ASPNET_Ticket_Service.Models;
-using Yandex_ASPNET_Ticket_Service.Models.DTO;
-using Yandex_ASPNET_Ticket_Service.Models.Exceptions;
-using Yandex_ASPNET_Ticket_Service.Repositories;
-using Yandex_ASPNET_Ticket_Service.Services.BookingServices;
-using Yandex_ASPNET_Ticket_Service.Services.EventServices;
 
 namespace Yandex_ASPNET_Ticket_Service.UnitTests;
 

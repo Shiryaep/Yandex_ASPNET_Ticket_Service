@@ -1,9 +1,9 @@
+using Domain.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Text.Json;
-using Yandex_ASPNET_Ticket_Service.Models.Exceptions;
 
-namespace Yandex_ASPNET_Ticket_Service.Middleware;
+namespace Presentation.Middleware;
 
 /// <summary>
 /// Middleware for global exception handling
@@ -60,7 +60,7 @@ public class ExceptionHandlingMiddleware(
         {
             ArgumentException or InvalidOperationException =>
                 ((int)HttpStatusCode.BadRequest, "Bad Request", exception.Message),
-            KeyNotFoundException or FileNotFoundException =>
+            KeyNotFoundException or FileNotFoundException or NotFoundException =>
                 ((int)HttpStatusCode.NotFound, "Not Found", exception.Message),
             UnauthorizedAccessException =>
                 ((int)HttpStatusCode.Unauthorized, "Unauthorized", exception.Message),

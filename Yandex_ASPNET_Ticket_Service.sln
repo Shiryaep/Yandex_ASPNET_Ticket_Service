@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
 VisualStudioVersion = 18.3.11520.95
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yandex_ASPNET_Ticket_Service", "Yandex_ASPNET_Ticket_Service\Yandex_ASPNET_Ticket_Service.csproj", "{E7461CEA-2B52-6BA9-3393-FDC5108634CD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Presentation", "Yandex_ASPNET_Ticket_Service\Presentation.csproj", "{E7461CEA-2B52-6BA9-3393-FDC5108634CD}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{24BD108A-4060-46FA-875A-F5D4CE9CD9BF}"
 	ProjectSection(SolutionItems) = preProject
@@ -14,6 +14,12 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yandex_ASPNET_Ticket_Service.UnitTests", "Yandex_ASPNET_Ticket_Service.UnitTests\Yandex_ASPNET_Ticket_Service.UnitTests.csproj", "{9DC0B73E-CD6A-5B40-4D72-FCB98D9F669B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yandex_ASPNET_Ticket_Service.IntegrationTests", "Yandex_ASPNET_Ticket_Service.IntegrationTests\Yandex_ASPNET_Ticket_Service.IntegrationTests.csproj", "{D7B50597-B585-4E02-9D6D-3C1064558678}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "Domain\Domain.csproj", "{AFB9749B-FA0A-4D6F-A769-57A5F3D8ED02}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application", "Application\Application.csproj", "{72555675-1151-4B81-BFC0-D628C2AA25E0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "Infrastructure\Infrastructure.csproj", "{D72A97E1-2D58-4D81-9273-6C2B2F50173F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +39,18 @@ Global
 		{D7B50597-B585-4E02-9D6D-3C1064558678}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D7B50597-B585-4E02-9D6D-3C1064558678}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D7B50597-B585-4E02-9D6D-3C1064558678}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AFB9749B-FA0A-4D6F-A769-57A5F3D8ED02}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AFB9749B-FA0A-4D6F-A769-57A5F3D8ED02}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AFB9749B-FA0A-4D6F-A769-57A5F3D8ED02}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AFB9749B-FA0A-4D6F-A769-57A5F3D8ED02}.Release|Any CPU.Build.0 = Release|Any CPU
+		{72555675-1151-4B81-BFC0-D628C2AA25E0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{72555675-1151-4B81-BFC0-D628C2AA25E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{72555675-1151-4B81-BFC0-D628C2AA25E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{72555675-1151-4B81-BFC0-D628C2AA25E0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D72A97E1-2D58-4D81-9273-6C2B2F50173F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D72A97E1-2D58-4D81-9273-6C2B2F50173F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D72A97E1-2D58-4D81-9273-6C2B2F50173F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D72A97E1-2D58-4D81-9273-6C2B2F50173F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

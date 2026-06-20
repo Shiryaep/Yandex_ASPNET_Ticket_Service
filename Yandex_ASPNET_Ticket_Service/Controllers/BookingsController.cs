@@ -1,9 +1,9 @@
+using Application.DTO;
+using Application.Services.BookingServices;
+using Domain.Exceptions;
 using Microsoft.AspNetCore.Mvc;
-using Yandex_ASPNET_Ticket_Service.Models.DTO;
-using Yandex_ASPNET_Ticket_Service.Models.Exceptions;
-using Yandex_ASPNET_Ticket_Service.Services.BookingServices;
 
-namespace Yandex_ASPNET_Ticket_Service.Controllers;
+namespace Presentation.Controllers;
 /// <summary>
 /// Controller for managing booking operations
 /// </summary>

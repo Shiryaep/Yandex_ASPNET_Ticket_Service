@@ -1,10 +1,9 @@
+using Application.DTO;
+using Application.Services.BookingServices;
+using Application.Services.EventServices;
 using Microsoft.AspNetCore.Mvc;
-using Yandex_ASPNET_Ticket_Service.Models;
-using Yandex_ASPNET_Ticket_Service.Models.DTO;
-using Yandex_ASPNET_Ticket_Service.Services.BookingServices;
-using Yandex_ASPNET_Ticket_Service.Services.EventServices;
 
-namespace Yandex_ASPNET_Ticket_Service.Controllers;
+namespace Presentation.Controllers;
 
 /// <summary>
 /// Controller for managing events and event-related bookings
@@ -72,7 +71,7 @@ public class EventsController(IEventService eventService, IBookingService bookin
     /// <param name="id">Event identifier</param>
     /// <returns>202 Accepted with booking details if event exists; otherwise 404 Not Found</returns>
     [HttpPost("{id:Guid}/book")]
-    [ProducesResponseType(typeof(Booking), StatusCodes.Status202Accepted)]
+    [ProducesResponseType(typeof(BookingInfoDto), StatusCodes.Status202Accepted)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Post(Guid id)

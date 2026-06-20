@@ -1,11 +1,12 @@
-using Yandex_ASPNET_Ticket_Service.DataAccess;
-using Yandex_ASPNET_Ticket_Service.Models;
-using Yandex_ASPNET_Ticket_Service.Repositories;
-using Yandex_ASPNET_Ticket_Service.Services.EventServices;
+using Application.Services.EventServices;
+using Domain;
+using Infrastructure.DataAccess;
+using Infrastructure.Repositories;
 
 namespace Yandex_ASPNET_Ticket_Service.IntegrationTests;
 
-public class EventServiceTests : IClassFixture<DatabaseFixture>
+[Collection("DatabaseCollection")]
+public class EventServiceTests
 {
     private readonly DatabaseFixture _fixture;
 

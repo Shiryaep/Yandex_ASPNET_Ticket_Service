@@ -1,10 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Application.DTO;
+using Application.Services.BookingServices;
+using Domain;
+using Domain.Exceptions;
+using Microsoft.AspNetCore.Mvc;
 using Moq;
-using Yandex_ASPNET_Ticket_Service.Controllers;
-using Yandex_ASPNET_Ticket_Service.Models;
-using Yandex_ASPNET_Ticket_Service.Models.DTO;
-using Yandex_ASPNET_Ticket_Service.Models.Exceptions;
-using Yandex_ASPNET_Ticket_Service.Services.BookingServices;
+using Presentation.Controllers;
 
 namespace Yandex_ASPNET_Ticket_Service.UnitTests
 {

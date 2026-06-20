@@ -24,7 +24,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Yandex_ASPNET_Ticket_Service\Yandex_ASPNET_Ticket_Service.csproj" />
+    <ProjectReference Include="..\Application\Application.csproj" />
+    <ProjectReference Include="..\Domain\Domain.csproj" />
+    <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
+    <ProjectReference Include="..\Yandex_ASPNET_Ticket_Service\Presentation.csproj" />
   </ItemGroup>
 
   <ItemGroup>

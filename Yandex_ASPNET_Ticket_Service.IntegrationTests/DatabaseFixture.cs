@@ -1,6 +1,6 @@
+using Infrastructure.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Testcontainers.PostgreSql;
-using Yandex_ASPNET_Ticket_Service.DataAccess;
 
 namespace Yandex_ASPNET_Ticket_Service.IntegrationTests;
 
@@ -52,13 +52,13 @@ public class DatabaseFixture : IAsyncLifetime
 
     /// <summary>
     /// Сбрасывает базу данных: удаляет все таблицы и заново применяет миграции.
-    /// Использует EnsureDeleted() + Migrate() для полного сброса.
+    /// Использует EnsureDeletedAsync() + MigrateAsync() для полного сброса.
     /// </summary>
     public async Task ResetDatabaseAsync()
     {
         await using var context = CreateContext();
         await context.Database.CloseConnectionAsync();
-        context.Database.EnsureDeleted();
-        context.Database.Migrate();
+        await context.Database.EnsureDeletedAsync();
+        await context.Database.MigrateAsync();
     }
 }

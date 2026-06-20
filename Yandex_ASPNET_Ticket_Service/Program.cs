@@ -1,12 +1,15 @@
+using Application.DependencyInjection;
+using Application.Repositories;
+using Application.Services.BookingServices;
+using Application.Services.EventServices;
+using Application.Services.HostedServices;
+using Infrastructure.DataAccess;
+using Infrastructure.DependencyInjection;
+using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
-using Yandex_ASPNET_Ticket_Service.DataAccess;
-using Yandex_ASPNET_Ticket_Service.Middleware;
-using Yandex_ASPNET_Ticket_Service.Repositories;
-using Yandex_ASPNET_Ticket_Service.Services.BookingServices;
-using Yandex_ASPNET_Ticket_Service.Services.EventServices;
-using Yandex_ASPNET_Ticket_Service.Services.HostedServices;
+using Presentation.Middleware;
 
-namespace Yandex_ASPNET_Ticket_Service;
+namespace Presentation;
 
 /// <summary> Basis of all project </summary>
 public class Program
@@ -18,19 +21,10 @@ public class Program
 
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddControllers();
-
         builder.Services.AddSwaggerGen();
 
-        builder.Services.AddDbContext<AppDbContext>(options =>
-            options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-        builder.Services.AddScoped<IEventRepository, EventRepository>();
-        builder.Services.AddScoped<IBookingRepository, BookingRepository>();
-
-        builder.Services.AddScoped<IEventService, EventService>();
-        builder.Services.AddScoped<IBookingService, BookingService>();
-
-        builder.Services.AddHostedService<BookingBackgroundService>();
+        builder.Services.AddInfrastructure(builder.Configuration);
+        builder.Services.AddApplication(builder.Configuration);
 
         var app = builder.Build();
 
