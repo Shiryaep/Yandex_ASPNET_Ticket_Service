@@ -58,16 +58,32 @@ public class ExceptionHandlingMiddleware(
     {
         return exception switch
         {
-            ArgumentException or InvalidOperationException =>
+            //400
+            ArgumentException or
+            InvalidOperationException or
+            AlreadyEndedEventException =>
                 ((int)HttpStatusCode.BadRequest, "Bad Request", exception.Message),
-            KeyNotFoundException or FileNotFoundException or NotFoundException =>
-                ((int)HttpStatusCode.NotFound, "Not Found", exception.Message),
+            //401
             UnauthorizedAccessException =>
                 ((int)HttpStatusCode.Unauthorized, "Unauthorized", exception.Message),
+            //403
+            LackOfRightsException =>
+                ((int)HttpStatusCode.Forbidden, "Forbidden", exception.Message),
+            //404
+            KeyNotFoundException or
+            FileNotFoundException or
+            NotFoundException =>
+                ((int)HttpStatusCode.NotFound, "Not Found", exception.Message),
+            //409
+            NoAvailableSeatsException or
+            ValidationException or
+            AlreadyCancelledException or
+            BookingLimitExceededException =>
+                ((int)HttpStatusCode.Conflict, "Conflict", exception.Message),
+            //501
             NotImplementedException =>
                 ((int)HttpStatusCode.NotImplemented, "Not Implemented", exception.Message),
-            NoAvailableSeatsException =>
-                ((int)HttpStatusCode.Conflict, "Conflict", exception.Message),
+            //500
             _ =>
                 ((int)HttpStatusCode.InternalServerError, "Internal Server Error",
                  "An unexpected error occurred. Please try again later.")
@@ -80,9 +96,11 @@ public class ExceptionHandlingMiddleware(
         {
             400 => "https://tools.ietf.org/html/rfc7231#section-6.5.1",
             401 => "https://tools.ietf.org/html/rfc7235#section-3.1",
+            403 => "https://tools.ietf.org/html/rfc7235#section-6.5.3",
             404 => "https://tools.ietf.org/html/rfc7231#section-6.5.4",
             409 => "https://tools.ietf.org/html/rfc7231#section-6.5.8",
             500 => "https://tools.ietf.org/html/rfc7231#section-6.6.1",
+            501 => "https://tools.ietf.org/html/rfc7231#section-6.6.2",
             _ => "https://tools.ietf.org/html/rfc7231#section-6.5"
         };
     }

@@ -1,12 +1,15 @@
 using Application.DTO;
 using Application.Services.BookingServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace Presentation.Controllers;
 /// <summary>
 /// Controller for managing booking operations
 /// </summary>
 [ApiController]
+[Authorize]
 [Route("api/[controller]")]
 public class BookingsController(IBookingService bookingService) : ControllerBase
 {
@@ -22,5 +25,21 @@ public class BookingsController(IBookingService bookingService) : ControllerBase
     {
         var booking = await bookingService.GetBookingByIdAsync(bookingId);
         return Ok(booking);
+    }
+
+    [HttpDelete("{bookingId}")]
+    public async Task<IActionResult> CancelBooking(Guid bookingId)
+    {
+        var userIdClaim = User.FindFirst(JwtRegisteredClaimNames.Sub);
+
+        if (userIdClaim == null)
+        {
+            return BadRequest("User Id not found");
+        }
+
+        Guid userId = Guid.Parse(userIdClaim.Value);
+
+        var result = await bookingService.CancelBookingByIdAsync(bookingId, userId);
+        return Ok(result);
     }
 }

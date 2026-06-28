@@ -2,8 +2,6 @@ using Domain;
 using Infrastructure.DataAccess;
 using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
-using Npgsql;
-using Testcontainers.PostgreSql;
 
 namespace Yandex_ASPNET_Ticket_Service.IntegrationTests;
 
@@ -44,6 +42,22 @@ public class BookingRepositoryTests
         return eventEntity;
     }
 
+    private async Task<User> CreateTestUserAsync()
+    {
+        await using var context = CreateContext();
+
+        var userRepository = new UserRepository(context);
+
+        var testUser = User.Create(
+            "Login",
+            "PasswordHash",
+            UserRoles.User);
+
+        await userRepository.AddUserAsync(testUser);
+        await userRepository.SaveChangesAsync();
+        return testUser;
+    }
+
     [Fact]
     public async Task GetBookingByIdAsync_WhenBookingExists_ReturnsBooking()
     {
@@ -53,7 +67,8 @@ public class BookingRepositoryTests
         var eventRepository = new EventRepository(context);
         var bookingRepository = new BookingRepository(context);
         var testEvent = await CreateTestEventAsync();
-        var booking = Booking.CreatePending(testEvent.Id);
+        var testUser = await CreateTestUserAsync();
+        var booking = Booking.CreatePending(testEvent.Id, testUser.Id);
         await bookingRepository.AddBookingAsync(booking);
         await bookingRepository.SaveChangesAsync();
 
@@ -92,7 +107,8 @@ public class BookingRepositoryTests
         await using var context = CreateContext();
         var bookingRepository = new BookingRepository(context);
         var testEvent = await CreateTestEventAsync();
-        var booking = Booking.CreatePending(testEvent.Id);
+        var testUser = await CreateTestUserAsync();
+        var booking = Booking.CreatePending(testEvent.Id, testUser.Id);
 
         // Act
         await bookingRepository.AddBookingAsync(booking);
@@ -106,6 +122,7 @@ public class BookingRepositoryTests
 
         Assert.NotNull(savedBooking);
         Assert.Equal(testEvent.Id, savedBooking.EventId);
+        Assert.Equal(testUser.Id, savedBooking.UserId);
         Assert.Equal(BookingStatus.Pending, savedBooking.Status);
     }
 
@@ -117,10 +134,11 @@ public class BookingRepositoryTests
         await using var context = CreateContext();
         var bookingRepository = new BookingRepository(context);
         var testEvent = await CreateTestEventAsync();
+        var testUser = await CreateTestUserAsync();
 
-        var pendingBooking1 = Booking.CreatePending(testEvent.Id);
-        var pendingBooking2 = Booking.CreatePending(testEvent.Id);
-        var confirmedBooking = Booking.CreatePending(testEvent.Id);
+        var pendingBooking1 = Booking.CreatePending(testEvent.Id, testUser.Id);
+        var pendingBooking2 = Booking.CreatePending(testEvent.Id, testUser.Id);
+        var confirmedBooking = Booking.CreatePending(testEvent.Id, testUser.Id);
         confirmedBooking.Confirm();
 
         await bookingRepository.AddBookingAsync(pendingBooking1);
@@ -161,7 +179,8 @@ public class BookingRepositoryTests
         await using var context = CreateContext();
         var bookingRepository = new BookingRepository(context);
         var testEvent = await CreateTestEventAsync();
-        var booking = Booking.CreatePending(testEvent.Id);
+        var testUser = await CreateTestUserAsync();
+        var booking = Booking.CreatePending(testEvent.Id, testUser.Id);
         await bookingRepository.AddBookingAsync(booking);
 
         // Act
@@ -181,7 +200,8 @@ public class BookingRepositoryTests
         await using var context = CreateContext();
         var bookingRepository = new BookingRepository(context);
         var testEvent = await CreateTestEventAsync();
-        var booking = Booking.CreatePending(testEvent.Id);
+        var testUser = await CreateTestUserAsync();
+        var booking = Booking.CreatePending(testEvent.Id, testUser.Id);
         await bookingRepository.AddBookingAsync(booking);
         await bookingRepository.SaveChangesAsync();
 
@@ -213,7 +233,8 @@ public class BookingRepositoryTests
         await using var context = CreateContext();
         var bookingRepository = new BookingRepository(context);
         var testEvent = await CreateTestEventAsync();
-        var booking = Booking.CreatePending(testEvent.Id);
+        var testUser = await CreateTestUserAsync();
+        var booking = Booking.CreatePending(testEvent.Id, testUser.Id);
         await bookingRepository.AddBookingAsync(booking);
         await bookingRepository.SaveChangesAsync();
 

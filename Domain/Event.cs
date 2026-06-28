@@ -48,7 +48,7 @@ public class Event
         }
     }
 
-    private Event()
+    private Event() //Only for EF
     {
         Title = null!;
     }

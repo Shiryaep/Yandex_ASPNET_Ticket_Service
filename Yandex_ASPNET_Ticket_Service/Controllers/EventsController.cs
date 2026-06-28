@@ -1,7 +1,9 @@
 using Application.DTO;
 using Application.Services.BookingServices;
 using Application.Services.EventServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace Presentation.Controllers;
 
@@ -9,6 +11,7 @@ namespace Presentation.Controllers;
 /// Controller for managing events and event-related bookings
 /// </summary>
 [ApiController]
+[Authorize]
 [Route("api/[controller]")]
 public class EventsController(IEventService eventService, IBookingService bookingService) : ControllerBase
 {
@@ -22,6 +25,7 @@ public class EventsController(IEventService eventService, IBookingService bookin
     /// <param name="pageSize">Number of items per page (default: 10)</param>
     /// <returns>Paginated list of events matching the filters</returns>
     [HttpGet]
+    [AllowAnonymous]
     public async Task<ActionResult<PaginatedResult<EventInfoDto>>> GetAllEventsAsync(
         string? title = null,
         DateTime? from = null,
@@ -38,6 +42,7 @@ public class EventsController(IEventService eventService, IBookingService bookin
     /// <param name="id">Event identifier</param>
     /// <returns>The event if found; otherwise 404 Not Found</returns>
     [HttpGet("{id:Guid}")]
+    [AllowAnonymous]
     public async Task<ActionResult<EventInfoDto>> GetEventById(Guid id)
     {
         var eventItem = await eventService.GetEventByIdAsync(id);
@@ -50,6 +55,7 @@ public class EventsController(IEventService eventService, IBookingService bookin
     /// <param name="event">Event data</param>
     /// <returns>201 Created with the created event</returns>
     [HttpPost]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Post([FromBody] CreateEventDto @event)
     {
         if (!ModelState.IsValid)
@@ -66,24 +72,26 @@ public class EventsController(IEventService eventService, IBookingService bookin
     /// </summary>
     /// <param name="id">Event identifier</param>
     /// <returns>202 Accepted with booking details if event exists; otherwise 404 Not Found</returns>
-    [HttpPost("{id:Guid}/book")]
+    [HttpPost("{eventId:Guid}/book")]
+    [Authorize]
     [ProducesResponseType(typeof(BookingInfoDto), StatusCodes.Status202Accepted)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
-    public async Task<IActionResult> Post(Guid id)
+    public async Task<IActionResult> Post(Guid eventId)
     {
-        var booking = await bookingService.CreateBookingAsync(id);
+        var userIdClaim = User.FindFirst(JwtRegisteredClaimNames.Sub);
 
-        var response = new BookingInfoDto
+        if (userIdClaim == null)
         {
-            Id = booking.Id,
-            EventId = booking.EventId,
-            Status = booking.Status,
-            CreatedAt = booking.CreatedAt,
-            ProcessedAt = booking.ProcessedAt
-        };
+            return BadRequest("User Id not found");
+        }
 
-        return AcceptedAtAction(actionName: "GetBooking", controllerName: "Bookings", routeValues: new { bookingId = booking.Id }, value: response);
+        Guid userId = Guid.Parse(userIdClaim.Value);
+
+        var booking = await bookingService.CreateBookingAsync(eventId, userId);
+
+        return AcceptedAtAction(actionName: "GetBooking", controllerName: "Bookings", routeValues: new { bookingId = booking.Id }, value: booking);
     }
 
     /// <summary>
@@ -93,6 +101,7 @@ public class EventsController(IEventService eventService, IBookingService bookin
     /// <param name="event">Updated event data</param>
     /// <returns>204 No Content if successful; 400 Bad Request if validation fails</returns>
     [HttpPut("{id:Guid}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Put(Guid id, [FromBody] UpdateEventDto @event)
     {
         if (!ModelState.IsValid)
@@ -110,6 +119,7 @@ public class EventsController(IEventService eventService, IBookingService bookin
     /// <param name="id">Event identifier</param>
     /// <returns>200 OK if successful</returns>
     [HttpDelete("{id:Guid}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(Guid id)
     {
         await eventService.DeleteEventAsync(id);
