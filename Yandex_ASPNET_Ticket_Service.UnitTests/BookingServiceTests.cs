@@ -330,6 +330,39 @@ public sealed class BookingServiceTests : IDisposable
         Assert.Equal(10, @event.AvailableSeats);
     }
 
+    [Fact]
+    public async Task CancelBookingByIdAsync_DoubleCancellation_ThrowAlreadyCancelledException()
+    {
+        var eventId = await CreateTestEventAsync();
+        var @event = await _eventService.GetEventByIdAsync(eventId);
+        var user = await CreateTestUserAsync();
+        Assert.Equal(10, @event.AvailableSeats);
+
+        // First Booking reserve 1 seat 10->9
+        var bookingByUser = await _bookingService.CreateBookingAsync(eventId, user.Id);
+        @event = await _eventService.GetEventByIdAsync(eventId);
+        Assert.Equal(9, @event.AvailableSeats);
+
+        // Second Booking reserve 1 seat 9->8
+        await _bookingService.CreateBookingAsync(eventId, user.Id);
+        Assert.Equal(BookingStatus.Pending, bookingByUser.Status);
+        @event = await _eventService.GetEventByIdAsync(eventId);
+        Assert.Equal(8, @event.AvailableSeats);
+
+        // You can Cancel your Booking with release 1 seat 8->9
+        Assert.True(await _bookingService.CancelBookingByIdAsync(bookingByUser.Id, user.Id));
+        bookingByUser = await _bookingService.GetBookingByIdAsync(bookingByUser.Id);
+        Assert.Equal(BookingStatus.Cancelled, bookingByUser.Status);
+        @event = await _eventService.GetEventByIdAsync(eventId);
+        Assert.Equal(9, @event.AvailableSeats);
+
+        // You can NOT Cancel the same Booking again and seats stay the same 
+        await Assert.ThrowsAsync<AlreadyCancelledException>(
+            () => _bookingService.CancelBookingByIdAsync(bookingByUser.Id, user.Id));
+        @event = await _eventService.GetEventByIdAsync(eventId);
+        Assert.Equal(9, @event.AvailableSeats);
+    }
+
     #endregion
 
     #region Concurrency Tests
