@@ -1,0 +1,17 @@
+# PostgreSQL settings
+POSTGRES_DB=___Name of your db like "mydatabase"
+POSTGRES_USER=___Name of user like "postgre"
+POSTGRES_PASSWORD=___Password like "mysecretpassword"
+
+# pgAdmin settings
+PGADMIN_DEFAULT_EMAIL=___Email of Admin like "admin@example.com"
+PGADMIN_DEFAULT_PASSWORD=___Password like "adminpassword"
+
+# Web application settings
+ASPNETCORE_ENVIRONMENT=Development
+CONNECTION_STRING=Host=db;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
+LOGGING_LOG_LEVEL_DEFAULT=Debug
+
+# Ports
+POSTGRES_PORT=5432
+PGADMIN_PORT=5050
