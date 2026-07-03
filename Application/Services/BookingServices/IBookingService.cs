@@ -12,7 +12,7 @@ public interface IBookingService
     /// </summary>
     /// <param name="eventId">Identifier of the event to book</param>
     /// <returns>The created booking</returns>
-    public Task<BookingInfoDto> CreateBookingAsync(Guid eventId, CancellationToken cancellationToken = default);
+    public Task<BookingInfoDto> CreateBookingAsync(Guid eventId, Guid userId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Retrieves a booking by its identifier
@@ -20,4 +20,6 @@ public interface IBookingService
     /// <param name="bookingId">Booking identifier</param>
     /// <returns>The booking if found; otherwise throw an NotFoundException</returns>
     public Task<BookingInfoDto> GetBookingByIdAsync(Guid bookingId, CancellationToken cancellationToken = default);
+
+    public Task<bool> CancelBookingByIdAsync(Guid bookingId, Guid userId, CancellationToken cancellationToken = default);
 }

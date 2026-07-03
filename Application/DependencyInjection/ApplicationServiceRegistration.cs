@@ -1,6 +1,7 @@
 ﻿using Application.Services.BookingServices;
 using Application.Services.EventServices;
 using Application.Services.HostedServices;
+using Application.Services.UserServices;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -12,6 +13,7 @@ namespace Application.DependencyInjection
         {
             services.AddScoped<IEventService, EventService>();
             services.AddScoped<IBookingService, BookingService>();
+            services.AddScoped<IUserService, UserService>();
 
             services.AddHostedService<BookingBackgroundService>();
 
