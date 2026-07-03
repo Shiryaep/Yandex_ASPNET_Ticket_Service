@@ -1,30 +1,23 @@
 using Application.DependencyInjection;
-using Application.Repositories;
-using Application.Services.BookingServices;
-using Application.Services.EventServices;
-using Application.Services.HostedServices;
 using Infrastructure.DataAccess;
 using Infrastructure.DependencyInjection;
-using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Presentation.DependencyInjection;
 using Presentation.Middleware;
 
 namespace Presentation;
 
 /// <summary> Basis of all project </summary>
-public class Program
+public partial class Program
 {
     /// <summary> Program entery point </summary>
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddControllers();
-        builder.Services.AddSwaggerGen();
-
-        builder.Services.AddInfrastructure(builder.Configuration);
         builder.Services.AddApplication(builder.Configuration);
+        builder.Services.AddInfrastructure(builder.Configuration);
+        builder.Services.AddPresentation(builder.Configuration);
 
         var app = builder.Build();
 
@@ -60,7 +53,10 @@ public class Program
 
         //4. CORS
         //5. Authentication
+        app.UseAuthentication();
+
         //6. Authorization
+        app.UseAuthorization();
 
         //7. Endpoints
         app.MapControllers();
