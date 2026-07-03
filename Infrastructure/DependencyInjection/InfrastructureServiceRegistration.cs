@@ -12,10 +12,15 @@ namespace Infrastructure.DependencyInjection
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddDbContext<AppDbContext>(options =>
-            options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
+                options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
 
             services.AddScoped<IEventRepository, EventRepository>();
             services.AddScoped<IBookingRepository, BookingRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
+
+            JWTService jwtService = new JWTService(configuration);
+
+            services.AddSingleton(jwtService);
 
             return services;
         }
