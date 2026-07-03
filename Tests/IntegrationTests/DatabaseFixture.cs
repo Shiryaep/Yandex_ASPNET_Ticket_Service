@@ -2,7 +2,7 @@ using Infrastructure.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Testcontainers.PostgreSql;
 
-namespace Yandex_ASPNET_Ticket_Service.IntegrationTests;
+namespace IntegrationTests;
 
 /// <summary>
 /// Общий fixture для тестов, использующих PostgreSQL контейнер.

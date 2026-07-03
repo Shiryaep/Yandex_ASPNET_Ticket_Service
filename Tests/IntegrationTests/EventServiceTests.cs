@@ -3,7 +3,7 @@ using Domain;
 using Infrastructure.DataAccess;
 using Infrastructure.Repositories;
 
-namespace Yandex_ASPNET_Ticket_Service.IntegrationTests;
+namespace IntegrationTests;
 
 [Collection("DatabaseCollection")]
 public class EventServiceTests

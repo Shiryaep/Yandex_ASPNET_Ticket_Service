@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Presentation.Controllers;
 
-namespace Yandex_ASPNET_Ticket_Service.UnitTests
+namespace UnitTests
 {
     public class BookingsControllerTests
     {

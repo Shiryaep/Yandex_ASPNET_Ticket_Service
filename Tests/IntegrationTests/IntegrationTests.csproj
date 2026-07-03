@@ -12,6 +12,7 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.9" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.8" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.8" />
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.5.1" />
@@ -29,12 +30,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Folder Include="Properties\" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <ProjectReference Include="..\Domain\Domain.csproj" />
-	  <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
+	  <ProjectReference Include="..\..\Domain\Domain.csproj" />
+	  <ProjectReference Include="..\..\Infrastructure\Infrastructure.csproj" />
 	</ItemGroup>
 
 </Project>

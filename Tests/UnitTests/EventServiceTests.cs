@@ -7,7 +7,7 @@ using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Yandex_ASPNET_Ticket_Service.UnitTests;
+namespace UnitTests;
 
 public sealed class EventServiceTests : IDisposable
 {

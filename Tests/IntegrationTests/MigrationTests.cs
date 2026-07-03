@@ -2,7 +2,7 @@ using Domain;
 using Infrastructure.DataAccess;
 using Microsoft.EntityFrameworkCore;
 
-namespace Yandex_ASPNET_Ticket_Service.IntegrationTests;
+namespace IntegrationTests;
 
 /// <summary>
 /// Тесты, проверяющие корректность применения миграций:
@@ -72,11 +72,17 @@ public class MigrationTests
             DateTime.UtcNow.AddDays(2),
             100);
 
+        var testUser = User.Create(
+            "Login",
+            "PasswordHash",
+            UserRoles.User);
+
         context.Events.Add(eventEntity);
+        context.Users.Add(testUser);
         await context.SaveChangesAsync();
 
         // Act
-        var booking = Booking.CreatePending(eventEntity.Id);
+        var booking = Booking.CreatePending(eventEntity.Id, testUser.Id);
         context.Bookings.Add(booking);
         await context.SaveChangesAsync();
 
@@ -103,7 +109,7 @@ public class MigrationTests
         await context.Database.MigrateAsync();
 
         var invalidEventId = Guid.NewGuid();
-        var booking = Booking.CreatePending(invalidEventId);
+        var booking = Booking.CreatePending(invalidEventId, Guid.NewGuid());
         context.Bookings.Add(booking);
 
         // Act & Assert

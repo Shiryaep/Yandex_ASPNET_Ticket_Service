@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using Testcontainers.PostgreSql;
 
-namespace Yandex_ASPNET_Ticket_Service.IntegrationTests;
+namespace IntegrationTests;
 
 [Collection("DatabaseCollection")]
 public class EventRepositoryTests
