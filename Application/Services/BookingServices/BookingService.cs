@@ -39,7 +39,7 @@ public class BookingService(IBookingRepository bookingRepository, IEventReposito
                 ?? throw new NotFoundException($"User not found");
 
             if (await _bookingRepository.GetCountOfUserBookings(user.Id, eventEntity.Id, cancellationToken) >= AppConstants.MaxBookingsPerUser)
-                throw new BookingLimitExceededException();
+                throw new BookingLimitExceededException($"Booking limit has been exceeded. Your max bookings count is {AppConstants.MaxBookingsPerUser}");
 
             // Try to reserve seat
             if (!eventEntity.TryReserveSeats())

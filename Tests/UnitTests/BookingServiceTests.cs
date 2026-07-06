@@ -175,14 +175,13 @@ public sealed class BookingServiceTests : IDisposable
             await _bookingService.CreateBookingAsync(eventId1, testUser.Id);
         }
 
-        // Throws when booking THE SAME event
+        // Throws when booking the same event
         await Assert.ThrowsAsync<BookingLimitExceededException>(
             () => _bookingService.CreateBookingAsync(eventId1, testUser.Id));
 
-        // BUT it is possible to book ANOTHER event
-        var bookingInfo = await _bookingService.CreateBookingAsync(eventId2, testUser.Id);
-        Assert.Equal(eventId2, bookingInfo.EventId);
-        Assert.Equal(testUser.Id, bookingInfo.UserId);
+        // And throws when booking another event
+        await Assert.ThrowsAsync<BookingLimitExceededException>(
+            () => _bookingService.CreateBookingAsync(eventId2, testUser.Id));
     }
 
     [Fact]

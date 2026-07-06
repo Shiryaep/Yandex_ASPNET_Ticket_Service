@@ -78,28 +78,26 @@ public class E2ETests : IClassFixture<WebApplicationFactory<Program>>
             Role = Domain.UserRoles.User
         };
 
-        UserAuthDto userAuthDtoLoginChanged = new UserAuthDto()
+        UserLoginDto userAuthDtoLoginChanged = new UserLoginDto()
         {
             Login = "NEWlogin",
-            Password = "password",
-            Role = Domain.UserRoles.User
+            Password = "password"
         };
 
-        UserAuthDto userAuthDtoPasswordChanged = new UserAuthDto()
+        UserLoginDto userAuthDtoPasswordChanged = new UserLoginDto()
         {
             Login = "login",
-            Password = "NEWpassword",
-            Role = Domain.UserRoles.User
+            Password = "NEWpassword"
         };
 
         var response = await client.PostAsJsonAsync("/api/auth/register", userAuthDto);
         response.EnsureSuccessStatusCode();
 
         response = await client.PostAsJsonAsync("/api/auth/login", userAuthDtoLoginChanged);
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
 
         response = await client.PostAsJsonAsync("/api/auth/login", userAuthDtoPasswordChanged);
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
     #endregion

@@ -1,4 +1,5 @@
 ﻿using Application.Repositories;
+using Application.Services.UserServices;
 using Infrastructure.DataAccess;
 using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -18,9 +19,11 @@ namespace Infrastructure.DependencyInjection
             services.AddScoped<IBookingRepository, BookingRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
 
-            JWTService jwtService = new JWTService(configuration);
+            services.AddSingleton<IJWTService, JWTService>();
 
-            services.AddSingleton(jwtService);
+            //JWTService jwtService = new JWTService(configuration);
+
+            //services.AddSingleton(jwtService);
 
             return services;
         }

@@ -1,4 +1,5 @@
 ﻿using Application.DTO;
+using Application.Services.UserServices;
 using Domain.Exceptions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.JsonWebTokens;
@@ -7,7 +8,7 @@ using System.Text;
 
 namespace Infrastructure
 {
-    public class JWTService
+    public class JWTService : IJWTService
     {
         private readonly byte[] _jwtKey;
         private readonly string _jwtIssuer;
@@ -46,6 +47,5 @@ namespace Infrastructure
 
             return new JsonWebTokenHandler().CreateToken(descriptor);
         }
-
     }
 }

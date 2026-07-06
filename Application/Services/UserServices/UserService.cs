@@ -27,10 +27,10 @@ public class UserService(IUserRepository userRepository) : IUserService
     public async Task<UserInfoDto> SignInUserAsync(string login, string password, CancellationToken cancellationToken = default)
     {
         User user = await _userRepository.GetUserByLoginAsync(login, cancellationToken)
-            ?? throw new ValidationException("Login or Password Invalid");
+            ?? throw new NotFoundException("Login or Password Invalid");
 
         if (PasswordService.GetHash(password) != user.PasswordHash)
-            throw new ValidationException("Login or Password Invalid");
+            throw new NotFoundException("Login or Password Invalid");
 
         return ToInfo(user);
     }

@@ -39,7 +39,7 @@ public class BookingsController(IBookingService bookingService) : ControllerBase
 
         Guid userId = Guid.Parse(userIdClaim.Value);
 
-        var result = await bookingService.CancelBookingByIdAsync(bookingId, userId);
-        return Ok(result);
+        await bookingService.CancelBookingByIdAsync(bookingId, userId);
+        return NoContent();
     }
 }
