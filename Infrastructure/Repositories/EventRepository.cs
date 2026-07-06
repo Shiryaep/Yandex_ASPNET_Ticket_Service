@@ -33,4 +33,37 @@ public class EventRepository(AppDbContext db) : IEventRepository
     {
         return _db.Events.AsQueryable();
     }
+
+    public IQueryable<Event> GetFilteredQuery(string? title = null,
+        DateTime? from = null, DateTime? to = null)
+    {
+        var query = _db.Events.AsQueryable();
+
+        if (from.HasValue)
+            query = query.Where(e => e.StartAt >= from.Value);
+
+        if (to.HasValue)
+            query = query.Where(e => e.StartAt <= to.Value);
+
+        if (!string.IsNullOrWhiteSpace(title))
+            query = query.Where(e => e.Title.ToLower().Contains(title.ToLower()));
+
+        return query;
+    }
+
+    public Task<int> GetCountOfQuery(IQueryable<Event> query, CancellationToken cancellationToken = default)
+    {
+        return query.CountAsync(cancellationToken);
+    }
+
+    public Task<List<Event>> GetPaginatedItemsOfQuery(IQueryable<Event> query,
+        int page = AppConstants.DefaultPage,
+        int pageSize = AppConstants.DefaultPageSize,
+        CancellationToken cancellationToken = default)
+    {
+        return query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+    }
 }

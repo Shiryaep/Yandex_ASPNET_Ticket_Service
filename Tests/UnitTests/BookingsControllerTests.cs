@@ -1,0 +1,65 @@
+﻿using Application.DTO;
+using Application.Services.BookingServices;
+using Domain;
+using Domain.Exceptions;
+using Microsoft.AspNetCore.Mvc;
+using Moq;
+using Presentation.Controllers;
+
+namespace UnitTests
+{
+    public class BookingsControllerTests
+    {
+        [Fact]
+        public async Task GetBooking_NonExistentId_ReturnsNotFound()
+        {
+            // Arrange
+            var mockBookingService = new Mock<IBookingService>();
+            var controller = new BookingsController(mockBookingService.Object);
+            var nonExistentBookingId = Guid.NewGuid();
+
+            mockBookingService.Setup(s => s.GetBookingByIdAsync(nonExistentBookingId))
+                .ThrowsAsync(new NotFoundException("Booking not found"));
+
+            // Act and Assert
+            var exception = await Assert.ThrowsAsync<NotFoundException>(() => controller.GetBooking(nonExistentBookingId));
+            Assert.Contains("Booking not found", exception.Message);
+        }
+
+        [Fact]
+        public async Task GetBooking_ExistingId_ReturnsOkWithCorrectData()
+        {
+            // Arrange
+            var mockBookingService = new Mock<IBookingService>();
+            var controller = new BookingsController(mockBookingService.Object);
+            var bookingId = Guid.NewGuid();
+            var eventId = Guid.NewGuid();
+            var createdAt = DateTime.UtcNow.AddMinutes(-5);
+            var bookingDto = new BookingInfoDto
+            {
+                Id = bookingId,
+                EventId = eventId,
+                Status = BookingStatus.Pending,
+                CreatedAt = createdAt,
+                ProcessedAt = null
+            };
+
+            mockBookingService.Setup(s => s.GetBookingByIdAsync(bookingId))
+                .ReturnsAsync(bookingDto);
+
+            // Act
+            var result = await controller.GetBooking(bookingId);
+
+            // Assert
+            var okResult = Assert.IsType<OkObjectResult>(result);
+            Assert.Equal(200, okResult.StatusCode);
+            var dto = okResult.Value as BookingInfoDto;
+            Assert.NotNull(dto);
+            Assert.Equal(bookingId, dto.Id);
+            Assert.Equal(eventId, dto.EventId);
+            Assert.Equal(BookingStatus.Pending, dto.Status);
+            Assert.Equal(createdAt, dto.CreatedAt);
+            Assert.Null(dto.ProcessedAt);
+        }
+    }
+}

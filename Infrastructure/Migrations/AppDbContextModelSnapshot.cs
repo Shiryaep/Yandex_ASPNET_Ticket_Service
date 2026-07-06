@@ -22,7 +22,7 @@ namespace Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Yandex_ASPNET_Ticket_Service.Models.Booking", b =>
+            modelBuilder.Entity("Domain.Booking", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
@@ -40,14 +40,19 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("EventId");
 
+                    b.HasIndex("UserId");
+
                     b.ToTable("Bookings", (string)null);
                 });
 
-            modelBuilder.Entity("Yandex_ASPNET_Ticket_Service.Models.Event", b =>
+            modelBuilder.Entity("Domain.Event", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
@@ -76,18 +81,55 @@ namespace Infrastructure.Migrations
                     b.ToTable("Events", (string)null);
                 });
 
-            modelBuilder.Entity("Yandex_ASPNET_Ticket_Service.Models.Booking", b =>
+            modelBuilder.Entity("Domain.User", b =>
                 {
-                    b.HasOne("Yandex_ASPNET_Ticket_Service.Models.Event", "Event")
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Login")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Login")
+                        .IsUnique();
+
+                    b.ToTable("Users", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Booking", b =>
+                {
+                    b.HasOne("Domain.Event", "Event")
                         .WithMany("Bookings")
                         .HasForeignKey("EventId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Domain.User", "User")
+                        .WithMany("Bookings")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Event");
+
+                    b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Yandex_ASPNET_Ticket_Service.Models.Event", b =>
+            modelBuilder.Entity("Domain.Event", b =>
+                {
+                    b.Navigation("Bookings");
+                });
+
+            modelBuilder.Entity("Domain.User", b =>
                 {
                     b.Navigation("Bookings");
                 });

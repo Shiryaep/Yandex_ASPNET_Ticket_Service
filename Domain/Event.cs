@@ -1,5 +1,4 @@
-using System;
-using System.ComponentModel.DataAnnotations;
+using Domain.Exceptions;
 
 namespace Domain;
 
@@ -49,7 +48,7 @@ public class Event
         }
     }
 
-    private Event()
+    private Event() //Only for EF
     {
         Title = null!;
     }
