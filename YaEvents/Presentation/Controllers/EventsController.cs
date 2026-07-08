@@ -67,35 +67,6 @@ public class EventsController(IEventService eventService) : ControllerBase
     }
 
     /// <summary>
-    /// Creates a booking for the specified event
-    /// </summary>
-    /// <param name="id">Event identifier</param>
-    /// <returns>202 Accepted with booking details if event exists; otherwise 404 Not Found</returns>
-    [HttpPost("{eventId:Guid}/book")]
-    [Authorize]
-    //[ProducesResponseType(typeof(BookingInfoDto), StatusCodes.Status202Accepted)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
-    public async Task<IActionResult> Post(Guid eventId)
-    {
-        var userIdClaim = User.FindFirst(JwtRegisteredClaimNames.Sub);
-
-        if (userIdClaim == null)
-        {
-            return BadRequest("User Id not found");
-        }
-
-        Guid userId = Guid.Parse(userIdClaim.Value);
-
-        // ТУТ НАДО ПУБЛИКОВАТЬ СОБИТИЕ О ТОМ, ЧТО БУКИНГ СОЗДАН И ЕГО НАДО ОБРАБОТАТЬ
-        //var booking = await bookingService.CreateBookingAsync(eventId, userId);
-
-        //return AcceptedAtAction(actionName: "GetBooking", controllerName: "Bookings", routeValues: new { bookingId = booking.Id }, value: booking);
-        return NoContent();
-    }
-
-    /// <summary>
     /// Replaces an existing event by its identifier
     /// </summary>
     /// <param name="id">Event identifier</param>
