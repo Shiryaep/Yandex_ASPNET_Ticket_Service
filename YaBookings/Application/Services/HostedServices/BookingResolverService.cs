@@ -1,7 +1,9 @@
+using Application.Publishers;
 using Application.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using YaContracts;
 using YaContracts.Enums;
 
 namespace Application.Services.HostedServices;
@@ -11,10 +13,12 @@ namespace Application.Services.HostedServices;
 /// </summary>
 public class BookingBackgroundService(
         IServiceScopeFactory scopeFactory,
-        ILogger<BookingBackgroundService> logger) : BackgroundService
+        ILogger<BookingBackgroundService> logger,
+        IDomainEventPublisher domainEventPublisher) : BackgroundService
 {
     private readonly IServiceScopeFactory _scopeFactory = scopeFactory;
     private readonly ILogger<BookingBackgroundService> _logger = logger;
+    private readonly IDomainEventPublisher _domainEventPublisher = domainEventPublisher;
     private readonly int _pollingInterval = 3000;
     private readonly int _processingDelay = 2000;
 
@@ -84,6 +88,18 @@ public class BookingBackgroundService(
 
             booking.Confirm();
             await bookingRepository.SaveChangesAsync(cancellationToken);
+
+            var bookingConfirmedEvent = new BookingConfirmed()
+            {
+                BookingId = bookingId,
+                EventId = booking.EventId,
+                UserId = booking.UserId,
+                ConfirmedAt = booking.ProcessedAt ?? DateTime.UtcNow,
+                SeatsCount = 1
+            };
+
+            await _domainEventPublisher.PublishAsync(Constants.BookingConfirmedTopicName, bookingConfirmedEvent, booking.EventId.ToString());
+
             _logger.LogInformation("Booking {BookingId} confirmed", booking.Id);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
