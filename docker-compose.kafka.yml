@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # Kafka в режиме KRaft
   kafka:
@@ -9,7 +7,7 @@ services:
       - "9092:9092" # 9092 для подключения с хост-машины (C# приложение локально)
       - "29092:29092" # 29092 для подключения из других контейнеров внутри Docker-сети
     environment:
-      # Включаем режим KRaft (Kafka сама себе Zookeeper)
+      # Режим KRaft (Kafka сама себе Zookeeper)
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: broker,controller
       

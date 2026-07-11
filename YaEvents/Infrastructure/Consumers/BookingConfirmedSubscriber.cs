@@ -134,7 +134,7 @@ public class BookingConfirmedSubscriber : BackgroundService
             {
                 // Крайний случай 2: Недостаточно мест
                 _logger.LogWarning(
-                    "Недостаточно мест для события {EventId}. Доступно: {AvailableSeats}, Запрошено: {RequestedSeats}. Пропускаем",
+                    "Недостаточно мест для события {EventId}. Доступно: {AvailableSeats}, Запрошено: {SeatsCount}. Пропускаем",
                     @event.EventId, domainEvent.AvailableSeats, @event.SeatsCount);
                 return;
             }
