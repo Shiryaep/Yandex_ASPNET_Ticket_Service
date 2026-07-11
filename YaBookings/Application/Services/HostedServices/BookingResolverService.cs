@@ -1,7 +1,9 @@
+using Application.Publishers;
 using Application.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using YaContracts;
 using YaContracts.Enums;
 
 namespace Application.Services.HostedServices;
@@ -11,10 +13,12 @@ namespace Application.Services.HostedServices;
 /// </summary>
 public class BookingBackgroundService(
         IServiceScopeFactory scopeFactory,
-        ILogger<BookingBackgroundService> logger) : BackgroundService
+        ILogger<BookingBackgroundService> logger,
+        IDomainEventPublisher domainEventPublisher) : BackgroundService
 {
     private readonly IServiceScopeFactory _scopeFactory = scopeFactory;
     private readonly ILogger<BookingBackgroundService> _logger = logger;
+    private readonly IDomainEventPublisher _domainEventPublisher = domainEventPublisher;
     private readonly int _pollingInterval = 3000;
     private readonly int _processingDelay = 2000;
 
@@ -66,24 +70,25 @@ public class BookingBackgroundService(
 
             using var scope = _scopeFactory.CreateScope();
             var bookingRepository = scope.ServiceProvider.GetRequiredService<IBookingRepository>();
-            //var eventRepository = scope.ServiceProvider.GetRequiredService<IEventRepository>();
 
             var booking = await bookingRepository.GetBookingByIdAsync(bookingId, cancellationToken);
             if (booking == null || booking.Status != BookingStatus.Pending)
                 return;
 
-            // НУ БУДЕМ СЧИТАТЬ, ЧТО ИВЕНТ ТОЧНО ОКЕЙ И РАБОЧИЙ 
-            //var @event = await eventRepository.GetEventByIdAsync(booking.EventId, cancellationToken);
-            //if (@event == null)
-            //{
-            //    booking.Reject();
-            //    await bookingRepository.SaveChangesAsync(cancellationToken);
-            //    _logger.LogWarning("Event {EventId} not found, booking {BookingId} rejected", booking.EventId, booking.Id);
-            //    return;
-            //}
-
             booking.Confirm();
             await bookingRepository.SaveChangesAsync(cancellationToken);
+
+            var bookingConfirmedEvent = new BookingConfirmed()
+            {
+                BookingId = bookingId,
+                EventId = booking.EventId,
+                UserId = booking.UserId,
+                ConfirmedAt = booking.ProcessedAt ?? DateTime.UtcNow,
+                SeatsCount = 1
+            };
+
+            await _domainEventPublisher.PublishAsync(Constants.BookingConfirmedTopicName, bookingConfirmedEvent, booking.EventId.ToString());
+
             _logger.LogInformation("Booking {BookingId} confirmed", booking.Id);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
@@ -105,18 +110,12 @@ public class BookingBackgroundService(
         {
             using var scope = _scopeFactory.CreateScope();
             var bookingRepository = scope.ServiceProvider.GetRequiredService<IBookingRepository>();
-            //var eventRepository = scope.ServiceProvider.GetRequiredService<IEventRepository>();
 
             var booking = await bookingRepository.GetBookingByIdAsync(bookingId, cancellationToken);
             if (booking == null)
                 return;
 
             booking.Reject();
-
-            // НАДО СООБЩИТЬ О ТОМ ЧТО БРОНЬ НЕ СОСТОЯЛАСЬ - И ОСВОБОДИТЬ МЕСТА
-            //var @event = await eventRepository.GetEventByIdAsync(booking.EventId, cancellationToken);
-            //if (@event != null)
-            //    @event.ReleaseSeats();
 
             await bookingRepository.SaveChangesAsync(cancellationToken);
 

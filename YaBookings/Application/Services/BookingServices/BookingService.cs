@@ -2,6 +2,7 @@ using Application.DTO;
 using Application.Repositories;
 using Domain;
 using Domain.Exceptions;
+using YaContracts.Enums;
 
 namespace Application.Services.BookingServices;
 
@@ -26,18 +27,6 @@ public class BookingService(IBookingRepository bookingRepository) : IBookingServ
         await _bookingLock.WaitAsync(cancellationToken);
         try
         {
-            // Get the event
-            // МЫ ТИПО УВЕРЕНЫ ЧТО СОБЫТИЕ ТОЧНО ТАКОГО АЙДИ, ЧТО У НАС ЕСТЬ)))
-
-            // И МЫ ТОЧНО УВЕРЕНЫ, ЧТО СОБЫТИЕ В БУДУЩЕМ
-
-            // А ЕЩЕ МЫ УВЕРЕНЫ ЧТО ПОЛЬЗОВАТЕЛЬ ТОЧНО СУЩЕСТВУЕТ 
-
-            // А ЕЩЕ МЫ ТОЧНО ПРОВЕРИЛИ, ЧТО КОЛИЧЕСТВО БУКИНГОВ У ЧЕЛОВЕКА МЕНЬШЕ 10!!!
-
-            // ЭТО НАДО ПЕРЕНЕСТИ В ОБРАБОТКУ НАЧАВШЕГОСЯ БУКИНГА В ИВЕНТ СЕРВИС
-
-            // Create and save booking
             var booking = Booking.CreatePending(eventId, userId);
             await _bookingRepository.AddBookingAsync(booking, cancellationToken);
             await _bookingRepository.SaveChangesAsync(cancellationToken);
@@ -66,20 +55,15 @@ public class BookingService(IBookingRepository bookingRepository) : IBookingServ
     /// <summary>
     /// Cancel Booking and Release reserved seats
     /// </summary>
-    public async Task<bool> CancelBookingByIdAsync(Guid bookingId, Guid userId, CancellationToken cancellationToken = default)
+    public async Task<bool> CancelBookingByIdAsync(Guid bookingId, Guid userId, string userRole, CancellationToken cancellationToken = default)
     {
         var booking = await _bookingRepository.GetBookingByIdAsync(bookingId, cancellationToken)
             ?? throw new NotFoundException("Booking not found");
 
-        // ТУТ МЫ УВЕРЕНЫ ЧТО И ПОЛЬЗОВАТЕЛЬ СУЩЕСТВУЕТ И ИВЕНТ ВАЛИДНЫЙ
-        // ТУТ НАДО КАК-ТО ПРОВЕРИТЬ ЧТО ЛИБО ЮЗЕР ТАКОЙ ЖЕ, ЛИБО ПОЛЬЗОВАТЕЛЬ АДМИН - КАК ВАРИК ВЗЯТЬ ИЗ ТОКЕНА
-        //if (user.Id != booking.UserId && user.Role != UserRoles.Admin)
-        //throw new LackOfRightsException();
+        if (userId != booking.UserId && userRole != UserRoles.Admin.ToString())
+            throw new LackOfRightsException();
 
         booking.Cancel();
-
-        // ЗАРЕЛИЗИТЬ МЕСТА!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        // ЭТО НАДО СДЕЛАТЬ В СЕРВИСЕ ИВЕНТОВ ПОСЛЕ ВЫСЫЛКИ СООБЩЕНИЯ О ТОМ, ЧТО ВСЕ ОКЕЙ
 
         await _bookingRepository.SaveChangesAsync();
         return true;

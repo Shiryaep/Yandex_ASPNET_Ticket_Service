@@ -4,6 +4,7 @@ using Infrastructure.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using Presentation.DependencyInjection;
 using Presentation.Middleware;
+using System.Text;
 
 namespace Presentation;
 
@@ -13,6 +14,9 @@ public partial class Program
     /// <summary> Program entery point </summary>
     public static void Main(string[] args)
     {
+        Console.OutputEncoding = Encoding.UTF8;
+        Console.InputEncoding = Encoding.UTF8;
+
         var builder = WebApplication.CreateBuilder(args);
 
         builder.Services.AddApplication(builder.Configuration);
