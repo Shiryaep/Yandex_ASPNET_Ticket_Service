@@ -19,26 +19,18 @@ namespace Infrastructure.DependencyInjection
 
             services.AddScoped<IEventRepository, EventRepository>();
 
-            KafkaConsumerSettings consumerSettings = new KafkaConsumerSettings()
-            {
-                BootstrapServers = configuration.GetSection("Kafka:BootstrapServers").Value,
-                ConsumerGroup = configuration.GetSection("Kafka:ConsumerGroup").Value
-            };
+            services.Configure<KafkaConsumerSettings>(configuration.GetSection("Kafka"));
 
-            services.AddSingleton(consumerSettings);
-
-            //services.Configure<KafkaConsumerSettings>(configuration.GetSection("Kafka"));
-
-            //var settings = configuration.GetSection("Kafka").Get<KafkaConsumerSettings>()
-            //    ?? throw new InvalidOperationException("Kafka settings not found");
+            var settings = configuration.GetSection("Kafka").Get<KafkaConsumerSettings>()
+                ?? throw new InvalidOperationException("Kafka settings not found");
 
             // Регистрируем Consumer как Singleton (тяжелый объект)
             services.AddSingleton<IConsumer<string, string>>(_ =>
             {
                 var consumerConfig = new ConsumerConfig
                 {
-                    BootstrapServers = consumerSettings.BootstrapServers,
-                    GroupId = consumerSettings.ConsumerGroup,
+                    BootstrapServers = settings.BootstrapServers,
+                    GroupId = settings.ConsumerGroup,
                     // AutoOffsetReset.Earliest — начинать чтение с самого начала, если нет сохраненного offset
                     AutoOffsetReset = AutoOffsetReset.Earliest,
                     // EnableAutoCommit = false — подтверждаем вручную после успешной обработки

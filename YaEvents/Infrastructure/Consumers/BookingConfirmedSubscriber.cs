@@ -140,7 +140,7 @@ public class BookingConfirmedSubscriber : BackgroundService
             }
 
             // Уменьшаем количество доступных мест
-            domainEvent.ReleaseSeats(@event.SeatsCount);
+            domainEvent.TryReserveSeats(@event.SeatsCount);
 
             // Сохраняем изменения в БД
             await eventsRepository.SaveChangesAsync(cancellationToken);

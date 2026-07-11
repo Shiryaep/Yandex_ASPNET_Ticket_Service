@@ -50,7 +50,7 @@ public class BookingsController(IBookingService bookingService) : ControllerBase
         Guid userId = Guid.Parse(userIdClaim.Value);
 
         // ТУТ НАДО ПУБЛИКОВАТЬ СОБИТИЕ О ТОМ, ЧТО БУКИНГ СОЗДАН И ЕГО НАДО ОБРАБОТАТЬ
-        //var booking = await bookingService.CreateBookingAsync(eventId, userId);
+        var booking = await bookingService.CreateBookingAsync(eventId, userId);
 
         //return AcceptedAtAction(actionName: "GetBooking", controllerName: "Bookings", routeValues: new { bookingId = booking.Id }, value: booking);
         return NoContent();
