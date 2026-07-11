@@ -19,10 +19,6 @@ namespace Infrastructure.DependencyInjection
 
             services.AddSingleton<IJWTService, JWTService>();
 
-            //JWTService jwtService = new JWTService(configuration);
-
-            //services.AddSingleton(jwtService);
-
             return services;
         }
     }

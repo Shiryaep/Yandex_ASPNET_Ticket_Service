@@ -21,5 +21,5 @@ public interface IBookingService
     /// <returns>The booking if found; otherwise throw an NotFoundException</returns>
     public Task<BookingInfoDto> GetBookingByIdAsync(Guid bookingId, CancellationToken cancellationToken = default);
 
-    public Task<bool> CancelBookingByIdAsync(Guid bookingId, Guid userId, CancellationToken cancellationToken = default);
+    public Task<bool> CancelBookingByIdAsync(Guid bookingId, Guid userId, string userRole, CancellationToken cancellationToken = default);
 }

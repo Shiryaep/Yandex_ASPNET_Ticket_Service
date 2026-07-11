@@ -24,16 +24,13 @@ namespace Infrastructure.DependencyInjection
             var settings = configuration.GetSection("Kafka").Get<KafkaConsumerSettings>()
                 ?? throw new InvalidOperationException("Kafka settings not found");
 
-            // Регистрируем Consumer как Singleton (тяжелый объект)
             services.AddSingleton<IConsumer<string, string>>(_ =>
             {
                 var consumerConfig = new ConsumerConfig
                 {
                     BootstrapServers = settings.BootstrapServers,
                     GroupId = settings.ConsumerGroup,
-                    // AutoOffsetReset.Earliest — начинать чтение с самого начала, если нет сохраненного offset
                     AutoOffsetReset = AutoOffsetReset.Earliest,
-                    // EnableAutoCommit = false — подтверждаем вручную после успешной обработки
                     EnableAutoCommit = false
                 };
 
@@ -44,11 +41,8 @@ namespace Infrastructure.DependencyInjection
                 return builder.Build();
             });
 
-            // ВАЖНО: Порядок регистрации имеет значение!
-            // 1. Сначала регистрируем TopicCreator (запустится первым)
             services.AddHostedService<KafkaTopicCreatorHostedService>();
 
-            // 2. Потом регистрируем Subscriber (запустится вторым)
             services.AddHostedService<BookingConfirmedSubscriber>();
 
             return services;

@@ -70,21 +70,10 @@ public class BookingBackgroundService(
 
             using var scope = _scopeFactory.CreateScope();
             var bookingRepository = scope.ServiceProvider.GetRequiredService<IBookingRepository>();
-            //var eventRepository = scope.ServiceProvider.GetRequiredService<IEventRepository>();
 
             var booking = await bookingRepository.GetBookingByIdAsync(bookingId, cancellationToken);
             if (booking == null || booking.Status != BookingStatus.Pending)
                 return;
-
-            // НУ БУДЕМ СЧИТАТЬ, ЧТО ИВЕНТ ТОЧНО ОКЕЙ И РАБОЧИЙ 
-            //var @event = await eventRepository.GetEventByIdAsync(booking.EventId, cancellationToken);
-            //if (@event == null)
-            //{
-            //    booking.Reject();
-            //    await bookingRepository.SaveChangesAsync(cancellationToken);
-            //    _logger.LogWarning("Event {EventId} not found, booking {BookingId} rejected", booking.EventId, booking.Id);
-            //    return;
-            //}
 
             booking.Confirm();
             await bookingRepository.SaveChangesAsync(cancellationToken);
@@ -121,18 +110,12 @@ public class BookingBackgroundService(
         {
             using var scope = _scopeFactory.CreateScope();
             var bookingRepository = scope.ServiceProvider.GetRequiredService<IBookingRepository>();
-            //var eventRepository = scope.ServiceProvider.GetRequiredService<IEventRepository>();
 
             var booking = await bookingRepository.GetBookingByIdAsync(bookingId, cancellationToken);
             if (booking == null)
                 return;
 
             booking.Reject();
-
-            // НАДО СООБЩИТЬ О ТОМ ЧТО БРОНЬ НЕ СОСТОЯЛАСЬ - И ОСВОБОДИТЬ МЕСТА
-            //var @event = await eventRepository.GetEventByIdAsync(booking.EventId, cancellationToken);
-            //if (@event != null)
-            //    @event.ReleaseSeats();
 
             await bookingRepository.SaveChangesAsync(cancellationToken);
 

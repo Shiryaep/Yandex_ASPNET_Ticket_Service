@@ -21,7 +21,7 @@ public class KafkaTopicCreatorHostedService : IHostedService
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Создание топиков Kafka...");
+        _logger.LogInformation("Создание топиков Kafka");
 
         var adminConfig = new AdminClientConfig
         {
@@ -32,7 +32,6 @@ public class KafkaTopicCreatorHostedService : IHostedService
 
         try
         {
-            // Проверяем, существует ли уже топик
             var metadata = adminClient.GetMetadata(TimeSpan.FromSeconds(10));
             var topicExists = metadata.Topics.Any(t => t.Topic == _settings.Topics.BookingConfirmed);
 
@@ -42,7 +41,6 @@ public class KafkaTopicCreatorHostedService : IHostedService
                 return;
             }
 
-            // Создаем топик с 3 партициями и фактором репликации 1
             var topicSpecification = new TopicSpecification
             {
                 Name = _settings.Topics.BookingConfirmed,
@@ -55,13 +53,10 @@ public class KafkaTopicCreatorHostedService : IHostedService
         }
         catch (CreateTopicsException ex) when (ex.Results.Any(r => r.Error.IsError && r.Error.Code == ErrorCode.TopicAlreadyExists))
         {
-            // Топик уже существует — это нормально
             _logger.LogInformation("Топик {TopicName} уже существует (конкурентное создание)", _settings.Topics.BookingConfirmed);
         }
         catch (Exception ex)
         {
-            // НЕ падаем — просто логируем ошибку
-            // Подписчик все равно попытается читать, и если топика нет, Kafka создаст его автоматически
             _logger.LogError(ex, "Не удалось создать топик {TopicName}. Подписчик продолжит работу", _settings.Topics.BookingConfirmed);
         }
     }

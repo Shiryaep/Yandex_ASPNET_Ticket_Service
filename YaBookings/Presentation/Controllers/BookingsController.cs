@@ -34,7 +34,6 @@ public class BookingsController(IBookingService bookingService) : ControllerBase
     /// <returns>202 Accepted with booking details if event exists; otherwise 404 Not Found</returns>
     [HttpPost("{eventId:Guid}/book")]
     [Authorize]
-    //[ProducesResponseType(typeof(BookingInfoDto), StatusCodes.Status202Accepted)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
@@ -49,26 +48,26 @@ public class BookingsController(IBookingService bookingService) : ControllerBase
 
         Guid userId = Guid.Parse(userIdClaim.Value);
 
-        // ТУТ НАДО ПУБЛИКОВАТЬ СОБИТИЕ О ТОМ, ЧТО БУКИНГ СОЗДАН И ЕГО НАДО ОБРАБОТАТЬ
         var booking = await bookingService.CreateBookingAsync(eventId, userId);
 
-        //return AcceptedAtAction(actionName: "GetBooking", controllerName: "Bookings", routeValues: new { bookingId = booking.Id }, value: booking);
-        return NoContent();
+        return AcceptedAtAction(actionName: "GetBooking", controllerName: "Bookings", routeValues: new { bookingId = booking.Id }, value: booking);
     }
 
     [HttpDelete("{bookingId}")]
     public async Task<IActionResult> CancelBooking(Guid bookingId)
     {
         var userIdClaim = User.FindFirst(JwtRegisteredClaimNames.Sub);
+        var userRoleClaim = User.FindFirst("role");
 
-        if (userIdClaim == null)
+        if (userIdClaim == null || userRoleClaim == null)
         {
-            return BadRequest("User Id not found");
+            return BadRequest("User not found");
         }
 
         Guid userId = Guid.Parse(userIdClaim.Value);
+        string userRole = userRoleClaim.Value;
 
-        await bookingService.CancelBookingByIdAsync(bookingId, userId);
+        await bookingService.CancelBookingByIdAsync(bookingId, userId, userRole);
         return NoContent();
     }
 }
