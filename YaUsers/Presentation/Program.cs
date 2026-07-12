@@ -43,6 +43,11 @@ public partial class Program
                 System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(swaggerUrl) { UseShellExecute = true });
             }
         }
+        else if (app.Environment.IsEnvironment("Docker"))
+        {
+            app.UseSwagger();
+            app.UseSwaggerUI();
+        }
 
         //1. HTTPS redirection
         app.UseHttpsRedirection();

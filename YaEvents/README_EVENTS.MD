@@ -40,13 +40,16 @@ dotnet run --project Presentation
 
 Сервис пользователей будет доступен по адресу: http://localhost:7011.
 
+Если стартуете из докера, то по http://localhost:8081.
+
 <a name="workcheck" id="workcheck"></a>
 ## Проверка работоспособности
 
 После запуска откройте в браузере:
 
 ```bash
-https://localhost:7011/swagger
+https://localhost:7011/swagger/index.html
+https://localhost:8081/swagger/index.html (Если приложение в контейнере)
 ```
 
 Вы должны увидеть интерфейс Swagger UI со списком доступных API‑эндпоинтов и кнопкой `Authorize`.

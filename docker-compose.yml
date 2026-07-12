@@ -27,6 +27,8 @@ services:
       
       # Уникальный ID кластера (любая base64 строка длиной 22 символа)
       CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'
+    networks:
+      - microservices-net
 
   # UI для Apache Kafka от Provectus
   kafka-ui:
@@ -39,11 +41,13 @@ services:
     environment:
       KAFKA_CLUSTERS_0_NAME: local
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092  # Подключаемся по внутреннему адресу Docker
+    networks:
+      - microservices-net
 
   #Базы данных и админка
   db_events:
     image: postgres:16-alpine
-    container_name: events_postgres
+    container_name: postgres_events
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -52,11 +56,13 @@ services:
       - "${PG_EVENTS_PORT}:${POSTGRES_PORT}"
     volumes:
       - eventapi_events_pgdata:/var/lib/postgresql/data
+    networks:
+      - microservices-net
     restart: unless-stopped
   
   db_bookings:
     image: postgres:16-alpine
-    container_name: bookings_postgres
+    container_name: postgres_bookings
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -65,11 +71,13 @@ services:
       - "${PG_BOOKINGS_PORT}:${POSTGRES_PORT}"
     volumes:
       - eventapi_bookings_pgdata:/var/lib/postgresql/data
+    networks:
+      - microservices-net
     restart: unless-stopped
 
   db_users:
     image: postgres:16-alpine
-    container_name: users_postgres
+    container_name: postgres_users
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -78,6 +86,8 @@ services:
       - "${PG_USERS_PORT}:${POSTGRES_PORT}"
     volumes:
       - eventapi_users_pgdata:/var/lib/postgresql/data
+    networks:
+      - microservices-net
     restart: unless-stopped
 
   pgadmin:
@@ -91,14 +101,72 @@ services:
       - "${PGADMIN_PORT}:80"
     volumes:
       - eventapi_pgadmindata:/var/lib/pgadmin
+    networks:
+      - microservices-net
     depends_on:
       - db_events
       - db_bookings
       - db_users
     restart: unless-stopped
 
+  #Asp.net приложения
+  ya-events:
+    build:
+      context: .
+      dockerfile: YaEvents/Dockerfile
+    container_name: ya-events
+    ports:
+      - "8081:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
+      - ConnectionStrings__DefaultConnection=Host=db_events;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
+      - Kafka__BootstrapServers=kafka:29092
+    depends_on:
+      - db_bookings
+      - kafka
+    networks:
+      - microservices-net
+
+  ya-bookings:
+    build:
+      context: .
+      dockerfile: YaBookings/Dockerfile
+    container_name: ya-bookings
+    ports:
+      - "8082:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
+      - ConnectionStrings__DefaultConnection=Host=db_bookings;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
+      - Kafka__BootstrapServers=kafka:29092
+    depends_on:
+      - db_events
+      - kafka
+    networks:
+      - microservices-net
+
+  ya-users:
+    build:
+      context: .
+      dockerfile: YaUsers/Dockerfile
+    container_name: ya-users
+    ports:
+      - "8083:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
+      - ConnectionStrings__DefaultConnection=Host=db_users;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
+      - Kafka__BootstrapServers=kafka:29092
+    depends_on:
+      - db_users
+      - kafka
+    networks:
+      - microservices-net
+
 volumes:
   eventapi_events_pgdata:
   eventapi_bookings_pgdata:
   eventapi_users_pgdata:
   eventapi_pgadmindata:
+
+networks:
+  microservices-net:
+    driver: bridge
