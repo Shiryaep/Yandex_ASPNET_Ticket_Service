@@ -1,6 +1,6 @@
 ﻿namespace YaContracts;
 
-public class BookingConfirmed
+public record BookingConfirmed
 {
     public Guid BookingId { get; set; }
     public Guid EventId { get; set; }

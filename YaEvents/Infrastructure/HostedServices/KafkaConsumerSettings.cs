@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using YaContracts;
 
 namespace Infrastructure.HostedServices
 {
@@ -13,6 +14,6 @@ namespace Infrastructure.HostedServices
 
     public class KafkaTopics
     {
-        public string BookingConfirmed { get; set; } = "booking-confirmed";
+        public string BookingConfirmed { get; set; } = Constants.BookingConfirmedTopicName;
     }
 }

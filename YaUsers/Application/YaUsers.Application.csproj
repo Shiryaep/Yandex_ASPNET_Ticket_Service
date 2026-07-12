@@ -11,9 +11,8 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.9" />
   </ItemGroup>
 
-	<ItemGroup>
-		<ProjectReference Include="..\..\YaContracts\YaContracts.csproj" />
-		<ProjectReference Include="..\Domain\Domain.csproj" />
-	</ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Domain\YaUsers.Domain.csproj" />
+  </ItemGroup>
 
 </Project>

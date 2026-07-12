@@ -1,5 +1,6 @@
 ﻿using Application.Repositories;
 using Confluent.Kafka;
+using Domain;
 using Infrastructure.HostedServices;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -106,9 +107,29 @@ public class BookingConfirmedSubscriber : BackgroundService
 
         using var scope = _serviceProvider.CreateScope();
         var eventsRepository = scope.ServiceProvider.GetRequiredService<IEventRepository>();
+        var processedBookingsRepository = scope.ServiceProvider.GetRequiredService<IProcessedBookingsRepository>();
 
         try
         {
+            var processedBooking = new ProcessedBooking(
+                @event.BookingId,
+                @event.EventId,
+                @event.SeatsCount,
+                @event.ConfirmedAt
+            );
+
+            var isNewBooking = await processedBookingsRepository.TryMarkAsProcessedAsync(
+                processedBooking,
+                cancellationToken);
+
+            if (!isNewBooking)
+            {
+                _logger.LogWarning(
+                    "Дубликат сообщения для BookingId={BookingId}. Пропускаем обработку",
+                    @event.BookingId);
+                return;
+            }
+
             var domainEvent = await eventsRepository.GetEventByIdAsync(@event.EventId, cancellationToken);
 
             if (domainEvent == null)
@@ -129,12 +150,13 @@ public class BookingConfirmedSubscriber : BackgroundService
 
             await eventsRepository.SaveChangesAsync(cancellationToken);
 
-            _logger.LogInformation("Успешно обновлено количество мест для события {EventId}. Новое значение: {NewSeats}",
-                @event.EventId, domainEvent.AvailableSeats);
+            _logger.LogInformation(
+                "Успешно зарезервировано {SeatsCount} мест для события {EventId}. Осталось: {AvailableSeats}",
+                @event.SeatsCount, @event.EventId, domainEvent.AvailableSeats);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Ошибка при обработке события BookingConfirmed для EventId={EventId}", @event.EventId);
+            _logger.LogError(ex, "Ошибка при обработке BookingId={BookingId}, EventId={EventId}", @event.BookingId, @event.EventId);
         }
     }
 

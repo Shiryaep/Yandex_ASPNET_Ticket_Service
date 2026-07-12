@@ -18,6 +18,7 @@ namespace Infrastructure.DependencyInjection
                 options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
 
             services.AddScoped<IEventRepository, EventRepository>();
+            services.AddScoped<IProcessedBookingsRepository, ProcessedBookingsRepository>();
 
             services.Configure<KafkaConsumerSettings>(configuration.GetSection("Kafka"));
 
