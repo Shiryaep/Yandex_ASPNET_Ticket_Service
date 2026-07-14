@@ -1,15 +1,93 @@
 services:
-  db:
+  # Kafka в режиме KRaft
+  kafka:
+    image: confluentinc/cp-kafka:7.7.0
+    container_name: kafka
+    ports:
+      - "9092:9092" # 9092 для подключения с хост-машины (C# приложение локально)
+      - "29092:29092" # 29092 для подключения из других контейнеров внутри Docker-сети
+    environment:
+      # Режим KRaft (Kafka сама себе Zookeeper)
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      
+      # Настройка слушателей (listeners)
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:29092,PLAINTEXT_HOST://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      
+      # Настройка контроллера (замена Zookeeper)
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      
+      # Настройки для одного брокера
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      
+      # Уникальный ID кластера (любая base64 строка длиной 22 символа)
+      CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'
+    networks:
+      - microservices-net
+
+  # UI для Apache Kafka от Provectus
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka-ui
+    depends_on:
+      - kafka
+    ports:
+      - "8075:8080"  # UI будет доступен на http://localhost:8075
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092  # Подключаемся по внутреннему адресу Docker
+    networks:
+      - microservices-net
+
+  #Базы данных и админка
+  db_events:
     image: postgres:16-alpine
-    container_name: eventapi_postgres
+    container_name: postgres_events
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
-      - "${POSTGRES_PORT}:${POSTGRES_PORT}"
+      - "${PG_EVENTS_PORT}:${POSTGRES_PORT}"
     volumes:
-      - eventapi_pgdata:/var/lib/postgresql/data
+      - eventapi_events_pgdata:/var/lib/postgresql/data
+    networks:
+      - microservices-net
+    restart: unless-stopped
+  
+  db_bookings:
+    image: postgres:16-alpine
+    container_name: postgres_bookings
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "${PG_BOOKINGS_PORT}:${POSTGRES_PORT}"
+    volumes:
+      - eventapi_bookings_pgdata:/var/lib/postgresql/data
+    networks:
+      - microservices-net
+    restart: unless-stopped
+
+  db_users:
+    image: postgres:16-alpine
+    container_name: postgres_users
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "${PG_USERS_PORT}:${POSTGRES_PORT}"
+    volumes:
+      - eventapi_users_pgdata:/var/lib/postgresql/data
+    networks:
+      - microservices-net
     restart: unless-stopped
 
   pgadmin:
@@ -23,10 +101,72 @@ services:
       - "${PGADMIN_PORT}:80"
     volumes:
       - eventapi_pgadmindata:/var/lib/pgadmin
+    networks:
+      - microservices-net
     depends_on:
-      - db
+      - db_events
+      - db_bookings
+      - db_users
     restart: unless-stopped
 
+  #Asp.net приложения
+  ya-events:
+    build:
+      context: .
+      dockerfile: YaEvents/Dockerfile
+    container_name: ya-events
+    ports:
+      - "8081:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
+      - ConnectionStrings__DefaultConnection=Host=db_events;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
+      - Kafka__BootstrapServers=kafka:29092
+    depends_on:
+      - db_bookings
+      - kafka
+    networks:
+      - microservices-net
+
+  ya-bookings:
+    build:
+      context: .
+      dockerfile: YaBookings/Dockerfile
+    container_name: ya-bookings
+    ports:
+      - "8082:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
+      - ConnectionStrings__DefaultConnection=Host=db_bookings;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
+      - Kafka__BootstrapServers=kafka:29092
+    depends_on:
+      - db_events
+      - kafka
+    networks:
+      - microservices-net
+
+  ya-users:
+    build:
+      context: .
+      dockerfile: YaUsers/Dockerfile
+    container_name: ya-users
+    ports:
+      - "8083:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
+      - ConnectionStrings__DefaultConnection=Host=db_users;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
+      - Kafka__BootstrapServers=kafka:29092
+    depends_on:
+      - db_users
+      - kafka
+    networks:
+      - microservices-net
+
 volumes:
-  eventapi_pgdata:
+  eventapi_events_pgdata:
+  eventapi_bookings_pgdata:
+  eventapi_users_pgdata:
   eventapi_pgadmindata:
+
+networks:
+  microservices-net:
+    driver: bridge

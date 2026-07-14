@@ -1,0 +1,28 @@
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+WORKDIR /src
+
+# Копируем все проекты
+COPY . .
+
+# Восстанавливаем зависимости для YaBookings.Presentation
+RUN dotnet restore "YaBookings/Presentation/YaBookings.Presentation.csproj"
+
+# Публикуем YaBookings.Presentation
+RUN dotnet publish "YaBookings/Presentation/YaBookings.Presentation.csproj" \
+    -c Debug \
+    -o /app/publish \
+    /p:UseAppHost=false
+
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
+WORKDIR /app
+
+# Копируем собранное приложение
+COPY --from=build /app/publish .
+
+# Настройки окружения
+ENV ASPNETCORE_URLS=http://+:8080
+ENV ASPNETCORE_ENVIRONMENT=Docker
+
+EXPOSE 8080
+
+ENTRYPOINT ["dotnet", "YaBookings.Presentation.dll"]
