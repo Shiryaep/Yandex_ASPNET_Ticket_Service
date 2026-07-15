@@ -122,7 +122,7 @@ services:
       - ConnectionStrings__DefaultConnection=Host=db_events;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
       - Kafka__BootstrapServers=kafka:29092
     depends_on:
-      - db_bookings
+      - db_events
       - kafka
     networks:
       - microservices-net
@@ -139,7 +139,7 @@ services:
       - ConnectionStrings__DefaultConnection=Host=db_bookings;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
       - Kafka__BootstrapServers=kafka:29092
     depends_on:
-      - db_events
+      - db_bookings
       - kafka
     networks:
       - microservices-net

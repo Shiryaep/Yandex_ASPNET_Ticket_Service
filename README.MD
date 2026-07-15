@@ -139,6 +139,20 @@ dotnet run --project .\YaUsers\Presentation\
 <a name="workcheck" id="workcheck"></a>
 ## Проверка работоспособности
 
+Для сервисов доступен Swagger, поэтому получить доступ к нему можно по следующим портам:
+1. Для Events
+    ```bash
+    https://localhost:8081/swagger/index.html (Если приложение в контейнере)
+    ```
+2. Для Bookings
+    ```bash
+    https://localhost:8082/swagger/index.html (Если приложение в контейнере)
+    ```
+3. Для Users
+    ```bash
+    https://localhost:8083/swagger/index.html (Если приложение в контейнере)
+    ```
+
 > Отличается для каждого сервиса, поэтому детально смотрите `README` для сервисов.
 
 <a name="models" id="models"></a>
