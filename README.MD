@@ -15,6 +15,7 @@
 10. [Получение токена и настройка JWT](#jwt)
 11. [Docker](#docker)
 12. [Kafka](#kafka)
+13. [Redis](#redis)
 
 <a name="requirements" id="requirements"></a>
 ## Требования
@@ -26,6 +27,7 @@
 - [PostgreSQL 15 или выше](https://www.postgresql.org/download/)
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 - [Apache Kafka](https://kafka.apache.org/)
+- [Redis](https://github.com/redis/redis)
 
 <a name="clone" id="clone"></a>
 ## Клонирование репозитория
@@ -215,6 +217,7 @@ API использует стандартный формат ошибок [Probl
 ```http
    GET /api/events — получить список событий
    GET /api/events/{id} — получить событие по ID
+   GET /api/events/top - получить топ 10 событий
 
    POST /api/Auth/register - зарегистрироваться в приложении
    POST /api/Auth/login - войти в приложение
@@ -296,3 +299,10 @@ API использует стандартный формат ошибок [Probl
 1. При запуске `HostedService` в `YaEvents` проверяет топик `booking-confirmed` на существование. Если топика нет, то сервис его создает.
 2. Сервис `BookingBackgroundService` в `YaBookings` публикует событие `BookingConfirmed` в топик `booking-confirmed` после того, как находит `Pending` бронирование и обрабатывает его.
 3. Сервис `BookingConfirmedSubscriber` в `YaEvents` получает событие `BookingConfirmed` и обрабатывает его, уменьшая количество доступных мест.
+
+<a name="redis" id="redis"></a>
+## Redis
+
+В проекте используется Redis для кеширования.
+
+> Подробнее смотрите `README` для сервиса YaEvents.

@@ -7,9 +7,10 @@ using YaEvents.Domain.Exceptions;
 namespace YaEvents.Application.Services.EventServices;
 
 /// <summary> Service for events manipulation </summary>
-public class EventService(IEventRepository eventRepository) : IEventService
+public class EventService(IEventRepository eventRepository, ICacheInvalidator cacheInvalidator) : IEventService
 {
     private readonly IEventRepository _eventRepository = eventRepository;
+    private readonly ICacheInvalidator _cacheInvalidator = cacheInvalidator;
 
     /// <summary> Return all created events as list using filters</summary>
     public async Task<PaginatedResult<EventInfoDto>> GetAllEventsAsync(string? title = null,
@@ -67,6 +68,7 @@ public class EventService(IEventRepository eventRepository) : IEventService
             ?? throw new NotFoundException("Event not found");
         @event.Update(updateEvent.Title, updateEvent.Description, updateEvent.StartAt, updateEvent.EndAt);
         await _eventRepository.SaveChangesAsync(cancellationToken);
+        await _cacheInvalidator.UpdateEventInCacheAsync(@event);
 
         return ToInfo(@event);
     }
@@ -79,6 +81,7 @@ public class EventService(IEventRepository eventRepository) : IEventService
 
         _eventRepository.DeleteEventAsync(@event);
         await _eventRepository.SaveChangesAsync(cancellationToken);
+        await _cacheInvalidator.DeleteEventFromCacheAsync(@event.Id);
         return true;
     }
 
