@@ -1,15 +1,16 @@
-﻿using Application.Repositories;
-using Confluent.Kafka;
-using Domain;
-using Infrastructure.HostedServices;
+﻿using Confluent.Kafka;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Text.Json;
 using YaContracts;
+using YaEvents.Application.Repositories;
+using YaEvents.Application.Services;
+using YaEvents.Domain;
+using YaEvents.Infrastructure.Settings;
 
-namespace Infrastructure.Consumers;
+namespace YaEvents.Infrastructure.Consumers;
 
 /// <summary>
 /// Фоновый сервис, который подписывается на топик booking-confirmed

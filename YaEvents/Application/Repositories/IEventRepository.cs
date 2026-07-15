@@ -1,7 +1,7 @@
-using Domain;
 using YaContracts;
+using YaEvents.Domain;
 
-namespace Application.Repositories;
+namespace YaEvents.Application.Repositories;
 
 public interface IEventRepository
 {

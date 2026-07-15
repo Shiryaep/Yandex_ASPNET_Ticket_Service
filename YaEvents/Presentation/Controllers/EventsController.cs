@@ -1,10 +1,9 @@
-using Application.DTO;
-using Application.Services.EventServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.JsonWebTokens;
+using YaEvents.Application.DTO;
+using YaEvents.Application.Services.EventServices;
 
-namespace Presentation.Controllers;
+namespace YaEvents.Presentation.Controllers;
 
 /// <summary>
 /// Controller for managing events and event-related bookings

@@ -1,10 +1,13 @@
-using Application.Repositories;
-using Domain;
-using Infrastructure.DataAccess;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using YaContracts;
+using YaEvents.Application.Repositories;
+using YaEvents.Application.Services;
+using YaEvents.Domain;
+using YaEvents.Infrastructure.DataAccess;
+using YaEvents.Infrastructure.Settings;
 
-namespace Infrastructure.Repositories;
+namespace YaEvents.Infrastructure.Repositories;
 
 public class EventRepository(AppDbContext db) : IEventRepository
 {

@@ -1,4 +1,4 @@
-namespace Application.DTO;
+namespace YaEvents.Application.DTO;
 
 /// <summary> Paginated result wrapper </summary>
 public class PaginatedResult<T>

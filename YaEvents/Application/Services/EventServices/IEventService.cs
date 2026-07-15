@@ -1,7 +1,7 @@
-using Application.DTO;
 using YaContracts;
+using YaEvents.Application.DTO;
 
-namespace Application.Services.EventServices;
+namespace YaEvents.Application.Services.EventServices;
 
 /// <summary> Service Interface for events manipulation </summary>
 public interface IEventService

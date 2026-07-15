@@ -1,14 +1,18 @@
-﻿using Application.Repositories;
-using Confluent.Kafka;
-using Infrastructure.Consumers;
-using Infrastructure.DataAccess;
-using Infrastructure.HostedServices;
-using Infrastructure.Repositories;
+﻿using Confluent.Kafka;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using StackExchange.Redis;
+using YaEvents.Application.Repositories;
+using YaEvents.Application.Services;
+using YaEvents.Infrastructure.Consumers;
+using YaEvents.Infrastructure.DataAccess;
+using YaEvents.Infrastructure.HostedServices;
+using YaEvents.Infrastructure.Repositories;
+using YaEvents.Infrastructure.Services;
+using YaEvents.Infrastructure.Settings;
 
-namespace Infrastructure.DependencyInjection
+namespace YaEvents.Infrastructure.DependencyInjection
 {
     public static class InfrastructureServiceRegistration
     {

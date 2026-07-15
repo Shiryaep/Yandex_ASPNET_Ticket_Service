@@ -1,6 +1,6 @@
-using Domain.Exceptions;
+using YaEvents.Domain.Exceptions;
 
-namespace Domain;
+namespace YaEvents.Domain;
 
 /// <summary> Event entity </summary> 
 public class Event

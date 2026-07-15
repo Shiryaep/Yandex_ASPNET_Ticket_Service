@@ -1,10 +1,10 @@
-using Application.DTO;
-using Application.Repositories;
-using Domain;
-using Domain.Exceptions;
 using YaContracts;
+using YaEvents.Application.DTO;
+using YaEvents.Application.Repositories;
+using YaEvents.Domain;
+using YaEvents.Domain.Exceptions;
 
-namespace Application.Services.EventServices;
+namespace YaEvents.Application.Services.EventServices;
 
 /// <summary> Service for events manipulation </summary>
 public class EventService(IEventRepository eventRepository) : IEventService
