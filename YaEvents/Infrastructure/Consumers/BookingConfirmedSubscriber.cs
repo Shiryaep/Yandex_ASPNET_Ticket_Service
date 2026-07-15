@@ -20,27 +20,27 @@ public class BookingConfirmedSubscriber : BackgroundService
 {
     private readonly ILogger<BookingConfirmedSubscriber> _logger;
     private readonly IServiceProvider _serviceProvider;
-    private readonly KafkaConsumerSettings _settings;
     private readonly IConsumer<string, string> _consumer;
+    private readonly KafkaConsumerSettings _settingsKafka;
 
     public BookingConfirmedSubscriber(
         ILogger<BookingConfirmedSubscriber> logger,
         IServiceProvider serviceProvider,
-        IOptions<KafkaConsumerSettings> settings,
-        IConsumer<string, string> consumer)
+        IConsumer<string, string> consumer,
+        IOptions<KafkaConsumerSettings> settingsKafka)
     {
         _logger = logger;
         _serviceProvider = serviceProvider;
-        _settings = settings.Value;
         _consumer = consumer;
+        _settingsKafka = settingsKafka.Value;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _logger.LogInformation("Подписчик BookingConfirmed запущен. Топик: {TopicName}, Группа: {ConsumerGroup}",
-            _settings.Topics.BookingConfirmed, _settings.ConsumerGroup);
+            _settingsKafka.Topics.BookingConfirmed, _settingsKafka.ConsumerGroup);
 
-        _consumer.Subscribe(_settings.Topics.BookingConfirmed);
+        _consumer.Subscribe(_settingsKafka.Topics.BookingConfirmed);
 
         try
         {

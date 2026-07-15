@@ -12,7 +12,7 @@ namespace YaEvents.Presentation;
 public partial class Program
 {
     /// <summary> Program entery point </summary>
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
         Console.OutputEncoding = Encoding.UTF8;
         Console.InputEncoding = Encoding.UTF8;
@@ -20,7 +20,7 @@ public partial class Program
         var builder = WebApplication.CreateBuilder(args);
 
         builder.Services.AddApplication(builder.Configuration);
-        builder.Services.AddInfrastructure(builder.Configuration);
+        await builder.Services.AddInfrastructure(builder.Configuration);
         builder.Services.AddPresentation(builder.Configuration);
 
         var app = builder.Build();

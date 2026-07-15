@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using YaContracts;
 
-namespace Infrastructure.HostedServices
+namespace YaEvents.Infrastructure.Settings
 {
     public class KafkaConsumerSettings
     {
