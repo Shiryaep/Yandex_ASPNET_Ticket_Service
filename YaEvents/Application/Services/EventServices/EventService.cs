@@ -42,6 +42,15 @@ public class EventService(IEventRepository eventRepository) : IEventService
         return ToInfo(@event);
     }
 
+    public async Task<List<EventInfoDto>> GetTopEventsAsync(CancellationToken cancellationToken = default)
+    {
+        var topEvents = await _eventRepository.GetTopEventsAsync(cancellationToken);
+
+        var result = topEvents.Select(e => ToInfo(e)).ToList();
+
+        return result;
+    }
+
     /// <summary> Add new event to events List</summary>
     public async Task<EventInfoDto> CreateEventAsync(CreateEventDto createEvent, CancellationToken cancellationToken = default)
     {

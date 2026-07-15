@@ -47,6 +47,14 @@ public class EventsController(IEventService eventService) : ControllerBase
         return eventItem;
     }
 
+    [HttpGet("top")]
+    [AllowAnonymous]
+    public async Task<ActionResult<List<EventInfoDto>>> GetTopEvents()
+    {
+        var topEvents = await eventService.GetTopEventsAsync();
+        return topEvents;
+    }
+
     /// <summary>
     /// Creates a new event
     /// </summary>
