@@ -9,7 +9,7 @@ RUN dotnet restore "YaEvents/Presentation/YaEvents.Presentation.csproj"
 
 # Публикуем YaBookings.Presentation
 RUN dotnet publish "YaEvents/Presentation/YaEvents.Presentation.csproj" \
-    -c Debug \
+    -c Release \
     -o /app/publish \
     /p:UseAppHost=false
 

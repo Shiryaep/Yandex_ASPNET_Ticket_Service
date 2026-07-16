@@ -1,10 +1,10 @@
-using Application.Repositories;
-using Domain;
-using Infrastructure.DataAccess;
 using Microsoft.EntityFrameworkCore;
+using YaBookings.Application.Repositories;
+using YaBookings.Domain;
+using YaBookings.Infrastructure.DataAccess;
 using YaContracts.Enums;
 
-namespace Infrastructure.Repositories;
+namespace YaBookings.Infrastructure.Repositories;
 
 public class BookingRepository(AppDbContext db) : IBookingRepository
 {

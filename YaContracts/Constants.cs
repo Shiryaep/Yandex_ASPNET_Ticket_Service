@@ -9,4 +9,7 @@ public class Constants
 
     public const string BookingConfirmedTopicName = "booking-confirmed";
     public const string BookingCancelledTopicName = "booking-cancelled";
+
+    public const string TopEventsCacheKey = "events:top10";
+    public const string GetEventByIdCacheKey = "event:";
 }

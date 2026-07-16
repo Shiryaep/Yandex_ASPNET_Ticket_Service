@@ -1,9 +1,9 @@
-using Domain.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Text.Json;
+using YaBookings.Domain.Exceptions;
 
-namespace Presentation.Middleware;
+namespace YaBookings.Presentation.Middleware;
 
 /// <summary>
 /// Middleware for global exception handling

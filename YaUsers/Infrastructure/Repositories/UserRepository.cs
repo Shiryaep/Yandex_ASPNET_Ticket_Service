@@ -1,9 +1,9 @@
-﻿using Application.Repositories;
-using Domain;
-using Infrastructure.DataAccess;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using YaUsers.Application.Repositories;
+using YaUsers.Domain;
+using YaUsers.Infrastructure.DataAccess;
 
-namespace Infrastructure.Repositories
+namespace YaUsers.Infrastructure.Repositories
 {
     public class UserRepository(AppDbContext db) : IUserRepository
     {

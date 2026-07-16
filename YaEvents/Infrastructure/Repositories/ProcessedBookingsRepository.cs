@@ -1,10 +1,9 @@
-using Application.Repositories;
-using Domain;
-using Infrastructure.DataAccess;
 using Microsoft.EntityFrameworkCore;
-using YaContracts;
+using YaEvents.Application.Repositories;
+using YaEvents.Domain;
+using YaEvents.Infrastructure.DataAccess;
 
-namespace Infrastructure.Repositories;
+namespace YaEvents.Infrastructure.Repositories;
 
 public class ProcessedBookingsRepository(AppDbContext db) : IProcessedBookingsRepository
 {

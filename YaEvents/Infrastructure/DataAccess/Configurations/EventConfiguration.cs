@@ -1,8 +1,8 @@
-using Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using YaEvents.Domain;
 
-namespace Infrastructure.DataAccess.Configurations;
+namespace YaEvents.Infrastructure.DataAccess.Configurations;
 
 public class EventConfiguration : IEntityTypeConfiguration<Event>
 {

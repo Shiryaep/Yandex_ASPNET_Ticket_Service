@@ -3,7 +3,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using System.Text;
 
-namespace Presentation.DependencyInjection
+namespace YaUsers.Presentation.DependencyInjection
 {
     public static class PresentationServiceRegistration
     {

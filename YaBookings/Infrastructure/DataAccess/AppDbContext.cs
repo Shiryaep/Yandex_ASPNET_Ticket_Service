@@ -1,7 +1,7 @@
-using Domain;
 using Microsoft.EntityFrameworkCore;
+using YaBookings.Domain;
 
-namespace Infrastructure.DataAccess;
+namespace YaBookings.Infrastructure.DataAccess;
 
 public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {

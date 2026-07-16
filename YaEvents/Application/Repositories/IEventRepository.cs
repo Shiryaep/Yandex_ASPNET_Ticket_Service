@@ -1,12 +1,14 @@
-using Domain;
 using YaContracts;
+using YaEvents.Domain;
 
-namespace Application.Repositories;
+namespace YaEvents.Application.Repositories;
 
 public interface IEventRepository
 {
     public Task<Event?> GetEventByIdAsync(Guid id,
         CancellationToken cancellationToken = default);
+
+    public Task<List<Event>> GetTopEventsAsync(CancellationToken cancellationToken = default);
 
     public Task AddEventAsync(Event @event,
         CancellationToken cancellationToken = default);

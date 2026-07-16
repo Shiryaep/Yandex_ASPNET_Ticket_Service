@@ -1,15 +1,18 @@
-using Application.DTO;
-using Application.Repositories;
-using Domain;
-using Domain.Exceptions;
 using YaContracts;
+using YaEvents.Application.DTO;
+using YaEvents.Application.Repositories;
+using YaEvents.Domain;
+using YaEvents.Domain.Exceptions;
 
-namespace Application.Services.EventServices;
+namespace YaEvents.Application.Services.EventServices;
 
 /// <summary> Service for events manipulation </summary>
-public class EventService(IEventRepository eventRepository) : IEventService
+public class EventService(IEventRepository eventRepository,
+    ICacheService cache, ICacheHelper cacheHelper) : IEventService
 {
     private readonly IEventRepository _eventRepository = eventRepository;
+    private readonly ICacheHelper _cacheHelper = cacheHelper;
+    private readonly ICacheService _cache = cache;
 
     /// <summary> Return all created events as list using filters</summary>
     public async Task<PaginatedResult<EventInfoDto>> GetAllEventsAsync(string? title = null,
@@ -36,10 +39,32 @@ public class EventService(IEventRepository eventRepository) : IEventService
     /// <summary> Return event by ID </summary>
     public async Task<EventInfoDto> GetEventByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
+        var cachedVal = await _cache.GetAsync<EventInfoDto>(Constants.GetEventByIdCacheKey + id.ToString());
+        if (cachedVal != null)
+            return cachedVal;
+
         var @event = await _eventRepository.GetEventByIdAsync(id, cancellationToken)
             ?? throw new NotFoundException("Event not found");
 
-        return ToInfo(@event);
+        var infoEvent = ToInfo(@event);
+        await _cacheHelper.UpdateEventInCacheAsync(infoEvent);
+
+        return infoEvent;
+    }
+
+    public async Task<List<EventInfoDto>> GetTopEventsAsync(CancellationToken cancellationToken = default)
+    {
+        var cachedVal = await _cache.GetAsync<List<EventInfoDto>>(Constants.TopEventsCacheKey);
+        if (cachedVal != null)
+            return cachedVal;
+
+        var topEvents = await _eventRepository.GetTopEventsAsync(cancellationToken);
+
+        var result = topEvents.Select(e => ToInfo(e)).ToList();
+
+        await _cacheHelper.UpdateTopEventsInCacheAsync(result);
+
+        return result;
     }
 
     /// <summary> Add new event to events List</summary>
@@ -59,7 +84,10 @@ public class EventService(IEventRepository eventRepository) : IEventService
         @event.Update(updateEvent.Title, updateEvent.Description, updateEvent.StartAt, updateEvent.EndAt);
         await _eventRepository.SaveChangesAsync(cancellationToken);
 
-        return ToInfo(@event);
+        var infoEvent = ToInfo(@event);
+        await _cacheHelper.UpdateEventInCacheAsync(infoEvent);
+
+        return infoEvent;
     }
 
     public async Task<bool> DeleteEventAsync(Guid id, CancellationToken cancellationToken = default)
@@ -70,6 +98,7 @@ public class EventService(IEventRepository eventRepository) : IEventService
 
         _eventRepository.DeleteEventAsync(@event);
         await _eventRepository.SaveChangesAsync(cancellationToken);
+        await _cacheHelper.DeleteEventFromCacheAsync(@event.Id);
         return true;
     }
 

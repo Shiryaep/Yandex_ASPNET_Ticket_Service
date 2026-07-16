@@ -1,7 +1,7 @@
-using Application.DTO;
 using YaContracts;
+using YaEvents.Application.DTO;
 
-namespace Application.Services.EventServices;
+namespace YaEvents.Application.Services.EventServices;
 
 /// <summary> Service Interface for events manipulation </summary>
 public interface IEventService
@@ -13,6 +13,8 @@ public interface IEventService
 
     /// <summary> Return event by ID </summary>
     public Task<EventInfoDto> GetEventByIdAsync(Guid id, CancellationToken cancellationToken = default);
+
+    public Task<List<EventInfoDto>> GetTopEventsAsync(CancellationToken cancellationToken = default);
 
     /// <summary> Add new event to events List</summary>
     public Task<EventInfoDto> CreateEventAsync(CreateEventDto createEvent, CancellationToken cancellationToken = default);

@@ -1,6 +1,6 @@
 using YaContracts.Enums;
 
-namespace Application.DTO;
+namespace YaBookings.Application.DTO;
 
 public class BookingInfoDto
 {

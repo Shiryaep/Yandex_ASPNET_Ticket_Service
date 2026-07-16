@@ -1,6 +1,6 @@
-using Application.DTO;
+using YaBookings.Application.DTO;
 
-namespace Application.Services.BookingServices;
+namespace YaBookings.Application.Services.BookingServices;
 
 /// <summary>
 /// Service interface for booking management operations
