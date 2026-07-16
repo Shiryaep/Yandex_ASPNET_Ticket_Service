@@ -2,7 +2,6 @@
 using YaContracts;
 using YaEvents.Application.DTO;
 using YaEvents.Application.Services;
-using YaEvents.Domain;
 using YaEvents.Infrastructure.Settings;
 
 namespace YaEvents.Infrastructure.Services;

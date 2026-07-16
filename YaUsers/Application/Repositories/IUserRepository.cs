@@ -1,6 +1,6 @@
-using Domain;
+using YaUsers.Domain;
 
-namespace Application.Repositories;
+namespace YaUsers.Application.Repositories;
 
 public interface IUserRepository
 {

@@ -1,8 +1,8 @@
-﻿using Application.Services.UserServices;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using YaUsers.Application.Services;
 
-namespace Application.DependencyInjection
+namespace YaUsers.Application.DependencyInjection
 {
     public static class ApplicationServiceRegistration
     {

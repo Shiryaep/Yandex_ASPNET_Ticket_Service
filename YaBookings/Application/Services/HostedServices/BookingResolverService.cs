@@ -1,12 +1,12 @@
-using Application.Publishers;
-using Application.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using YaBookings.Application.Publishers;
+using YaBookings.Application.Repositories;
 using YaContracts;
 using YaContracts.Enums;
 
-namespace Application.Services.HostedServices;
+namespace YaBookings.Application.Services.HostedServices;
 
 /// <summary>
 /// Background service that periodically resolves pending bookings by confirming or rejecting them

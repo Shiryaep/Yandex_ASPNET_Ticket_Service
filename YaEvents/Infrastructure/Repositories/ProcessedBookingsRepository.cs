@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using YaContracts;
 using YaEvents.Application.Repositories;
 using YaEvents.Domain;
 using YaEvents.Infrastructure.DataAccess;

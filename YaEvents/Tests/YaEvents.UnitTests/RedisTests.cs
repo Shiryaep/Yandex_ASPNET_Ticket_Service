@@ -1,12 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Moq;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Xunit;
 using YaEvents.Application.DTO;
-using YaEvents.Application.Repositories;
 using YaEvents.Application.Services;
 using YaEvents.Application.Services.EventServices;
 using YaEvents.Domain;
@@ -59,10 +54,10 @@ namespace YaEvents.UnitTests
 
             var mockCache = new Mock<ICacheService>();
             mockCache.Setup(c => c.GetAsync<EventInfoDto>(cacheKey)).ReturnsAsync(cachedEvent);
-            var cacheInvalidator = new RedisCacheHelper(mockCache.Object, CreateSettings());
+            var cacheHelper = new RedisCacheHelper(mockCache.Object, CreateSettings());
 
             var repo = new EventRepository(context);
-            var service = new EventService(repo, mockCache.Object, cacheInvalidator);
+            var service = new EventService(repo, mockCache.Object, cacheHelper);
 
             // Act
             var result = await service.GetEventByIdAsync(eventId, CancellationToken.None);
@@ -92,10 +87,10 @@ namespace YaEvents.UnitTests
 
             var mockCache = new Mock<ICacheService>();
             mockCache.Setup(c => c.GetAsync<EventInfoDto>(cacheKey)).ReturnsAsync((EventInfoDto?)null);
-            var cacheInvalidator = new RedisCacheHelper(mockCache.Object, CreateSettings());
+            var cacheHelper = new RedisCacheHelper(mockCache.Object, CreateSettings());
 
             var repo = new EventRepository(context);
-            var service = new EventService(repo, mockCache.Object, cacheInvalidator);
+            var service = new EventService(repo, mockCache.Object, cacheHelper);
 
             // Act
             var result = await service.GetEventByIdAsync(eventId, CancellationToken.None);
@@ -132,10 +127,10 @@ namespace YaEvents.UnitTests
             };
 
             var mockCache = new Mock<ICacheService>();
-            var cacheInvalidator = new RedisCacheHelper(mockCache.Object, CreateSettings());
+            var cacheHelper = new RedisCacheHelper(mockCache.Object, CreateSettings());
 
             var repo = new EventRepository(context);
-            var service = new EventService(repo, mockCache.Object, cacheInvalidator);
+            var service = new EventService(repo, mockCache.Object, cacheHelper);
 
             // Act
             var result = await service.UpdateEventAsync(eventId, updateDto, CancellationToken.None);
@@ -170,9 +165,9 @@ namespace YaEvents.UnitTests
             };
 
             var mockCache = new Mock<ICacheService>();
-            var cacheInvalidator = new RedisCacheHelper(mockCache.Object, CreateSettings());
+            var cacheHelper = new RedisCacheHelper(mockCache.Object, CreateSettings());
             var repo = new EventRepository(context);
-            var service = new EventService(repo, mockCache.Object, cacheInvalidator);
+            var service = new EventService(repo, mockCache.Object, cacheHelper);
 
             // Act & Assert
             await Assert.ThrowsAsync<NotFoundException>(() =>
@@ -194,10 +189,10 @@ namespace YaEvents.UnitTests
             await context.SaveChangesAsync();
 
             var mockCache = new Mock<ICacheService>();
-            var cacheInvalidator = new RedisCacheHelper(mockCache.Object, CreateSettings());
+            var cacheHelper = new RedisCacheHelper(mockCache.Object, CreateSettings());
 
             var repo = new EventRepository(context);
-            var service = new EventService(repo, mockCache.Object, cacheInvalidator);
+            var service = new EventService(repo, mockCache.Object, cacheHelper);
 
             // Act
             var result = await service.DeleteEventAsync(eventId, CancellationToken.None);

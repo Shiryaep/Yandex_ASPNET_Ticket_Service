@@ -1,4 +1,4 @@
-namespace Domain.Exceptions;
+namespace YaBookings.Domain.Exceptions;
 
 public class BookingLimitExceededException : Exception
 {

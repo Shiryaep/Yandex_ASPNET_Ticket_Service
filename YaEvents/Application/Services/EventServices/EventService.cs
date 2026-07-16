@@ -8,10 +8,10 @@ namespace YaEvents.Application.Services.EventServices;
 
 /// <summary> Service for events manipulation </summary>
 public class EventService(IEventRepository eventRepository,
-    ICacheService cache, ICacheHelper cacheInvalidator) : IEventService
+    ICacheService cache, ICacheHelper cacheHelper) : IEventService
 {
     private readonly IEventRepository _eventRepository = eventRepository;
-    private readonly ICacheHelper _cacheHelper = cacheInvalidator;
+    private readonly ICacheHelper _cacheHelper = cacheHelper;
     private readonly ICacheService _cache = cache;
 
     /// <summary> Return all created events as list using filters</summary>

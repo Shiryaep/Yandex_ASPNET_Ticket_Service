@@ -1,8 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 using StackExchange.Redis;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using YaEvents.Application.Services;
 
 namespace YaEvents.Infrastructure.Services;

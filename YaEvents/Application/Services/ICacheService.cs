@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace YaEvents.Application.Services;
+﻿namespace YaEvents.Application.Services;
 
 public interface ICacheService
 {

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace YaEvents.Infrastructure.Settings;
+﻿namespace YaEvents.Infrastructure.Settings;
 
 public class RedisCacheSettings
 {

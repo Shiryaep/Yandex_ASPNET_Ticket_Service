@@ -1,7 +1,7 @@
-using Application.DTO;
 using YaContracts.Enums;
+using YaUsers.Application.DTO;
 
-namespace Application.Services.UserServices;
+namespace YaUsers.Application.Services;
 
 public interface IUserService
 {

@@ -1,7 +1,7 @@
-using Domain.Exceptions;
 using YaContracts.Enums;
+using YaUsers.Domain.Exceptions;
 
-namespace Domain;
+namespace YaUsers.Domain;
 
 /// <summary> User entity </summary> 
 public class User
