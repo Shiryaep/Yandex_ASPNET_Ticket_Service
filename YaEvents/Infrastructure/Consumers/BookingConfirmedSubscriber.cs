@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Text.Json;
 using YaContracts;
+using YaEvents.Application.DTO;
 using YaEvents.Application.Repositories;
 using YaEvents.Application.Services;
 using YaEvents.Domain;
@@ -109,7 +110,7 @@ public class BookingConfirmedSubscriber : BackgroundService
         using var scope = _serviceProvider.CreateScope();
         var eventsRepository = scope.ServiceProvider.GetRequiredService<IEventRepository>();
         var processedBookingsRepository = scope.ServiceProvider.GetRequiredService<IProcessedBookingsRepository>();
-        var cacheInvalidator = scope.ServiceProvider.GetRequiredService<ICacheInvalidator>();
+        var cacheInvalidator = scope.ServiceProvider.GetRequiredService<ICacheHelper>();
 
         try
         {
@@ -156,7 +157,16 @@ public class BookingConfirmedSubscriber : BackgroundService
                 "Успешно зарезервировано {SeatsCount} мест для события {EventId}. Осталось: {AvailableSeats}",
                 @event.SeatsCount, @event.EventId, domainEvent.AvailableSeats);
 
-            await cacheInvalidator.UpdateEventInCacheAsync(domainEvent);
+            await cacheInvalidator.UpdateEventInCacheAsync(new EventInfoDto()
+            {
+                Id = domainEvent.Id,
+                Title = domainEvent.Title,
+                Description = domainEvent.Description,
+                StartAt = domainEvent.StartAt,
+                EndAt = domainEvent.EndAt,
+                TotalSeats = domainEvent.TotalSeats,
+                AvailableSeats = domainEvent.AvailableSeats
+            });
         }
         catch (Exception ex)
         {

@@ -43,28 +43,38 @@ namespace YaEvents.UnitTests
         {
             // Arrange
             var context = CreateInMemoryContext();
-            var cachedEvent = Event.Create("Title", "Test Event Description", DateTime.UtcNow.AddDays(1), DateTime.UtcNow.AddDays(2), 10);
-            var eventId = cachedEvent.Id;
+            var eventId = Guid.NewGuid();
+            var cachedEvent = new EventInfoDto()
+            {
+                Id = eventId,
+                Title = "Title",
+                Description = "Test Event Description",
+                StartAt = DateTime.UtcNow.AddDays(1),
+                EndAt = DateTime.UtcNow.AddDays(2),
+                AvailableSeats = 10,
+                TotalSeats = 10
+            };
 
             var cacheKey = $"event:{eventId}";
 
             var mockCache = new Mock<ICacheService>();
+            mockCache.Setup(c => c.GetAsync<EventInfoDto>(cacheKey)).ReturnsAsync(cachedEvent);
+            var cacheInvalidator = new RedisCacheHelper(mockCache.Object, CreateSettings());
 
-            mockCache.Setup(c => c.GetAsync<Event>(cacheKey)).ReturnsAsync(cachedEvent);
-
-            var repo = new EventRepository(context, mockCache.Object, CreateSettings());
+            var repo = new EventRepository(context);
+            var service = new EventService(repo, mockCache.Object, cacheInvalidator);
 
             // Act
-            var result = await repo.GetEventByIdAsync(eventId, CancellationToken.None);
+            var result = await service.GetEventByIdAsync(eventId, CancellationToken.None);
 
             // Assert
             Assert.Same(cachedEvent, result);
 
             // Проверяем, что кеш был запрошен ровно один раз
-            mockCache.Verify(c => c.GetAsync<Event>(cacheKey), Times.Once);
+            mockCache.Verify(c => c.GetAsync<EventInfoDto>(cacheKey), Times.Once);
 
             // Проверяем, что запись в кеш не производилась (так как был hit)
-            mockCache.Verify(c => c.SetAsync<Event>(It.IsAny<string>(), It.IsAny<Event>(), It.IsAny<TimeSpan>()), Times.Never);
+            mockCache.Verify(c => c.SetAsync<EventInfoDto>(It.IsAny<string>(), It.IsAny<EventInfoDto>(), It.IsAny<TimeSpan>()), Times.Never);
         }
 
         [Fact]
@@ -81,22 +91,24 @@ namespace YaEvents.UnitTests
             var ttl = TimeSpan.FromSeconds(60);
 
             var mockCache = new Mock<ICacheService>();
-            mockCache.Setup(c => c.GetAsync<Event>(cacheKey)).ReturnsAsync((Event?)null);
+            mockCache.Setup(c => c.GetAsync<EventInfoDto>(cacheKey)).ReturnsAsync((EventInfoDto?)null);
+            var cacheInvalidator = new RedisCacheHelper(mockCache.Object, CreateSettings());
 
-            var repo = new EventRepository(context, mockCache.Object, CreateSettings());
+            var repo = new EventRepository(context);
+            var service = new EventService(repo, mockCache.Object, cacheInvalidator);
 
             // Act
-            var result = await repo.GetEventByIdAsync(eventId, CancellationToken.None);
+            var result = await service.GetEventByIdAsync(eventId, CancellationToken.None);
 
             // Assert
             Assert.NotNull(result);
             Assert.Equal(dbEvent.Id, result.Id);
 
-            mockCache.Verify(c => c.GetAsync<Event>(cacheKey), Times.Once);
+            mockCache.Verify(c => c.GetAsync<EventInfoDto>(cacheKey), Times.Once);
 
-            mockCache.Verify(c => c.SetAsync<Event>(
+            mockCache.Verify(c => c.SetAsync<EventInfoDto>(
                 cacheKey,
-                It.Is<Event>(e => e.Id == dbEvent.Id),
+                It.Is<EventInfoDto>(e => e.Id == dbEvent.Id),
                 ttl), Times.Once);
         }
 
@@ -120,10 +132,10 @@ namespace YaEvents.UnitTests
             };
 
             var mockCache = new Mock<ICacheService>();
-            var cacheInvalidator = new RedisCacheInvalidator(mockCache.Object, CreateSettings());
+            var cacheInvalidator = new RedisCacheHelper(mockCache.Object, CreateSettings());
 
-            var repo = new EventRepository(context, mockCache.Object, CreateSettings());
-            var service = new EventService(repo, cacheInvalidator);
+            var repo = new EventRepository(context);
+            var service = new EventService(repo, mockCache.Object, cacheInvalidator);
 
             // Act
             var result = await service.UpdateEventAsync(eventId, updateDto, CancellationToken.None);
@@ -137,10 +149,10 @@ namespace YaEvents.UnitTests
             Assert.NotNull(dbUpdatedEvent);
             Assert.Equal(updatedTitle, dbUpdatedEvent.Title);
 
-            mockCache.Verify(c => c.SetAsync<Event>(
+            mockCache.Verify(c => c.SetAsync<EventInfoDto>(
                 $"event:{eventId}",
-                It.Is<Event>(e => e.Title == updatedTitle),
-                It.IsAny<TimeSpan>()), Times.Exactly(2));
+                It.Is<EventInfoDto>(e => e.Title == updatedTitle),
+                It.IsAny<TimeSpan>()), Times.Once);
         }
 
         [Fact]
@@ -158,15 +170,15 @@ namespace YaEvents.UnitTests
             };
 
             var mockCache = new Mock<ICacheService>();
-            var cacheInvalidator = new RedisCacheInvalidator(mockCache.Object, CreateSettings());
-            var repo = new EventRepository(context, mockCache.Object, CreateSettings());
-            var service = new EventService(repo, cacheInvalidator);
+            var cacheInvalidator = new RedisCacheHelper(mockCache.Object, CreateSettings());
+            var repo = new EventRepository(context);
+            var service = new EventService(repo, mockCache.Object, cacheInvalidator);
 
             // Act & Assert
             await Assert.ThrowsAsync<NotFoundException>(() =>
                 service.UpdateEventAsync(eventId, updateDto, CancellationToken.None));
 
-            mockCache.Verify(c => c.SetAsync<Event>(It.IsAny<string>(), It.IsAny<Event>(), It.IsAny<TimeSpan>()), Times.Never);
+            mockCache.Verify(c => c.SetAsync<EventInfoDto>(It.IsAny<string>(), It.IsAny<EventInfoDto>(), It.IsAny<TimeSpan>()), Times.Never);
         }
 
         [Fact]
@@ -182,10 +194,10 @@ namespace YaEvents.UnitTests
             await context.SaveChangesAsync();
 
             var mockCache = new Mock<ICacheService>();
-            var cacheInvalidator = new RedisCacheInvalidator(mockCache.Object, CreateSettings());
+            var cacheInvalidator = new RedisCacheHelper(mockCache.Object, CreateSettings());
 
-            var repo = new EventRepository(context, mockCache.Object, CreateSettings());
-            var service = new EventService(repo, cacheInvalidator);
+            var repo = new EventRepository(context);
+            var service = new EventService(repo, mockCache.Object, cacheInvalidator);
 
             // Act
             var result = await service.DeleteEventAsync(eventId, CancellationToken.None);

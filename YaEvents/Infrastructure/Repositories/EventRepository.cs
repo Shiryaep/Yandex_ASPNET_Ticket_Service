@@ -1,55 +1,28 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using YaContracts;
 using YaEvents.Application.Repositories;
-using YaEvents.Application.Services;
 using YaEvents.Domain;
 using YaEvents.Infrastructure.DataAccess;
-using YaEvents.Infrastructure.Settings;
 
 namespace YaEvents.Infrastructure.Repositories;
 
-public class EventRepository(
-    AppDbContext db,
-    ICacheService cache,
-    IOptions<RedisCacheSettings> settings) : IEventRepository
+public class EventRepository(AppDbContext db) : IEventRepository
 {
     private readonly AppDbContext _db = db;
-    private readonly ICacheService _cache = cache;
-    private readonly RedisCacheSettings _settings = settings.Value;
 
-    public async Task<Event?> GetEventByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public Task<Event?> GetEventByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var cacheKey = $"event:{id}";
-
-        var cachedVal = await _cache.GetAsync<Event>(cacheKey);
-        if (cachedVal != null)
-            return cachedVal;
-
-        var dbEventVal = await _db.Events.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
-        if (dbEventVal != null)
-            await _cache.SetAsync<Event>(cacheKey, dbEventVal, TimeSpan.FromSeconds(_settings.EventsGetEventByIdTTLSeconds));
-
-        return dbEventVal;
+        return _db.Events.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
     }
 
     public async Task<List<Event>> GetTopEventsAsync(CancellationToken cancellationToken = default)
     {
-        var cacheKey = "events:top10";
-
-        var cachedVal = await _cache.GetAsync<List<Event>>(cacheKey);
-        if (cachedVal != null)
-            return cachedVal;
-
         var topEvents = await _db.Events
                         .Where(e => e.TotalSeats > 0 && e.TotalSeats != e.AvailableSeats)
                         .OrderByDescending(e =>
                         (e.TotalSeats - e.AvailableSeats) / (double)e.TotalSeats)
                         .Take(10)
                         .ToListAsync(cancellationToken: cancellationToken);
-
-        if (topEvents != null)
-            await _cache.SetAsync<List<Event>>(cacheKey, topEvents, TimeSpan.FromMinutes(_settings.EventsGetTopEventsTTLMinutes));
 
         return topEvents ?? [];
     }

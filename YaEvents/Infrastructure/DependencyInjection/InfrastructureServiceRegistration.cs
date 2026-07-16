@@ -87,7 +87,7 @@ namespace YaEvents.Infrastructure.DependencyInjection
             );
 
             services.AddScoped<ICacheService, RedisCacheService>();
-            services.AddScoped<ICacheInvalidator, RedisCacheInvalidator>();
+            services.AddScoped<ICacheHelper, RedisCacheHelper>();
 
             return services;
         }
