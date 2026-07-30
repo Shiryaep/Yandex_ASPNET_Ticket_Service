@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using System.Text;
 
 namespace YaUsers.Presentation.DependencyInjection
@@ -56,6 +59,20 @@ namespace YaUsers.Presentation.DependencyInjection
 
                 options.MapInboundClaims = false;
             });
+
+            services.AddOpenTelemetry()
+                .ConfigureResource(r => r.AddService(serviceName: configuration["OTEL_SERVICE_NAME"] ?? "ya-users"))
+
+                .WithTracing(tracing => tracing
+                    .AddAspNetCoreInstrumentation()
+                    .AddHttpClientInstrumentation()
+                    .AddEntityFrameworkCoreInstrumentation()
+                    .AddOtlpExporter())
+
+                .WithMetrics(metrics => metrics
+                    .AddAspNetCoreInstrumentation()
+                    .AddRuntimeInstrumentation()
+                    .AddPrometheusExporter());
 
             return services;
         }

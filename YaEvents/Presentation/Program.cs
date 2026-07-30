@@ -68,6 +68,7 @@ public partial class Program
         app.UseAuthorization();
 
         //7. Endpoints
+        app.MapPrometheusScrapingEndpoint();
         app.MapControllers();
 
         app.Run();
