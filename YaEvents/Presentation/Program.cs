@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using Serilog;
+using Serilog.Formatting.Compact;
 using System.Text;
 using YaEvents.Application.DependencyInjection;
 using YaEvents.Infrastructure.DataAccess;
@@ -22,6 +24,10 @@ public partial class Program
         builder.Services.AddApplication(builder.Configuration);
         await builder.Services.AddInfrastructure(builder.Configuration);
         builder.Services.AddPresentation(builder.Configuration);
+
+        builder.Host.UseSerilog((ctx, cfg) =>
+        cfg.ReadFrom.Configuration(ctx.Configuration)
+           .WriteTo.Console(new CompactJsonFormatter()));
 
         var app = builder.Build();
 
