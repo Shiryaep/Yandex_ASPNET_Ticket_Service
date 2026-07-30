@@ -1,0 +1,18 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: ya-events
+    static_configs:
+      - targets: ["ya-events:8080"]
+    metrics_path: /metrics
+
+  - job_name: ya-bookings
+    static_configs:
+      - targets: ["ya-bookings:8080"]
+    metrics_path: /metrics
+
+  - job_name: ya-users
+    static_configs:
+      - targets: ["ya-users:8080"]
+    metrics_path: /metrics 
