@@ -1,9 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
-using System;
 
 #nullable disable
 
-namespace Infrastructure.Migrations
+namespace YaEvents.Infrastructure.Migrations
 {
     /// <inheritdoc />
     public partial class InitialCreate : Migration

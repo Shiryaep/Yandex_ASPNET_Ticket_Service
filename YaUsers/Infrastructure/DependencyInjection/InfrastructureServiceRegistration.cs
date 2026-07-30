@@ -1,12 +1,12 @@
-﻿using Application.Repositories;
-using Application.Services.UserServices;
-using Infrastructure.DataAccess;
-using Infrastructure.Repositories;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using YaUsers.Application.Repositories;
+using YaUsers.Application.Services;
+using YaUsers.Infrastructure.DataAccess;
+using YaUsers.Infrastructure.Repositories;
 
-namespace Infrastructure.DependencyInjection
+namespace YaUsers.Infrastructure.DependencyInjection
 {
     public static class InfrastructureServiceRegistration
     {

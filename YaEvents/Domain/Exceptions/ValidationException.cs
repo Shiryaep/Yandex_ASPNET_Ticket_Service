@@ -1,4 +1,4 @@
-namespace Domain.Exceptions;
+namespace YaEvents.Domain.Exceptions;
 
 public class ValidationException : Exception
 {

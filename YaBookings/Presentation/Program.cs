@@ -1,12 +1,12 @@
-using Application.DependencyInjection;
-using Infrastructure.DataAccess;
-using Infrastructure.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
-using Presentation.DependencyInjection;
-using Presentation.Middleware;
 using System.Text;
+using YaBookings.Application.DependencyInjection;
+using YaBookings.Infrastructure.DataAccess;
+using YaBookings.Infrastructure.DependencyInjection;
+using YaBookings.Presentation.DependencyInjection;
+using YaBookings.Presentation.Middleware;
 
-namespace Presentation;
+namespace YaBookings.Presentation;
 
 /// <summary> Basis of all project </summary>
 public partial class Program

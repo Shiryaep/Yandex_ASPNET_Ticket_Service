@@ -1,6 +1,6 @@
 using YaContracts.Enums;
 
-namespace Application.DTO;
+namespace YaUsers.Application.DTO;
 
 public class UserInfoDto
 {

@@ -1,4 +1,4 @@
-namespace Application.DTO;
+namespace YaUsers.Application.DTO;
 
 public class UserLoginDto
 {

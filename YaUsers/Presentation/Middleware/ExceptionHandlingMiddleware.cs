@@ -1,9 +1,9 @@
-using Domain.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Text.Json;
+using YaUsers.Domain.Exceptions;
 
-namespace Presentation.Middleware;
+namespace YaUsers.Presentation.Middleware;
 
 /// <summary>
 /// Middleware for global exception handling

@@ -1,12 +1,12 @@
-﻿using Application.DTO;
-using Application.Services.UserServices;
-using Domain.Exceptions;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using YaUsers.Application.DTO;
+using YaUsers.Application.Services;
+using YaUsers.Domain.Exceptions;
 
-namespace Infrastructure
+namespace YaUsers.Infrastructure
 {
     public class JWTService : IJWTService
     {

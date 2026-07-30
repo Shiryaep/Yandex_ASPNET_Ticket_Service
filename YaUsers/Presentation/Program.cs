@@ -1,12 +1,12 @@
-using Application.DependencyInjection;
-using Infrastructure.DataAccess;
-using Infrastructure.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
-using Presentation.DependencyInjection;
-using Presentation.Middleware;
 using System.Text;
+using YaUsers.Application.DependencyInjection;
+using YaUsers.Infrastructure.DataAccess;
+using YaUsers.Infrastructure.DependencyInjection;
+using YaUsers.Presentation.DependencyInjection;
+using YaUsers.Presentation.Middleware;
 
-namespace Presentation;
+namespace YaUsers.Presentation;
 
 /// <summary> Basis of all project </summary>
 public partial class Program

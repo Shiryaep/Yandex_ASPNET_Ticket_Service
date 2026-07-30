@@ -1,10 +1,10 @@
-using Application.DTO;
-using Application.Repositories;
-using Domain;
-using Domain.Exceptions;
 using YaContracts.Enums;
+using YaUsers.Application.DTO;
+using YaUsers.Application.Repositories;
+using YaUsers.Domain;
+using YaUsers.Domain.Exceptions;
 
-namespace Application.Services.UserServices;
+namespace YaUsers.Application.Services;
 
 public class UserService(IUserRepository userRepository) : IUserService
 {

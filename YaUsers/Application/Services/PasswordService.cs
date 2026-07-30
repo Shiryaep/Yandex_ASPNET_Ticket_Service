@@ -1,7 +1,7 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 
-namespace Application.Services.UserServices
+namespace YaUsers.Application.Services
 {
     public static class PasswordService
     {

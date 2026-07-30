@@ -1,4 +1,4 @@
-namespace Domain.Exceptions;
+namespace YaUsers.Domain.Exceptions;
 
 public class ConfigurationException : Exception
 {

@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using YaContracts;
+﻿using YaContracts;
 
-namespace Infrastructure.HostedServices
+namespace YaEvents.Infrastructure.Settings
 {
     public class KafkaConsumerSettings
     {

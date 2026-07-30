@@ -1,6 +1,4 @@
-using Domain.Exceptions;
-
-namespace Domain;
+namespace YaEvents.Domain;
 
 public class ProcessedBooking
 {

@@ -1,14 +1,14 @@
-﻿using Application.Publishers;
-using Application.Repositories;
-using Confluent.Kafka;
-using Infrastructure.DataAccess;
-using Infrastructure.Publishers;
-using Infrastructure.Repositories;
+﻿using Confluent.Kafka;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using YaBookings.Application.Publishers;
+using YaBookings.Application.Repositories;
+using YaBookings.Infrastructure.DataAccess;
+using YaBookings.Infrastructure.Publishers;
+using YaBookings.Infrastructure.Repositories;
 
-namespace Infrastructure.DependencyInjection
+namespace YaBookings.Infrastructure.DependencyInjection
 {
     public static class InfrastructureServiceRegistration
     {

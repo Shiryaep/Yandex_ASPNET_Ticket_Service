@@ -1,9 +1,9 @@
-﻿using Application.Services.BookingServices;
-using Application.Services.HostedServices;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using YaBookings.Application.Services.BookingServices;
+using YaBookings.Application.Services.HostedServices;
 
-namespace Application.DependencyInjection
+namespace YaBookings.Application.DependencyInjection
 {
     public static class ApplicationServiceRegistration
     {

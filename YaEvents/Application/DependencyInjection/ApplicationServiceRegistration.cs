@@ -1,8 +1,8 @@
-﻿using Application.Services.EventServices;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using YaEvents.Application.Services.EventServices;
 
-namespace Application.DependencyInjection
+namespace YaEvents.Application.DependencyInjection
 {
     public static class ApplicationServiceRegistration
     {

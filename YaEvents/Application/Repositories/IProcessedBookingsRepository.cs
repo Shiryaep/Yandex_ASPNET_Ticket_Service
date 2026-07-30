@@ -1,6 +1,6 @@
-using Domain;
+using YaEvents.Domain;
 
-namespace Application.Repositories;
+namespace YaEvents.Application.Repositories;
 
 public interface IProcessedBookingsRepository
 {

@@ -1,7 +1,7 @@
-using Domain;
 using Microsoft.EntityFrameworkCore;
+using YaUsers.Domain;
 
-namespace Infrastructure.DataAccess;
+namespace YaUsers.Infrastructure.DataAccess;
 
 public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {

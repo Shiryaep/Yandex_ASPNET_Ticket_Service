@@ -1,4 +1,4 @@
-namespace Application.DTO;
+namespace YaEvents.Application.DTO;
 
 public sealed record UpdateEventDto
 {

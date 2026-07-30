@@ -1,9 +1,9 @@
-using Application.DTO;
-using Application.Services.UserServices;
 using Microsoft.AspNetCore.Mvc;
 using YaContracts.Enums;
+using YaUsers.Application.DTO;
+using YaUsers.Application.Services;
 
-namespace Presentation.Controllers;
+namespace YaUsers.Presentation.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]

@@ -1,10 +1,10 @@
-using Application.DTO;
-using Application.Repositories;
-using Domain;
-using Domain.Exceptions;
+using YaBookings.Application.DTO;
+using YaBookings.Application.Repositories;
+using YaBookings.Domain;
+using YaBookings.Domain.Exceptions;
 using YaContracts.Enums;
 
-namespace Application.Services.BookingServices;
+namespace YaBookings.Application.Services.BookingServices;
 
 /// <summary>
 /// Service for managing bookings

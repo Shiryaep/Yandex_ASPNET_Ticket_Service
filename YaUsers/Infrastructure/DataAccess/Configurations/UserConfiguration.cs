@@ -1,8 +1,8 @@
-using Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using YaUsers.Domain;
 
-namespace Infrastructure.DataAccess.Configurations;
+namespace YaUsers.Infrastructure.DataAccess.Configurations;
 
 public class UserConfiguration : IEntityTypeConfiguration<User>
 {

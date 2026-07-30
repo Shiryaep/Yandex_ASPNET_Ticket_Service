@@ -1,7 +1,7 @@
-using Domain.Exceptions;
+using YaBookings.Domain.Exceptions;
 using YaContracts.Enums;
 
-namespace Domain;
+namespace YaBookings.Domain;
 
 /// <summary> Booking entity </summary> 
 public class Booking

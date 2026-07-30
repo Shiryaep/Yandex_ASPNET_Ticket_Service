@@ -1,15 +1,17 @@
-﻿using Application.Repositories;
-using Confluent.Kafka;
-using Domain;
-using Infrastructure.HostedServices;
+﻿using Confluent.Kafka;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Text.Json;
 using YaContracts;
+using YaEvents.Application.DTO;
+using YaEvents.Application.Repositories;
+using YaEvents.Application.Services;
+using YaEvents.Domain;
+using YaEvents.Infrastructure.Settings;
 
-namespace Infrastructure.Consumers;
+namespace YaEvents.Infrastructure.Consumers;
 
 /// <summary>
 /// Фоновый сервис, который подписывается на топик booking-confirmed
@@ -19,27 +21,27 @@ public class BookingConfirmedSubscriber : BackgroundService
 {
     private readonly ILogger<BookingConfirmedSubscriber> _logger;
     private readonly IServiceProvider _serviceProvider;
-    private readonly KafkaConsumerSettings _settings;
     private readonly IConsumer<string, string> _consumer;
+    private readonly KafkaConsumerSettings _settingsKafka;
 
     public BookingConfirmedSubscriber(
         ILogger<BookingConfirmedSubscriber> logger,
         IServiceProvider serviceProvider,
-        IOptions<KafkaConsumerSettings> settings,
-        IConsumer<string, string> consumer)
+        IConsumer<string, string> consumer,
+        IOptions<KafkaConsumerSettings> settingsKafka)
     {
         _logger = logger;
         _serviceProvider = serviceProvider;
-        _settings = settings.Value;
         _consumer = consumer;
+        _settingsKafka = settingsKafka.Value;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _logger.LogInformation("Подписчик BookingConfirmed запущен. Топик: {TopicName}, Группа: {ConsumerGroup}",
-            _settings.Topics.BookingConfirmed, _settings.ConsumerGroup);
+            _settingsKafka.Topics.BookingConfirmed, _settingsKafka.ConsumerGroup);
 
-        _consumer.Subscribe(_settings.Topics.BookingConfirmed);
+        _consumer.Subscribe(_settingsKafka.Topics.BookingConfirmed);
 
         try
         {
@@ -108,6 +110,7 @@ public class BookingConfirmedSubscriber : BackgroundService
         using var scope = _serviceProvider.CreateScope();
         var eventsRepository = scope.ServiceProvider.GetRequiredService<IEventRepository>();
         var processedBookingsRepository = scope.ServiceProvider.GetRequiredService<IProcessedBookingsRepository>();
+        var cacheHelper = scope.ServiceProvider.GetRequiredService<ICacheHelper>();
 
         try
         {
@@ -153,6 +156,17 @@ public class BookingConfirmedSubscriber : BackgroundService
             _logger.LogInformation(
                 "Успешно зарезервировано {SeatsCount} мест для события {EventId}. Осталось: {AvailableSeats}",
                 @event.SeatsCount, @event.EventId, domainEvent.AvailableSeats);
+
+            await cacheHelper.UpdateEventInCacheAsync(new EventInfoDto()
+            {
+                Id = domainEvent.Id,
+                Title = domainEvent.Title,
+                Description = domainEvent.Description,
+                StartAt = domainEvent.StartAt,
+                EndAt = domainEvent.EndAt,
+                TotalSeats = domainEvent.TotalSeats,
+                AvailableSeats = domainEvent.AvailableSeats
+            });
         }
         catch (Exception ex)
         {

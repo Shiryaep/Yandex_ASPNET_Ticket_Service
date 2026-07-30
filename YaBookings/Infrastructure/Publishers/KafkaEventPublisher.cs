@@ -1,8 +1,8 @@
-﻿using Application.Publishers;
-using Confluent.Kafka;
+﻿using Confluent.Kafka;
 using System.Text.Json;
+using YaBookings.Application.Publishers;
 
-namespace Infrastructure.Publishers;
+namespace YaBookings.Infrastructure.Publishers;
 
 public class KafkaEventPublisher : IDomainEventPublisher, IDisposable
 {

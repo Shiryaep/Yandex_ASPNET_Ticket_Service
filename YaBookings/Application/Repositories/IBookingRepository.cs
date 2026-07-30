@@ -1,6 +1,6 @@
-using Domain;
+using YaBookings.Domain;
 
-namespace Application.Repositories;
+namespace YaBookings.Application.Repositories;
 
 public interface IBookingRepository
 {

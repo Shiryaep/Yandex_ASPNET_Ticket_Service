@@ -1,10 +1,10 @@
-using Application.Repositories;
-using Domain;
-using Infrastructure.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using YaContracts;
+using YaEvents.Application.Repositories;
+using YaEvents.Domain;
+using YaEvents.Infrastructure.DataAccess;
 
-namespace Infrastructure.Repositories;
+namespace YaEvents.Infrastructure.Repositories;
 
 public class EventRepository(AppDbContext db) : IEventRepository
 {
@@ -13,6 +13,18 @@ public class EventRepository(AppDbContext db) : IEventRepository
     public Task<Event?> GetEventByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return _db.Events.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+    }
+
+    public async Task<List<Event>> GetTopEventsAsync(CancellationToken cancellationToken = default)
+    {
+        var topEvents = await _db.Events
+                        .Where(e => e.TotalSeats > 0 && e.TotalSeats != e.AvailableSeats)
+                        .OrderByDescending(e =>
+                        (e.TotalSeats - e.AvailableSeats) / (double)e.TotalSeats)
+                        .Take(10)
+                        .ToListAsync(cancellationToken: cancellationToken);
+
+        return topEvents ?? [];
     }
 
     public Task AddEventAsync(Event @event, CancellationToken cancellationToken = default)

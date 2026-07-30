@@ -1,10 +1,10 @@
-using Application.DTO;
-using Application.Services.BookingServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.JsonWebTokens;
+using YaBookings.Application.DTO;
+using YaBookings.Application.Services.BookingServices;
 
-namespace Presentation.Controllers;
+namespace YaBookings.Presentation.Controllers;
 /// <summary>
 /// Controller for managing booking operations
 /// </summary>

@@ -3,8 +3,9 @@ using Confluent.Kafka.Admin;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using YaEvents.Infrastructure.Settings;
 
-namespace Infrastructure.HostedServices;
+namespace YaEvents.Infrastructure.HostedServices;
 
 public class KafkaTopicCreatorHostedService : IHostedService
 {
