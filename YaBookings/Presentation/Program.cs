@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using Serilog;
+using Serilog.Formatting.Compact;
 using System.Text;
 using YaBookings.Application.DependencyInjection;
 using YaBookings.Infrastructure.DataAccess;
@@ -17,11 +19,17 @@ public partial class Program
         Console.OutputEncoding = Encoding.UTF8;
         Console.InputEncoding = Encoding.UTF8;
 
+        Log.Logger = new LoggerConfiguration().WriteTo.Console(new CompactJsonFormatter()).CreateBootstrapLogger();
+
         var builder = WebApplication.CreateBuilder(args);
 
         builder.Services.AddApplication(builder.Configuration);
         builder.Services.AddInfrastructure(builder.Configuration);
         builder.Services.AddPresentation(builder.Configuration);
+
+        builder.Host.UseSerilog((ctx, cfg) =>
+        cfg.ReadFrom.Configuration(ctx.Configuration)
+           .WriteTo.Console(new CompactJsonFormatter()));
 
         var app = builder.Build();
 
@@ -68,6 +76,7 @@ public partial class Program
         app.UseAuthorization();
 
         //7. Endpoints
+        app.MapPrometheusScrapingEndpoint();
         app.MapControllers();
 
         app.Run();

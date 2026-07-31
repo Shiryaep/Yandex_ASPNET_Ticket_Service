@@ -29,7 +29,7 @@ public class EventService(IEventRepository eventRepository,
 
         return new PaginatedResult<EventInfoDto>
         {
-            Items = items.Select(ToInfo).ToArray(),
+            Items = items.Select(EventServiceHelper.ToInfo).ToArray(),
             TotalCount = totalCount,
             Page = page,
             PageSize = pageSize
@@ -46,7 +46,7 @@ public class EventService(IEventRepository eventRepository,
         var @event = await _eventRepository.GetEventByIdAsync(id, cancellationToken)
             ?? throw new NotFoundException("Event not found");
 
-        var infoEvent = ToInfo(@event);
+        var infoEvent = EventServiceHelper.ToInfo(@event);
         await _cacheHelper.UpdateEventInCacheAsync(infoEvent);
 
         return infoEvent;
@@ -60,7 +60,7 @@ public class EventService(IEventRepository eventRepository,
 
         var topEvents = await _eventRepository.GetTopEventsAsync(cancellationToken);
 
-        var result = topEvents.Select(e => ToInfo(e)).ToList();
+        var result = topEvents.Select(e => EventServiceHelper.ToInfo(e)).ToList();
 
         await _cacheHelper.UpdateTopEventsInCacheAsync(result);
 
@@ -73,7 +73,7 @@ public class EventService(IEventRepository eventRepository,
         Event @event = Event.Create(createEvent.Title, createEvent.Description, createEvent.StartAt, createEvent.EndAt, createEvent.TotalSeats);
         await _eventRepository.AddEventAsync(@event, cancellationToken);
         await _eventRepository.SaveChangesAsync(cancellationToken);
-        return ToInfo(@event);
+        return EventServiceHelper.ToInfo(@event);
     }
 
     /// <summary> Update existing event by ID </summary>
@@ -84,7 +84,7 @@ public class EventService(IEventRepository eventRepository,
         @event.Update(updateEvent.Title, updateEvent.Description, updateEvent.StartAt, updateEvent.EndAt);
         await _eventRepository.SaveChangesAsync(cancellationToken);
 
-        var infoEvent = ToInfo(@event);
+        var infoEvent = EventServiceHelper.ToInfo(@event);
         await _cacheHelper.UpdateEventInCacheAsync(infoEvent);
 
         return infoEvent;
@@ -101,15 +101,4 @@ public class EventService(IEventRepository eventRepository,
         await _cacheHelper.DeleteEventFromCacheAsync(@event.Id);
         return true;
     }
-
-    public static EventInfoDto ToInfo(Event @event) => new()
-    {
-        Id = @event.Id,
-        Title = @event.Title,
-        Description = @event.Description,
-        StartAt = @event.StartAt,
-        EndAt = @event.EndAt,
-        TotalSeats = @event.TotalSeats,
-        AvailableSeats = @event.AvailableSeats
-    };
 }
