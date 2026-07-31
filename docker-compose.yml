@@ -29,22 +29,30 @@ services:
       CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'
     networks:
       - microservices-net
+    healthcheck:
+      # cub kafka-ready - утилита Confluent для проверки готовности брокера
+      test: ["CMD-SHELL", "cub kafka-ready -b localhost:9092 1 20 || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 15s # Даем время на инициализацию KRaft
 
   # UI для Apache Kafka от Provectus
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
     container_name: kafka-ui
     depends_on:
-      - kafka
+      kafka:
+        condition: service_healthy
     ports:
       - "8075:8080"  # UI будет доступен на http://localhost:8075
     environment:
       KAFKA_CLUSTERS_0_NAME: local
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092  # Подключаемся по внутреннему адресу Docker
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
     networks:
       - microservices-net
 
-  #Redis
+  # Redis
   redis:
     image: redis:7
     container_name: eventapi-redis
@@ -57,8 +65,9 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+      start_period: 5s
 
-  # Наблюдаемость
+  # Наблюдаемость: Prometheus
   prometheus:
     image: prom/prometheus:v2.51.0
     container_name: eventapi-prometheus
@@ -68,7 +77,14 @@ services:
       - "9090:9090"
     networks:
       - microservices-net
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
 
+  # Наблюдаемость: Jaeger
   jaeger:
     image: jaegertracing/all-in-one:1.56
     container_name: eventapi-jaeger
@@ -79,22 +95,35 @@ services:
       - microservices-net
     environment:
       COLLECTOR_OTLP_ENABLED: "true"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:16686/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
 
+  # Наблюдаемость: Grafana
   grafana:
     image: grafana/grafana:10.4.2
     container_name: eventapi-grafana
     ports:
       - "3000:3000"
     environment:
-      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_PASSWORD}
     networks:
       - microservices-net
     volumes:
       - grafana-data:/var/lib/grafana
       - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
       - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s # Grafana требуется чуть больше времени на инициализацию плагинов и БД
 
-  #Базы данных и админка
+  # Базы данных и админка
   db_events:
     image: postgres:16-alpine
     container_name: postgres_events
@@ -109,6 +138,12 @@ services:
     networks:
       - microservices-net
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
   
   db_bookings:
     image: postgres:16-alpine
@@ -124,6 +159,12 @@ services:
     networks:
       - microservices-net
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   db_users:
     image: postgres:16-alpine
@@ -139,6 +180,12 @@ services:
     networks:
       - microservices-net
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   pgadmin:
     image: dpage/pgadmin4:latest
@@ -154,12 +201,15 @@ services:
     networks:
       - microservices-net
     depends_on:
-      - db_events
-      - db_bookings
-      - db_users
+      db_events:
+        condition: service_healthy
+      db_bookings:
+        condition: service_healthy
+      db_users:
+        condition: service_healthy
     restart: unless-stopped
 
-  #Asp.net приложения
+  # Asp.net приложения
   ya-events:
     build:
       context: .
@@ -172,13 +222,17 @@ services:
       - ConnectionStrings__DefaultConnection=Host=db_events;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
       - ConnectionStrings__Redis=redis:6379
       - Kafka__BootstrapServers=kafka:29092
+      - Jwt__Key=${JWT_KEY}
       - OTEL_SERVICE_NAME=ya-events
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
       - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
     depends_on:
-      - db_events
-      - kafka
-      - redis
+      db_events:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
       - microservices-net
 
@@ -193,12 +247,15 @@ services:
       - ASPNETCORE_ENVIRONMENT=Docker
       - ConnectionStrings__DefaultConnection=Host=db_bookings;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
       - Kafka__BootstrapServers=kafka:29092
+      - Jwt__Key=${JWT_KEY}
       - OTEL_SERVICE_NAME=ya-bookings
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
       - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
     depends_on:
-      - db_bookings
-      - kafka
+      db_bookings:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
     networks:
       - microservices-net
 
@@ -213,12 +270,15 @@ services:
       - ASPNETCORE_ENVIRONMENT=Docker
       - ConnectionStrings__DefaultConnection=Host=db_users;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
       - Kafka__BootstrapServers=kafka:29092
+      - Jwt__Key=${JWT_KEY}
       - OTEL_SERVICE_NAME=ya-users
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
       - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
     depends_on:
-      - db_users
-      - kafka
+      db_users:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
     networks:
       - microservices-net
 

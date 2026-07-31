@@ -7,7 +7,7 @@ COPY . .
 # Восстанавливаем зависимости для YaUsers.Presentation
 RUN dotnet restore "YaUsers/Presentation/YaUsers.Presentation.csproj"
 
-# Публикуем YaBookings.Presentation
+# Публикуем YaUsers.Presentation
 RUN dotnet publish "YaUsers/Presentation/YaUsers.Presentation.csproj" \
     -c Release \
     -o /app/publish \

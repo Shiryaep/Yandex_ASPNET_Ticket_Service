@@ -19,6 +19,8 @@ public partial class Program
         Console.OutputEncoding = Encoding.UTF8;
         Console.InputEncoding = Encoding.UTF8;
 
+        Log.Logger = new LoggerConfiguration().WriteTo.Console(new CompactJsonFormatter()).CreateBootstrapLogger();
+
         var builder = WebApplication.CreateBuilder(args);
 
         builder.Services.AddApplication(builder.Configuration);
